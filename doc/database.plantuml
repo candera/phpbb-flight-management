@@ -1,0 +1,107 @@
+@startuml
+' Taken from https://gist.github.com/QuantumGhost/0955a45383a0b6c0bc24f9654b3cb561
+!define Table(name,desc) class name as "desc" << (T,#FFAAAA) >>
+' we use bold for primary key
+' green color for unique
+' and underscore for not_null
+!define primary_key(x) <b>x</b>
+!define unique(x) <color:green>x</color>
+!define not_null(x) <u>x</u>
+!define foreign_key(x) <color:blue>x</color>
+' other tags available:
+' <i></i>
+' <back:COLOR></color>, where color is a color name or html color code
+' (#FFAACC)
+' see: http://plantuml.com/classes.html#More
+hide methods
+hide stereotypes
+
+' TODO: Add modification/version fields to all of these?
+' TODO: Do any of these need an "active"?
+
+Table(Theaters, "Theaters") {
+  primary_key(Id) INTEGER
+  not_null(TheaterName) NVARCHAR[1024]
+  not_null(TheaterVersion) NVARCHAR[1024]
+  not_null(Active) BOOLEAN
+}
+
+Table(MissionTypes, "MissionTypes") {
+  primary_key(Id) INTEGER
+  not_null(name) NVARCHAR[1024]
+  not_null(active) BOOLEAN
+}
+
+Table(Missions, "Missions") {
+  primary_key(Id) INTEGER
+  not_null(MissionName) NVARCHAR[1024]
+  not_null(MissionDate) DATETIME
+  foreign_key(MissionType)
+  MissionDescription NVARCHAR[MAX]
+  ServerAddress NVARCHAR[1024]
+  not_null(MissionDuration) DURATION
+  foreigh_key(MissionType)
+  foreign_key(MissionTheater)
+  LoadoutFixed BOOLEAN
+  ActualDuration DURATION
+}
+
+Missions::Theater --> Theaters::Id
+Missions::MissionType --> MissionTypes::Id
+
+Table(Packages, "Packages") {
+  primary_key(Id) INTEGER
+  foreign_key(MissionId)
+  PackageNumber INTEGER
+  PackageName NVARCHAR[1024]
+}
+
+Packages::MissionId --> Missions::Id
+
+Table(Roles, "Roles") {
+  primary_key(Id) INTEGER
+  not_null(RoleName) NVARCHAR[1024]
+  not_null(Active) BOOLEAN
+}
+
+Table(Aircraft, "Aircraft") {
+  primary_key(Id) INTEGER
+  not_null(AircraftModel) ???
+  not_null(Active) BOOLEAN
+}
+
+Table(Flights, "Flights") {
+  primary_key(Id) INTEGER
+  foreign_key(PackageId)
+  not_null(Callsign) NVARCHAR[1024]
+  not_null(CallsignNum) INTEGER
+  foreign_key(RoleId)
+  foreign_key(AircraftId)
+  not_null(Seats) INTEGER
+  TakeoffTime FALCON_TIME
+}
+
+Flights::PackageId --> Packages::Id
+Flights::RoleId --> Roles::Id
+Flights::AircraftId --> Aircraft::Id
+
+Table(Participants, "Participants") {
+  foreign_key(SeatId)
+  foreign_key(FlightId)
+  not_null(PilotName)
+  ConfirmedFlown BOOLEAN
+}
+
+' Participants::SeatId --> 
+Participants::FlightId --> Flights::Id
+
+' relationships
+' one-to-one relationship
+' one to may relationship
+' user --> session : "A user may have\n many sessions"
+' many to many relationship
+' Add mark if you like
+' user "1" --> "*" user_group : "A user may be \nin many groups"
+' group "1" --> "0..N" user_group : "A group may \ncontain many users"
+
+@enduml
