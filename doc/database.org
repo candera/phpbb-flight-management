@@ -1,0 +1,72 @@
+* Database
+** ERD
+[[file:database.png][database]]
+** Notes
+*** Seats
+I see at least two ways to do it: either seats are entities in a
+=Seats= table, or they are implicit in the flight. If they are
+implicit in the flight, then we get no enforcement in the schema - it
+would be possible to have someone in seat 5 of a 4-seat flight. Of
+course, that's true if they're reified as well, so I guess that
+constraint has to be in application code either way.
+
+Another way to do things is to have a FlightPartipants table with
+FlightID, Participant, and Seat1-N columns. I'm not a huge fan of this
+because it implies that it will always be the case that there are at
+most N seats in a flight. We could pick a big number like 10, but it
+makes for a sparse data structure which IMO is a sign that things are
+going wrong.
+
+So assuming that we don't want the seats to be columns, we're back to
+having either just a raw number or actual reified seats in a
+FlightSeats table. I'm sort of inclined towards having reified Seats -
+it seems to me that they are in fact first class in the model, and I
+think it might simplify the queries:
+
+All participants in a given flight:
+
+#+BEGIN_SRC sql
+  SELECT s.NUMBER, s.participant
+  FROM Flights AS f
+  INNER JOIN Seats AS s
+  ON s.flightid = f.id
+  WHERE f.id = 1234
+#+END_SRC
+
+This would return a null for participant when no one has signed up,
+which seems reasonable. The only thing that's weird about this is that
+if you ever update the number of seats in the flight to a lower
+number, you might wind up with phantom seats, maybe even occupied,
+unless you delete them.
+
+One advantage of this approach is that we can put a unique constraint
+on the Seats table so that two participants can't have the same seat
+in the same flight. But I guess the same is true with a participants
+table - unique constraint on flight and seat number.
+
+I think I'm leaning in the direction of seat just being a number. An
+application constraint would have to enforce consistency around the
+seat number assigned never being higher than the number of seats in
+the flight, even if it changes.
+
+*** Participants
+
+One issue here is the =PilotName= column. I'd like to see this be a
+foreign key relationship to the users table in the phpBB schema, but
+that would mean that it would be impossible to:
+
+- Sign up anyone that hasn't registered
+- Delete any rows from the users table if there were flight log
+  entries.
+
+I'm not sure how often, if ever, we'd want to do either of these
+things, especially the second one.
+
+Resolved: two columns. MemberPilot is a ref to the phpBB user table.
+NonmemberPilot is just a string. We shouldn't ever need to delete
+users. If we do, we'll have to convert them to nonmember pilots at
+that point.
+
+*** Durations
+
+Need a representation 

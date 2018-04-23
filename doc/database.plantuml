@@ -28,8 +28,8 @@ Table(Theaters, "Theaters") {
 
 Table(MissionTypes, "MissionTypes") {
   primary_key(Id) INTEGER
-  not_null(name) NVARCHAR[1024]
-  not_null(active) BOOLEAN
+  not_null(Name) NVARCHAR[1024]
+  not_null(Active) BOOLEAN
 }
 
 Table(Missions, "Missions") {
@@ -85,15 +85,54 @@ Flights::PackageId --> Packages::Id
 Flights::RoleId --> Roles::Id
 Flights::AircraftId --> Aircraft::Id
 
-Table(Participants, "Participants") {
-  foreign_key(SeatId)
-  foreign_key(FlightId)
-  not_null(PilotName)
+
+Table(phpbbUsers, "phpbbUsers") {
+  primary_key(userid)
+}
+
+
+Table(ScheduledParticipants, "ScheduledParticipants") {
+  not_null(SeatNumber) INTEGER
+  foreign_key(FlightId) NOT NULL
+  foreign_key(MemberPilot) NULL
+  NonmemberPilot NVARCHAR[1024]
+}
+
+ScheduledParticipants::FlightId --> Flights::Id
+ScheduledParticipants::MemberPilot --> phpbbUsers::userid
+
+' Below this point we're into flight log, not ATO
+
+Table(ActualParticipants, "ActualParticipants") {
+  not_null(SeatNumber) INTEGER
+  foreign_key(FlightId) NOT NULL
+  foreign_key(MemberPilot) NULL
+  NonmemberPilot NVARCHAR[1024]
   ConfirmedFlown BOOLEAN
 }
 
-' Participants::SeatId --> 
-Participants::FlightId --> Flights::Id
+ActualParticipants::FlightId --> Flights::Id
+ActualParticipants::MemberPilot --> phpbbUsers::userid
+
+note as PilotNote
+MemberPilot is a ref to the
+phpBB user table. If null,
+NonmemberPilot holds e.g. the
+name of a non-member pilot
+end note
+
+ActualParticipants .. PilotNote
+ScheduledParticipants .. PilotNote
+
+note as ActualParticipantsNote
+This is more about the flight
+log than the ATO, but left in to
+show that they will be separate
+records but will reference some
+of the same data.
+end note
+
+ActualParticipantsNote .. ActualParticipants
 
 ' relationships
 ' one-to-one relationship
