@@ -19,6 +19,10 @@ hide stereotypes
 ' TODO: Add modification/version fields to all of these?
 ' TODO: Do any of these need an "active"?
 
+Table(phpbbUsers, "phpbbUsers") {
+  primary_key(userid)
+}
+
 Table(Theaters, "Theaters") {
   primary_key(Id) INTEGER
   not_null(TheaterName) NVARCHAR[1024]
@@ -34,6 +38,7 @@ Table(MissionTypes, "MissionTypes") {
 
 Table(Missions, "Missions") {
   primary_key(Id) INTEGER
+  foreign_key(Creator) NOT NULL
   not_null(MissionName) NVARCHAR[1024]
   not_null(MissionDate) DATETIME
   foreign_key(MissionType)
@@ -46,6 +51,7 @@ Table(Missions, "Missions") {
   ActualDuration DURATION
 }
 
+Missions::Creator --> phpbbUsers::userid
 Missions::Theater --> Theaters::Id
 Missions::MissionType --> MissionTypes::Id
 
@@ -84,11 +90,6 @@ Table(Flights, "Flights") {
 Flights::PackageId --> Packages::Id
 Flights::RoleId --> Roles::Id
 Flights::AircraftId --> Aircraft::Id
-
-
-Table(phpbbUsers, "phpbbUsers") {
-  primary_key(userid)
-}
 
 
 Table(ScheduledParticipants, "ScheduledParticipants") {
