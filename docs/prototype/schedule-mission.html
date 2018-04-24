@@ -1,0 +1,77 @@
+<html>
+  <head>
+    <title>Schedule a new mission</title>
+  </head>
+  <body>
+    <h1>Schedule a new mission</h1>
+    <form method="post">
+      <table>
+        <tr>
+          <td>
+            <label>Theater</label>
+          </td>
+          <td>
+            <select name="theater">
+              <option value="0">Balkans</option>
+              <option value="1">KTO</option>
+              <option value="2">ITO</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Mission Type</label>
+          </td>
+          <td>
+            <select name="mission-type">
+              <option value="0">Mission Type 1</option>
+              <option value="1">Mission Type 2</option>
+              <option value="2">Mission Type 3</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Mission Time</label>
+          </td>
+          <td>
+            <input type="text" name="mission-time" value="TODO: Good date selector" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Description</label>
+          </td>
+          <td>
+            <textarea name="description"></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Server</label>
+          </td>
+          <td>
+            <input type="text" name="server" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Duration</label>
+          </td>
+          <td>
+            <input type="text" name="duration" value="TODO: Duration selection" />
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <label>Loadout Fixed?</label>
+          </td>
+          <td>
+            <input type="checkbox" name="is-loadout-fixed"/>
+          </td>
+        </tr>
+      </table>
+      <input type="submit" value="Schedule Mission" />
+    </form>
+  </body>
+</html>

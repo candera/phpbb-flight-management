@@ -51,6 +51,12 @@ Table(Missions, "Missions") {
   ActualDuration DURATION
 }
 
+note as LoadoutNote
+Do we need this?
+end note
+
+Missions::LoadoutFixed .. LoadoutNote
+
 Missions::Creator --> phpbbUsers::userid
 Missions::Theater --> Theaters::Id
 Missions::MissionType --> MissionTypes::Id
