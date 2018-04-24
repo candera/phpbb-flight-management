@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>Schedule a new mission</title>
+    <link rel="stylesheet" href="ato.css" />
   </head>
   <body>
     <h1>Schedule a new mission</h1>
@@ -10,7 +11,7 @@
           <td>
             <label>Theater</label>
           </td>
-          <td>
+          <td class="value">
             <select name="theater">
               <option value="0">Balkans</option>
               <option value="1">KTO</option>
@@ -22,7 +23,7 @@
           <td>
             <label>Mission Type</label>
           </td>
-          <td>
+          <td class="value">
             <select name="mission-type">
               <option value="0">Mission Type 1</option>
               <option value="1">Mission Type 2</option>
@@ -34,7 +35,7 @@
           <td>
             <label>Mission Time</label>
           </td>
-          <td>
+          <td class="value">
             <input type="text" name="mission-time" value="TODO: Good date selector" />
           </td>
         </tr>
@@ -42,7 +43,7 @@
           <td>
             <label>Description</label>
           </td>
-          <td>
+          <td class="value">
             <textarea name="description"></textarea>
           </td>
         </tr>
@@ -50,7 +51,7 @@
           <td>
             <label>Server</label>
           </td>
-          <td>
+          <td class="value">
             <input type="text" name="server" />
           </td>
         </tr>
@@ -58,7 +59,7 @@
           <td>
             <label>Duration</label>
           </td>
-          <td>
+          <td class="value">
             <input type="text" name="duration" value="TODO: Duration selection" />
           </td>
         </tr>
@@ -66,7 +67,7 @@
           <td>
             <label>Loadout Fixed?</label>
           </td>
-          <td>
+          <td class="value">
             <input type="checkbox" name="is-loadout-fixed"/>
           </td>
         </tr>
