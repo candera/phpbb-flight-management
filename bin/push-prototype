@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+# Die immediately if any command fails
+set -e
+
+if [[ -z $AWS_ACCESS_KEY_ID || -z $AWS_SECRET_ACCESS_KEY ]]
+then
+    echo "AWS credentials not set."
+    exit 1
+fi
+
+S3_BUCKET_URL=s3://com.440thvfw.prototype
+
+cd $(dirname $0)
+
+aws s3 sync "../docs/prototype/" ${S3_BUCKET_URL}

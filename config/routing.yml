@@ -1,0 +1,3 @@
+ato_index_route:
+    path: /ato
+    defaults: { _controller: 440th.flight_management.controller:handle }
