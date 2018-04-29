@@ -7,7 +7,7 @@
 *
 */
 
-namespace acme\demo\event;
+namespace VFW440\flight_management\event;
 
 /**
 * @ignore
@@ -59,6 +59,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$this->template->assign_vars(array(
 			'ATO_INDEX_PAGE' => $this->helper->route('ato_index_route', array()),
+            'ATO_NEW_MISSION_PAGE' => $this->helper->route('ato_new_mission_route', array()),
 		));
 	}
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace 440th\flight_management\controller;
+namespace VFW440\flight_management\controller;
 
 class main
 {
@@ -35,15 +35,26 @@ class main
 	/**
 	* Controller for route /ato
 	*
-	* @param string		$name
 	* @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
 	*/
-	public function handle($name)
+	public function handle_index()
 	{
 		// $l_message = !$this->config['acme_demo_goodbye'] ? 'DEMO_HELLO' : 'DEMO_GOODBYE';
 		// $this->template->assign_var('DEMO_MESSAGE', $this->user->lang($l_message, $name));
 
 		return $this->helper->render('ato-index.html', '440th VFW ATO');
 	}
+
+	/**
+	* Controller for route /ato/new-mission
+	*
+	* @return \Symfony\Component\HttpFoundation\Response A Symfony Response object
+	*/
+    public function handle_new_mission()
+    {
+        error_log("hi there");
+		// return $this->helper->render('ato-new-mission.html', '440th VFW ATO');
+        return new \Symfony\Component\HttpFoundation\JsonResponse(); 
+    }       
 
 }

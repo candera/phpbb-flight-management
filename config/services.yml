@@ -1,12 +1,15 @@
 services:
-  440th.flight_management.controller:
-    class: 440th\flight_management\controller\main
-    arguments:
-      - '@config'
-      - '@controller.helper'
-      - '@language'
-      - '@template'
- 440th.flight_management.listener:
-   class: 440th\flight_management\event\main_listener
-   tags:
-     - { name: event.listener }
+    VFW440.flight_management.controller:
+        class: VFW440\flight_management\controller\main
+        arguments:
+            - '@config'
+            - '@controller.helper'
+            - '@template'
+            - '@user'
+    VFW440.flight_management.listener:
+        class: VFW440\flight_management\event\main_listener
+        arguments:
+            - '@controller.helper'
+            - '@template'
+        tags:
+            - { name: event.listener }

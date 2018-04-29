@@ -1,3 +1,7 @@
 ato_index_route:
     path: /ato
-    defaults: { _controller: 440th.flight_management.controller:handle }
+    defaults: { _controller: VFW440.flight_management.controller:handle_index }
+
+ato_new_mission_route:
+    path: /ato/new-mission
+    defaults: { _controller: VFW440.flight_management.controller:handle_new_mission }

@@ -47,8 +47,9 @@ Table(Missions, "Missions") {
   not_null(MissionDuration) DURATION
   foreigh_key(MissionType)
   foreign_key(MissionTheater)
-  LoadoutFixed BOOLEAN
+  ' LoadoutFixed BOOLEAN
   ActualDuration DURATION
+  not_null(Published) BOOLEAN
 }
 
 note as LoadoutNote
