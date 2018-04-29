@@ -5,3 +5,7 @@ ato_index_route:
 ato_new_mission_route:
     path: /ato/new-mission
     defaults: { _controller: VFW440.flight_management.controller:handle_new_mission }
+
+api:
+  path: /vfw440/api/query
+  defaults: { _controller: VFW440.flight_management.controller:handle_api_query }

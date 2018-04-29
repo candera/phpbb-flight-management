@@ -1,0 +1,35 @@
+* Flight Management API
+
+** Query for Mission Types
+*** Request
+
+URL: /vfw440/api/query
+
+- [ ] Do we want to have a WHERE clause?
+  - Seems like we might be able to get by with virtual "views".
+
+#+BEGIN_SRC javascript
+  {
+      "from" : "missiontypes",
+      "select" : ["Id", "Name" ],
+      "where" : [["=" "Active" true]]
+  }
+#+END_SRC
+
+*** Response
+
+- [ ] What about pagination? Necessary?
+
+#+BEGIN_SRC javascript
+  {
+      "Results" :
+      [
+          {"Id": 1
+           "Name": "Foo"},
+          {"Id": 2,
+           "Name": "Bar"}
+      ],
+      "Errors" : [],
+      "Warnings" : []
+  }
+#+END_SRC

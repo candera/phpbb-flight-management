@@ -6,6 +6,7 @@ services:
             - '@controller.helper'
             - '@template'
             - '@user'
+            - '@dbal.conn'
     VFW440.flight_management.listener:
         class: VFW440\flight_management\event\main_listener
         arguments:
