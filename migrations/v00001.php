@@ -117,8 +117,8 @@ class v00001 extends \phpbb\db\migration\migration
 
         $this->run_sql("CREATE TABLE vfw440_theaters (
   Id INT UNSIGNED AUTO_INCREMENT,
-  TheaterName NVARCHAR(1024) NOT NULL,
-  TheaterVersion NVARCHAR(1024) NOT NULL,
+  Name NVARCHAR(1024) NOT NULL,
+  Version NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );");
