@@ -39,14 +39,13 @@ Table(MissionTypes, "MissionTypes") {
 Table(Missions, "Missions") {
   primary_key(Id) INTEGER
   foreign_key(Creator) NOT NULL
-  not_null(MissionName) NVARCHAR[1024]
-  not_null(MissionDate) DATETIME
-  foreign_key(MissionType)
-  MissionDescription NVARCHAR[MAX]
+  not_null(Name) NVARCHAR[1024]
+  not_null(Date) DATETIME
+  foreign_key(Type)
+  Description NVARCHAR[MAX]
   ServerAddress NVARCHAR[1024]
-  not_null(MissionDuration) DURATION
-  foreigh_key(MissionType)
-  foreign_key(MissionTheater)
+  not_null(Duration) DURATION
+  foreign_key(Theater)
   ' LoadoutFixed BOOLEAN
   ActualDuration DURATION
   not_null(Published) BOOLEAN

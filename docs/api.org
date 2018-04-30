@@ -1,9 +1,18 @@
+
 * Flight Management API
+
+** Status
+
+After thinking about this a bunch (notes below), I decided that it
+just makes more sense to go with forms. The API I want looks a lot
+like GraphQL and is therefore fairly complicated to implement in a
+language I'm not that familiar with. Besides, I can always come back
+and implement it later. So for now: forms.
 
 ** Query for Mission Types
 *** Request
 
-URL: /vfw440/api/query
+URL: /app.php/vfw440/api/query
 
 - [ ] Do we want to have a WHERE clause?
   - Seems like we might be able to get by with virtual "views".
@@ -31,5 +40,145 @@ URL: /vfw440/api/query
       ],
       "Errors" : [],
       "Warnings" : []
+  }
+#+END_SRC
+
+** Query for Flight
+
+*** Request
+
+URL: /app.php/vfw440/api/query
+
+#+BEGIN_SRC javascript
+  {
+      "from": "flights",
+      "select": ["Id", "Whatever"],
+      "where": ["=", "Id", 1234]
+  }
+#+END_SRC
+
+- We're definitely going to want paging - responses will get huge once
+  there are a lot of things.
+- Seems like we might wind up needing something more sophisticated for
+  query expressions.
+- [ ] Do we need joins? E.g. "All flights in this mission"? Or can we
+  live with multiple round trips?
+  - Something like GraphQL would be nice.
+
+#+BEGIN_SRC javascript
+  {
+      "from": "mission"
+      "select": ["Id",
+                 {
+                     "Package":
+                     [
+                         "Id",
+                         "Name",
+                         "Flight":
+                         [
+                             "Id", "Name", "Seats"
+                         ]
+                     ]
+                 },
+      "where": ["and" ["=" "Id" 1234] ["<" "Date" "2018-01-01" ]]
+  }
+#+END_SRC
+
+This has some problems:
+
+- We don't have any way to indicate identifiers separate from
+  literals. So ="Date"= and ="2018-01-01"= look the same to the
+  interpreter. Could do something like ={"Identifier": "Date"}= but it
+  would be more verbose.
+- There's no way to filter in the subqueries. So you can't select all
+  the missions that have a package that has a flight with more than
+  two seats. Could do something like =["Flight" "Seats"]= for
+  identifiers in that case.
+- Really starting to look a lot like GraphQL...
+
+Might return this:
+
+#+BEGIN_SRC javascript
+  {
+      "Id": 1234,
+      "Package": [{"Id": 345,
+                   "Name": "foo"},
+                  {"Id": 566,
+                   "Name": "bar"}]
+  }
+#+END_SRC
+
+
+** Save Mission
+
+*** Request
+
+URL: /app.php/vfw440/api/write
+
+#+BEGIN_SRC javascript
+  [
+      {
+          "Id": "Mission1",
+          "Type": "Mission",
+          "Data" :
+          {
+              "Name" : "A name",
+              "Date" : "2018-04-29T13:30Z",
+              "Type" : 3,
+              "Description": "The description",
+              "ServerAddress" : "Zeus's Server",
+              "Duration" : 1234,
+              "Theater" : 7,
+              "Published": false
+          }
+      },
+      {
+          "Id" : "Package1",
+          "Type" : "Package",
+          "Data" :
+          {
+              "Mission": "Mission1",
+              "Number": 1234,
+              "Name": "Optional"
+          }
+      },
+      {
+          "Id": "Flight1",
+          "Type": "Flight",
+          "Data":
+          {
+              "Package": "Package1",
+              "Callsign": "Rainbow",
+              "CallsignNum": 6,
+              "Role": 7,
+              "Aircraft": 43,
+              "Seats": 4,
+              "TakeoffTime": 1234
+          }
+      }
+  ]
+#+END_SRC
+
+- Ids can be numbers or strings. Strings serve as temp IDs and can
+  relate non-existent entities as long as they are present in the
+  write request.
+- Writes are performed in order, but in a transaction.
+
+*** Response
+
+#+BEGIN_SRC javascript
+  {
+      "Results": [
+          {
+              "Ids":
+              {
+                  "Mission1": 1234,
+                  "Package1": 5678,
+                  "Flight1": 7345
+              }
+          }
+      ],
+      "Errors": [],
+      "Warnings": []
   }
 #+END_SRC
