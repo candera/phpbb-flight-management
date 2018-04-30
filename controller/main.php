@@ -71,8 +71,17 @@ class main
             "MissionTypes" =>
             array("Table" => "vfw440_MissionTypes",
                   "Columns" =>
-                  array("Name" => "Name",
-                        "Id" => "Id"),
+                  array("Id" => "Id",
+                        "Name" => "Name",
+                        ),
+                  "Filter" => "Active = true"),
+            "Theaters" =>
+            array("Table" => "vfw440_Theaters",
+                  "Columns" =>
+                  array("Id" => "Id",
+                        "Name" => "Name",
+                        "Version" => "Version",
+                        ),
                   "Filter" => "Active = true"));
     
     public function handle_api_query()
