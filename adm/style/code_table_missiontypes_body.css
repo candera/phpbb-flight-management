@@ -1,0 +1,23 @@
+.missiontypes table {
+    width: auto;
+}
+
+.missiontypes .title {
+    margin-bottom: 0.5em;
+    font-weight: bold;
+    font-size: 120%;
+}
+
+.missiontypes .id {
+}
+
+.missiontypes .name input {
+    width: 200px;
+}
+
+.missiontypes .active {
+    text-align: center;
+}
+
+.missiontypes .save {
+}

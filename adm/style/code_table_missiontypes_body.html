@@ -1,0 +1,51 @@
+<!-- -*- mode: web -*- -->
+<!-- INCLUDE overall_header.html -->
+<!-- INCLUDECSS code_table_missiontypes_body.css -->
+
+<h1>{L_SETTINGS}</h1>
+
+<fieldset class="missiontypes">
+    <div class="title">
+        Edit Mission Types
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <td>ID</td>
+                <td>Name</td>
+                <td>Active?</td>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- BEGIN tablerow -->
+            <tr>
+                <td class="id">
+                    <label>{tablerow.Id}</label>
+                    <form id="form{tablerow.Id}" method="POST">
+                        <input type="hidden" name="id" value="{tablerow.Id}" />	
+                        {S_FORM_TOKEN}
+                    </form>
+                </td>
+                <td class="name">
+                    <input form="form{tablerow.Id}" type="text" name="name" value="{tablerow.Name}" />
+                </td>
+                <td class="active">
+                    <input form="form{tablerow.Id}" type="checkbox" name="active"
+                           {% if tablerow.Active %} checked="checked" {% endif %} />
+                </td>
+                <td class="save">
+                    <input form="form{tablerow.Id}" type="submit" name="update" value="Save" />
+                </td>
+            </tr>
+            <!-- END tablerow -->
+        </tbody>
+    </table>
+    <form id="formnew" method="POST">
+        <input type="hidden" name="id" value="new" />
+        <input form="formnew" type="submit" name="addnew" value="Add New" />
+        {S_FORM_TOKEN}
+    </form>
+    <div>{MESSAGE}</div>
+</fieldset>
+
+<!-- INCLUDE overall_footer.html -->

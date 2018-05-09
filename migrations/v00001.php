@@ -84,6 +84,24 @@ class v00001 extends \phpbb\db\migration\migration
         // return array(array('permission.add', array('u_schedule_mission')));
         return array(
             array('custom', array(array($this, 'create_tables'))),
+
+            // Add a parent module to the Extensions tab (ACP_CAT_DOT_MODS)
+            array('module.add', array(
+                'acp',
+                'ACP_CAT_DOT_MODS',
+                'ACP_VFW440_FM_CODE_TABLES_TITLE'
+            )),
+
+            // Add our modules to the parent module
+            array('module.add', array(
+                'acp',
+                "ACP_VFW440_FM_CODE_TABLES_TITLE",
+                array(
+                    'module_basename'       => '\VFW440\flight_management\acp\code_tables_module',
+                    'modes'                 => array('theaters', 'missiontypes'),
+                ),
+            )),
+
         );
     }
 
@@ -100,7 +118,7 @@ class v00001 extends \phpbb\db\migration\migration
         $rows = $this->sql_query($sql);
         if ($rows != 1)
         {
-            throw new \Exception("failure executing SQL: " . $this->errors);
+            throw new \Exception("failure executing SQL: " . implode("\n", $this->errors));
         }
     }
     
