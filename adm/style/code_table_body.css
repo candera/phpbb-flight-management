@@ -1,5 +1,6 @@
 .missiontypes table {
     width: auto;
+    margin-bottom: 0.5em;
 }
 
 .missiontypes .title {

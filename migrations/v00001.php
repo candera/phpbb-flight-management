@@ -98,7 +98,8 @@ class v00001 extends \phpbb\db\migration\migration
                 "ACP_VFW440_FM_CODE_TABLES_TITLE",
                 array(
                     'module_basename'       => '\VFW440\flight_management\acp\code_tables_module',
-                    'modes'                 => array('theaters', 'missiontypes'),
+                    // TODO: Some day pull these from MODE_SCHEMAS
+                    'modes'                 => array('theaters', 'missiontypes', 'roles'),
                 ),
             )),
 

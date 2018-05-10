@@ -26,6 +26,11 @@ class code_tables_info
 					'auth'	=> 'ext_VFW440/flight_management',
 					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
 				),
+                'roles'	=> array(
+					'title'	=> 'ACP_VFW440_FM_ROLES_TITLE',
+					'auth'	=> 'ext_VFW440/flight_management',
+					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
+				),
 
 			),
 		);
