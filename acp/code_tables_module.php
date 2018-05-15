@@ -56,15 +56,15 @@ class code_tables_module
     function execute_sql($sql)
     {
         global $db;
-        
+
         error_log("sql: ". $sql);
 
         return $db->sql_query($sql);
     }
-    
-	function main($id, $mode)
-	{
-		global $config, $db, $request, $template, $user;
+
+    function main($id, $mode)
+    {
+        global $config, $db, $request, $template, $user;
 
         $schema = MODE_SCHEMAS[$mode];
 
@@ -82,23 +82,24 @@ class code_tables_module
 
         if ($request->is_set_post('addnew'))
         {
-			if (!check_form_key('VFW440/flight_management'))
-			{
-				trigger_error('FORM_INVALID');
-			}
+            if (!check_form_key('VFW440/flight_management'))
+            {
+                trigger_error('FORM_INVALID');
+            }
 
-            $sql = "insert into " 
+            $sql = "insert into "
                  . $schema["table"]
                  . $db->sql_build_array("INSERT", $schema["addnew-data"]);
 
-            $this->execute_sql($sql);
+            $db->sql_freeresult($this->execute_sql($sql));
+
         }
         else if ($request->is_set_post('update'))
         {
             if (!check_form_key('VFW440/flight_management'))
-			{
-				trigger_error('FORM_INVALID');
-			}
+            {
+                trigger_error('FORM_INVALID');
+            }
 
             // error_log("variable_names:" . implode(", ", $request->variable_names()));
 
@@ -115,7 +116,7 @@ class code_tables_module
             foreach ($input_map as $id => $vals)
             {
                 $params = $this->update_params($schema["column-types"], $vals);
-                $sql = "update " 
+                $sql = "update "
                      . $schema["table"]
                      . " set "
                      . $db->sql_build_array("UPDATE", $params)
@@ -123,37 +124,39 @@ class code_tables_module
                      . $db->sql_escape($id)
                      ;
 
-                $this->execute_sql($sql);
+                $db->sql_freeresult($this->execute_sql($sql));
             }
         }
 
-		$user->add_lang('acp/common');
+        $user->add_lang('acp/common');
         // TODO: Eventually make the template generic
-		$this->tpl_name = "code_table_body";
-		$this->page_title = $user->lang('ACP_VFW440_FM_CODE_TABLES_TITLE');
+        $this->tpl_name = "code_table_body";
+        $this->page_title = $user->lang('ACP_VFW440_FM_CODE_TABLES_TITLE');
 
-        $sql = "select " 
-             . implode(", ", $schema["columns"])                                    
+        $sql = "select "
+             . implode(", ", $schema["columns"])
              . " from "
              . $schema["table"];
-        
+
         $result = $this->execute_sql($sql);
 
         $template->assign_vars(["TITLE" =>  $schema["title"]]);
-                                
+
         while ($row = $db->sql_fetchrow($result))
         {
             $template->assign_block_vars('tablerow', $row);
         }
+
+        $db->sql_freeresult($result);
 
         foreach ($schema["column-types"] as $colname => $coltype)
         {
             $template->assign_block_vars('tablecol', array("Name" => $colname,
                                                            "Type" => $coltype));
         }
-        
+
         add_form_key('VFW440/flight_management');
 
-	}
+    }
 
 }

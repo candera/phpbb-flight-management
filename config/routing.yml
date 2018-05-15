@@ -2,10 +2,14 @@ ato_index_route:
     path: /ato
     defaults: { _controller: VFW440.flight_management.controller:handle_index }
 
-ato_new_mission_route:
-    path: /ato/new-mission
-    defaults: { _controller: VFW440.flight_management.controller:handle_new_mission }
+ato_display_mission_route:
+  path: /ato/mission/{missionid}
+  defaults: { _controller: VFW440.flight_management.controller:handle_show_mission }
+  
+ato_edit_mission_route:
+  path: /ato/mission/{missionid}/edit
+  defaults: { _controller: VFW440.flight_management.controller:handle_edit_mission }
 
-api:
-  path: /vfw440/api/query
-  defaults: { _controller: VFW440.flight_management.controller:handle_api_query }
+# api:
+#   path: /vfw440/api/query
+#   defaults: { _controller: VFW440.flight_management.controller:handle_api_query }

@@ -1,14 +1,44 @@
 <!-- INCLUDECSS @VFW440_flight_management/ato.css -->
+<!-- INCLUDECSS fullcalendar.css -->
 
 <!-- INCLUDE overall_header.html -->
 
+<!-- INCLUDEJS lib/moment.min.js -->
+<!-- INCLUDEJS fullcalendar.js -->
+<!-- INCLUDEJS ato-index.js -->
+
 <h1>440th VFW ATO</h1>
 <div class="extra-bottom-margin">
-  <a class="ato-button" href="{ATO_NEW_MISSION_PAGE}">Schedule a new mission</a>
-  <div>TODO: Display mission schedule. A list? A calendar view?</div>
-  <div>I sort of liked that app that whatshisname made, where it
-    showed the week in your local time zone as a kind of a grid with
-    flights were coming up on it, a bit like Google Calendar.</div>
+    <!-- IF SHOW_SCHEDULE_MISSION -->
+    <a class="ato-button" href="{ATO_NEW_MISSION_PAGE}">Schedule a new mission</a>
+    <!-- ENDIF -->
+
+  <div id="ato-calendar"></div>
+
+  <script>
+   atoEventData = 
+       [
+           {
+               title  : 'FNPU #1',
+               start  : '2018-05-12T01:30Z',
+               end    : '2018-05-12T03:30Z',
+               url    : 'missions/1234.html'
+           },
+           {
+               title  : 'FNPU #2',
+               start  : '2018-05-18T21:30-04:00',
+               end    : '2018-05-18T23:30-04:00',
+               url    : 'missions/2345.html'
+           },
+           {
+               title  : 'FNPU #3',
+               start  : '2018-05-25T21:30-04:00',
+               end    : '2018-05-25T23:30-04:00',
+               url    : 'missions/4567.html'               
+           }
+       ];
+  </script>
+
 </div>
 
 <!-- INCLUDE overall_footer.html -->

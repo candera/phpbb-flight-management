@@ -9,6 +9,44 @@ a.ato-button {
     padding: 0.2em 0.4em;
 }
 
-.extra-bottom-margin {
+.extra-margin-bottom {
+}
+
+.error {
+    font-color: red;
+    font-style: italic;
+}
+
+.value {
+    width: auto;
+}
+
+.mission-editor {
     margin-bottom: 2em;
+}
+
+.mission-editor table {
+    border-collapse: separate;
+    border-spacing: 5px 5px;
+}
+
+.mission-editor .field-label {
+    vertical-align: top;
+}
+
+.mission-editor .value textarea {
+    width: 100%;
+}
+
+.mission-editor .value select {
+    width: 100%;
+}
+
+.mission-editor .value input {
+    width: 100%;
+}
+
+.mission-editor fieldset.package {
+    border: solid 1px lightgrey;
+    padding: 4px 7px;
 }

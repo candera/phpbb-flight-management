@@ -103,6 +103,12 @@ class v00001 extends \phpbb\db\migration\migration
                 ),
             )),
 
+            // Permission to schedule a new mission
+            array('permission.add', array('u_schedule_mission')),
+
+            // Set permissions
+			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_schedule_mission')),
+			array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_schedule_mission')),
         );
     }
 

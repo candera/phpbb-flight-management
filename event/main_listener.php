@@ -24,6 +24,8 @@ class main_listener implements EventSubscriberInterface
 		return array(
 			'core.user_setup'	=> 'load_language_on_setup',
 			'core.page_header'	=> 'add_page_header_link',
+            'core.permissions'  => 'load_permission_language',
+
 		);
 	}
 
@@ -59,7 +61,18 @@ class main_listener implements EventSubscriberInterface
 	{
 		$this->template->assign_vars(array(
 			'ATO_INDEX_PAGE' => $this->helper->route('ato_index_route', array()),
-            'ATO_NEW_MISSION_PAGE' => $this->helper->route('ato_new_mission_route', array()),
+            'ATO_NEW_MISSION_PAGE' => $this->helper->route('ato_edit_mission_route', array('missionid' => 'new')),
 		));
 	}
+
+    /**
+	 * @param \phpbb\event\data $event
+	 */
+	public function load_permission_language(\phpbb\event\data $event)
+	{
+		$permissions = $event['permissions'];
+		$permissions['u_schedule_mission']	= array('lang' => 'ACL_U_SCHEDULE_MISSION', 'cat' => 'misc');
+		$event['permissions'] = $permissions;
+	}
+
 }

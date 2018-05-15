@@ -1,0 +1,126 @@
+<!-- INCLUDECSS @VFW440_flight_management/ato.css -->
+
+<!-- INCLUDE overall_header.html -->
+
+<h1>Edit a mission</h1>
+<div class="mission-editor">
+    <form method="post">
+        <table>
+            <tr>
+                <td class="field-label">
+                    <label>Published?</label>
+                </td>
+                <td class="value">
+                    <input type="checkbox" name="published"
+                        <!-- IF PUBLISHED -->
+                        checked="checked"
+                        <!-- ENDIF -->
+                        />
+                </td>
+                <td class="error"></td>                    
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Mission Name</label>
+                </td>
+                <td class="value">
+                    <input type="text" name="missionname" value="{MISSIONNAME}" />
+                </td>
+                <td class="error">{NAME_ERROR}</td>                    
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Theater</label>
+                </td>
+                <td class="value">
+                    <select name="theater">
+                        <!-- BEGIN theaters -->
+                        <option value="{theaters.Id}"
+                            <!-- IF theaters.Id == THEATER -->
+                            selected="selected"
+                            <!-- ENDIF -->
+                        >{theaters.Name} {theaters.Version}</option>
+                        <!-- END theaters -->
+                    </select>
+                </td>
+                <td class="error">{THEATER_ERROR}</td>                    
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Mission Type</label>
+                </td>
+                <td class="value">
+                    <select name="missiontype">
+                        <!-- BEGIN missiontypes -->
+                        <option value="{missiontypes.Id}"
+                            <!-- IF missiontypes.Id == MISSIONTYPE -->
+                            selected="selected"
+                            <!-- ENDIF -->
+                        >{missiontypes.Name}</option>
+                        <!-- END missiontypes -->
+                    </select>
+                </td>
+                <td class="error">{MISSIONTYPE_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Mission Time</label>
+                </td>
+                <td class="value">
+                    <input type="text" name="mission-time" value="{MISSIONTIME}" />
+                </td>
+                <td class="error">{MISSIONTIME_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Description</label>
+                </td>
+                <td class="value">
+                    <textarea name="description">{DESCRIPTION}</textarea>
+                </td>
+                <td class="error">{DESCRIPTION_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Server</label>
+                </td>
+                <td class="value">
+                    <input type="text" name="server" value="{SERVER}" />
+                </td>
+                <td class="error">{SERVER_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Duration</label>
+                </td>
+                <td class="value">
+                    <input type="text" name="duration" value="{DURATION}" />
+                </td>
+                <td class="error">{DURATION_ERROR}</td>
+            </tr>
+        </table>
+        <!-- BEGIN packages -->
+        <fieldset class="package">
+            <legend>Package {packages.Number}</legend>
+            <table>
+                <tr>
+                    <td class="field-label">Package Name</td>
+                    <td class="value">
+                        <input type="text" name="packages[{packages.Id}][Name]" value="{packages.Name}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="field-label">Package Number</td>
+                    <td class="value">
+                        <input type="text" name="packages[{packages.Id}][Number]" value="{packages.Number}" />
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+        <!-- END packages -->
+        <input name="add-package" type="submit" value="Add Package" style="display:block" />
+        <input name="save" type="submit" value="Save" />
+    </form>
+</div>
+
+<!-- INCLUDE overall_footer.html -->
