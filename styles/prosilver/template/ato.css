@@ -46,7 +46,27 @@ a.ato-button {
     width: 100%;
 }
 
+.mission-editor .value input.durationpicker-duration {
+    width: auto;
+}
+
 .mission-editor fieldset.package {
     border: solid 1px lightgrey;
     padding: 4px 7px;
+}
+
+.mission-editor td[1] {
+    width: 250px;
+}
+
+.mission-editor .datetimefields input,select {
+    display: inline-block;
+    width: 47%;
+    margin-right: 5px;
+}
+
+.mission-editor #mission-time-utc {
+    color: grey;
+    font-style: italic;
+    font-size: 90%;
 }

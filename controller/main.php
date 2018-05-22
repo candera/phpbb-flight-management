@@ -5,6 +5,7 @@ namespace VFW440\flight_management\controller;
 use \Symfony\Component\HttpFoundation\JsonResponse;
 use \Symfony\Component\HttpFoundation\Response;
 use \Symfony\Component\HttpFoundation\RedirectResponse;
+use \VFW440\flight_management\helper\Util;
 
 class main
 {
@@ -58,7 +59,7 @@ class main
         
         $sql = "select "
              . implode(", ", $columns)
-             . " from vfw440_{$table} where active = b'1'";
+             . " from " . Util::fm_table_name($table) . " where active = b'1'";
         $result = $this->execute_sql($sql);
 
         $data = array();
@@ -111,7 +112,7 @@ class main
     {
         global $db;
         
-        $result = $this->execute_sql("select Published, Name, Theater, Type, Date, Description, ServerAddress, ScheduledDuration from vfw440_missions where Id = " . $db->sql_escape($missionid));
+        $result = $this->execute_sql("select Published, Name, Theater, Type, Date, Description, ServerAddress, ScheduledDuration from " . Util::fm_table_name("missions") . " where Id = " . $db->sql_escape($missionid));
 
         $row = $db->sql_fetchrow($result);
         
@@ -148,7 +149,7 @@ class main
     
     public function handle_edit_mission($missionid)
     {
-        global $auth, $db, $request, $template, $user;
+        global $auth, $config, $db, $request, $template, $user;
 
         if ($missionid == "new")
         {
@@ -159,7 +160,7 @@ class main
         }
         else
         {
-            $result = $this->execute_sql("select Creator from vfw440_missions where Id = {$missionid}");
+            $result = $this->execute_sql("select Creator from " . Util::fm_table_name("missions") . " where Id = {$missionid}");
 
             $creator = $db->sql_fetchfield("Creator");
 
@@ -180,6 +181,8 @@ class main
         $roles = $this->read_code_table("roles", [ "Id", "Name" ]);
 
         $missiondata = null;
+
+        $packagedata = array();
         
         if ($request->is_set_post("save") || $request->is_set_post("add-package"))
         {
@@ -224,6 +227,40 @@ class main
                 $template->assign_var("MISSIONTYPE_ERROR", "Invalid mission type");
             }
 
+            $timezone = null;
+            try
+            {
+                $timezone = new \DateTimeZone($request->variable("mission-timezone", ""));
+                $user->set_cookie("mission-timezone", $timezone->getName(), time()+10*365*24*60*60);
+            }
+            catch (\Exception $x)
+            {
+                $valid = false;
+                $template->assign_var("MISSIONTIMEZONE_ERROR", "Invalid timezone");
+            }
+
+            $parseddate = null;
+            try
+            {
+                $date = $request->variable("mission-date", "");
+                $time = $request->variable("mission-time", "");
+                
+                if (empty($date) || empty($time))
+                {
+                    $valid = false;
+                    $template->assign_var("MISSIONDATETIME_ERROR", "Invalid date/time");                        
+                }
+                else if ($timezone != null)
+                {
+                    $parseddate = new \DateTime("${date} ${time}", $timezone);
+                }
+            }
+            catch (\Exception $x)
+            {
+                $valid = false;
+                $template->assign_var("MISSIONDATETIME_ERROR", "Invalid date/time");
+            }
+
             // TODO: More validation
 
             if ($valid)
@@ -242,7 +279,9 @@ class main
                 if ($missionid == "new")
                 {
                     $params["Creator"] = $user->data["user_id"];
-                    $sql = "INSERT INTO vfw440_missions "
+                    $sql = "INSERT INTO "
+                         . Util::fm_table_name("missions")
+                         . " "
                          . $db->sql_build_array("INSERT", $params);
                     $result = $this->execute_sql($sql);
                     $missionid = $db->sql_nextid();
@@ -252,7 +291,9 @@ class main
                 }
                 else
                 {
-                    $sql = "UPDATE vfw440_missions SET "
+                    $sql = "UPDATE "
+                         . Util::fm_table_name("missions")
+                         . " SET "
                          . $db->sql_build_array("UPDATE", $params)
                          . " WHERE Id = " . $db->sql_escape($missionid);
                     $db->sql_freeresult($this->execute_sql($sql));
@@ -262,12 +303,14 @@ class main
             }
             else
             {
+                // Turn the existing data back around - it's invalid
                 $missiondata = array(
                     "PUBLISHED" => $request->variable("published", "off") == "on" ? true : false,
                     "MISSIONNAME" => $request->variable("missionname", "Mission name"),
                     "THEATER" => (int) $request->variable("theater", 0),
                     "MISSIONTYPE" => (int) $request->variable("missiontype", 0),
                     "MISSIONTIME" => $request->variable("mission-time", date("Y-m-d\Th\:00:00\Z", strtotime("+1 week"))),
+                    "MISSIONTIMEZONE" => $request->variable("mission-timezone", ""),
                     "DESCRIPTION" => $request->variable("description", ''),
                     "SERVER" => $request->variable("server", ''),
                     "DURATION" => (int) $request->variable("duration", 120),
@@ -277,12 +320,20 @@ class main
         }
         else if ($missionid == "new")
         {
+            // Data for a new mission
+            $initialTimezone = request_var($config['cookie_name'] . '_mission-timezone', "", false, true);
+            error_log("cookie name: " . $config['cookie_name'] . '_mission-timezone');
+            error_log("initial timezone: " . $initialTimezone);
+            if (empty($initialTimezone)) {
+                $initialTimezone = $user->data["user_timezone"];
+            }
             $missiondata = array(
                 "PUBLISHED" => false,
                 "MISSIONNAME" => "Mission name",
                 "THEATER" => 0,
                 "MISSIONTYPE" => 0,
-                "MISSIONTIME" => date("Y-m-d\Th\:00:00\Z", strtotime("+1 week")),
+                "MISSIONTIME" => "", // date("Y-m-d h\:00\Z", strtotime("+1 week")),
+                "MISSIONTIMEZONE" => $initialTimezone,
                 "DESCRIPTION" => '',
                 "SERVER" => '',
                 "DURATION" => 120,
@@ -301,6 +352,19 @@ class main
         
         $template->assign_vars($missiondata);
 
+        $template->assign_block_vars("timezones", array("" => ""));
+        foreach (\DateTimeZone::listIdentifiers(\DateTimeZone::ALL) as $tzid => $tzname)
+        {
+            $tzoffset = (new \DateTimeZone($tzname))->getOffset(new \DateTime());
+            $tzoffsetstr = sprintf("%s%02d%02d",
+                                   $tzoffset < 0 ? "-" : "+",
+                                   abs($tzoffset) / 60 / 60,
+                                   (abs($tzoffset) / 60) % 60);
+                                   
+            $template->assign_block_vars("timezones", array("Id" => $tzname,
+                                                            "Name" => "[{$tzoffsetstr}] {$tzname}"));
+        }
+        
         $this->populate_template_code_tables("theaters", $theaters);
         $this->populate_template_code_tables("missiontypes", $missiontypes);
         $this->populate_template_code_tables("roles", $roles);
@@ -308,23 +372,25 @@ class main
         return $this->helper->render('ato-edit-mission.html', '440th VFW ATO');   
     }
 
-    private $query_table_infos =
+    private function query_table_infos()
+    {
         array(
             "MissionTypes" =>
-            array("Table" => "vfw440_MissionTypes",
+            array("Table" => Util::fm_table_name("MissionTypes"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
                         ),
                   "Filter" => "Active = true"),
             "Theaters" =>
-            array("Table" => "vfw440_Theaters",
+            array("Table" => Util::fm_table_name("Theaters"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
                         "Version" => "Version",
                         ),
                   "Filter" => "Active = true"));
+    }
     
     public function handle_api_query()
     {
@@ -339,7 +405,7 @@ class main
             $request_select = $request["select"];
             // error_log("select: " . implode(', ', $request_select) . " from: {$request_from}");
         
-            $table_info = $this->query_table_infos[$request_from];
+            $table_info = $this->query_table_infos()[$request_from];
             $db_table = $table_info["Table"];
 
             if (!$db_table) {

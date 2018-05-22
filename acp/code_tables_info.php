@@ -31,7 +31,11 @@ class code_tables_info
 					'auth'	=> 'ext_VFW440/flight_management',
 					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
 				),
-
+                'flight-callsigns'	=> array(
+					'title'	=> 'ACP_VFW440_FM_FLIGHT_CALLSIGNS_TITLE',
+					'auth'	=> 'ext_VFW440/flight_management',
+					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
+				),
 			),
 		);
 	}

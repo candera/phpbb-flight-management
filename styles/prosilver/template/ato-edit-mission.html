@@ -1,10 +1,23 @@
 <!-- INCLUDECSS @VFW440_flight_management/ato.css -->
+<!-- INCLUDECSS https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css -->
+<!-- INCLUDECSS @VFW440_flight_management/lib/jquery-ui-timepicker-addon.css -->
+<!-- INCLUDECSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css -->
+<!-- INCLUDECSS @VFW440_flight_management/lib/jquery.timesetter.css -->
+
+<!-- INCLUDEJS @VFW440_flight_management/lib/moment.min.js -->
+<!-- INCLUDEJS @VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js -->
+<!-- INCLUDEJS https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js -->
+<!-- INCLUDEJS @VFW440_flight_management/ato-edit-mission.js -->
+<!-- INCLUDEJS @VFW440_flight_management/lib/jquery.timesetter.js -->
+
+<!-- INCLUDEJS https://code.jquery.com/ui/1.12.1/jquery-ui.min.js -->
+<!-- INCLUDEJS @VFW440_flight_management/lib/jquery-ui-timepicker-addon.js -->
 
 <!-- INCLUDE overall_header.html -->
 
 <h1>Edit a mission</h1>
 <div class="mission-editor">
-    <form method="post">
+    <form method="post" id="edit-mission-form">
         <table>
             <tr>
                 <td class="field-label">
@@ -12,10 +25,10 @@
                 </td>
                 <td class="value">
                     <input type="checkbox" name="published"
-                        <!-- IF PUBLISHED -->
-                        checked="checked"
-                        <!-- ENDIF -->
-                        />
+                    <!-- IF PUBLISHED -->
+                    checked="checked"
+                    <!-- ENDIF -->
+                    />
                 </td>
                 <td class="error"></td>                    
             </tr>
@@ -33,13 +46,13 @@
                     <label>Theater</label>
                 </td>
                 <td class="value">
-                    <select name="theater">
+                    <select class="select2" name="theater">
                         <!-- BEGIN theaters -->
                         <option value="{theaters.Id}"
                             <!-- IF theaters.Id == THEATER -->
                             selected="selected"
                             <!-- ENDIF -->
-                        >{theaters.Name} {theaters.Version}</option>
+                            >{theaters.Name} {theaters.Version}</option>
                         <!-- END theaters -->
                     </select>
                 </td>
@@ -50,39 +63,72 @@
                     <label>Mission Type</label>
                 </td>
                 <td class="value">
-                    <select name="missiontype">
+                    <select class="select2" name="missiontype">
                         <!-- BEGIN missiontypes -->
                         <option value="{missiontypes.Id}"
                             <!-- IF missiontypes.Id == MISSIONTYPE -->
                             selected="selected"
                             <!-- ENDIF -->
-                        >{missiontypes.Name}</option>
+                            >{missiontypes.Name}</option>
                         <!-- END missiontypes -->
                     </select>
                 </td>
                 <td class="error">{MISSIONTYPE_ERROR}</td>
             </tr>
             <tr>
-                <td class="field-label">
-                    <label>Mission Time</label>
-                </td>
-                <td class="value">
-                    <input type="text" name="mission-time" value="{MISSIONTIME}" />
-                </td>
-                <td class="error">{MISSIONTIME_ERROR}</td>
+                <td></td>
+                <td id="mission-time-utc"></td>
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Description</label>
+                    <label>Mission Date</label>
                 </td>
-                <td class="value">
-                    <textarea name="description">{DESCRIPTION}</textarea>
+                <td class="value datetimefields">
+                    <input type="text" 
+                           class="datetimepicker"
+                           id="mission-date"
+                           name="mission-date" 
+                           value="" />
+                    <input type="text"
+                           readonly="readonly"
+                           class=""
+                           id="mission-time"
+                           name="mission-time" 
+                           value="" />
                 </td>
-                <td class="error">{DESCRIPTION_ERROR}</td>
+                <td class="error">{MISSIONDATETIME_ERROR}</td>
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Server</label>
+                    <label>Timezone</label>
+                </td>
+                <td class="value datetimefields">
+                    <select class="select2" id="timezones" name="mission-timezone">
+                        <!-- BEGIN timezones -->
+                        <option value="{timezones.Id}"
+                            <!-- IF timezones.Id == MISSIONTIMEZONE -->
+                            selected="selected"
+                            <!-- ENDIF -->
+                        >{timezones.Name}</option> 
+                        <!-- END timezones -->
+                    </select>
+                </td>
+                <td class="error">{MISSIONTIMEZONE_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Duration</label>
+                </td>
+                <td class="duration">
+                    <div id="duration-picker" class="duration-picker"></div>
+                    <input id="duration-value" name="duration" type="hidden" value="{DURATION}" />
+                    <!-- <input type="text" class="duration-picker" name="duration" value="{DURATION}" /> -->
+                </td>
+                <td class="error">{DURATION_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                    <label>Host</label>
                 </td>
                 <td class="value">
                     <input type="text" name="server" value="{SERVER}" />
@@ -91,12 +137,12 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Duration</label>
+                    <label>Notes</label>
                 </td>
                 <td class="value">
-                    <input type="text" name="duration" value="{DURATION}" />
+                    <textarea name="description" rows="7">{DESCRIPTION}</textarea>
                 </td>
-                <td class="error">{DURATION_ERROR}</td>
+                <td class="error">{DESCRIPTION_ERROR}</td>
             </tr>
         </table>
         <!-- BEGIN packages -->

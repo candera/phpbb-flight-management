@@ -2,35 +2,9 @@
 
 namespace VFW440\flight_management\acp;
 
+use \VFW440\flight_management\helper\Util;
+
 /* At some point I might want to merge the various column bits together. */
-const MODE_SCHEMAS = [
-    "missiontypes" => [
-        "title" => "Mission Types",
-        "table" => "vfw440_missiontypes",
-        "addnew-data" => ["Name" => "Change Me"],
-        "columns" => ["Id", "Name", "Active"],
-        "column-types" => ["Name" => "text",
-                           "Active" => "checkbox" ]
-    ],
-    "theaters" => [
-        "title" => "Theaters",
-        "table" => "vfw440_theaters",
-        "addnew-data" => ["Name" => "Change Me",
-                          "Version" => "Change Me"],
-        "columns" => ["Id", "Name", "Version", "Active"],
-        "column-types" => ["Name" => "text",
-                           "Version" => "text",
-                           "Active" => "checkbox"],
-    ],
-    "roles" => [
-        "title" => "Roles",
-        "table" => "vfw440_roles",
-        "addnew-data" => ["Name" => "Change Me"],
-        "columns" => ["Id", "Name", "Active"],
-        "column-types" => ["Name" => "text",
-                           "Active" => "checkbox" ]
-    ]
-];
 
 class code_tables_module
 {
@@ -66,7 +40,44 @@ class code_tables_module
     {
         global $config, $db, $request, $template, $user;
 
-        $schema = MODE_SCHEMAS[$mode];
+        $MODE_SCHEMAS = [
+            "missiontypes" => [
+                "title" => "Mission Types",
+                "table" => Util::fm_table_name("MissionTypes"),
+                "addnew-data" => ["Name" => "Change Me"],
+                "columns" => ["Id", "Name", "Active"],
+                "column-types" => ["Name" => "text",
+                                   "Active" => "checkbox" ]
+            ],
+            "theaters" => [
+                "title" => "Theaters",
+                "table" => Util::fm_table_name("theaters"),
+                "addnew-data" => ["Name" => "Change Me",
+                                  "Version" => "Change Me"],
+                "columns" => ["Id", "Name", "Version", "Active"],
+                "column-types" => ["Name" => "text",
+                                   "Version" => "text",
+                                   "Active" => "checkbox"],
+            ],
+            "roles" => [
+                "title" => "Roles",
+                "table" => Util::fm_table_name("roles"),
+                "addnew-data" => ["Name" => "Change Me"],
+                "columns" => ["Id", "Name", "Active"],
+                "column-types" => ["Name" => "text",
+                                   "Active" => "checkbox" ]
+            ],
+            "flight-callsigns" => [
+                "title" => "Flight Callsigns",
+                "table" => Util::fm_table_name("Flight_Callsigns"),
+                "addnew-data" => ["Name" => "Change Me"],
+                "columns" => ["Id", "Name", "Active"],
+                "column-types" => ["Name" => "text",
+                                   "Active" => "checkbox" ]
+            ]
+        ];
+
+        $schema = $MODE_SCHEMAS[$mode];
 
         // error_log("mode: " . $mode);
         // error_log("schema: " . $schema);

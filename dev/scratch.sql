@@ -1,17 +1,17 @@
-DROP TABLE IF EXISTS vfw440_missiontypes;
+DROP TABLE IF EXISTS fm_missiontypes;
 
-CREATE TABlE vfw440_missiontypes (
+CREATE TABlE fm_missiontypes (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DESCRIBE vfw440_missiontypes;
+DESCRIBE fm_missiontypes;
 
-DROP TABLE IF EXISTS vfw440_theaters;
+DROP TABLE IF EXISTS fm_theaters;
 
-CREATE TABLE vfw440_theaters (
+CREATE TABLE fm_theaters (
   Id INT UNSIGNED AUTO_INCREMENT,
   TheaterName NVARCHAR(1024) NOT NULL,
   TheaterVersion NVARCHAR(1024) NOT NULL,
@@ -19,11 +19,11 @@ CREATE TABLE vfw440_theaters (
   PRIMARY KEY (Id)
 );
 
-DESCRIBE vfw440_theaters;
+DESCRIBE fm_theaters;
 
-DROP TABLE IF EXISTS vfw440_missions;
+DROP TABLE IF EXISTS fm_missions;
 
-CREATE TABLE vfw440_missions (
+CREATE TABLE fm_missions (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Date DATETIME NOT NULL,
@@ -37,42 +37,42 @@ CREATE TABLE vfw440_missions (
   Published BIT DEFAULT b'0' NOT NULL,
   PRIMARY KEY (Id),
   FOREIGN KEY (Creator) REFERENCES phpbb_users(user_id),
-  FOREIGN KEY (Type) REFERENCES vfw440_missiontypes(Id),
-  FOREIGN KEY (Theater) REFERENCES vfw440_theaters(Id)
+  FOREIGN KEY (Type) REFERENCES fm_missiontypes(Id),
+  FOREIGN KEY (Theater) REFERENCES fm_theaters(Id)
 );
 
-DROP TABLE IF EXISTS vfw440_packages;
+DROP TABLE IF EXISTS fm_packages;
 
-CREATE TABLE vfw440_packages (
+CREATE TABLE fm_packages (
   Id INT UNSIGNED AUTO_INCREMENT,
   MissionId INT UNSIGNED NOT NULL,
   Number INT UNSIGNED,
   NAME nvarchar(1024),
   PRIMARY KEY (Id),
-  FOREIGN KEY (MissionId) REFERENCES vfw440_missions(Id)
+  FOREIGN KEY (MissionId) REFERENCES fm_missions(Id)
 );
 
-DROP TABLE IF EXISTS vfw440_roles;
+DROP TABLE IF EXISTS fm_roles;
 
-CREATE TABLE vfw440_roles (
+CREATE TABLE fm_roles (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DROP TABLE IF EXISTS vfw440_aircraft;
+DROP TABLE IF EXISTS fm_aircraft;
 
-CREATE TABLE vfw440_aircraft (
+CREATE TABLE fm_aircraft (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DROP TABLE IF EXISTS vfw440_flights;
+DROP TABLE IF EXISTS fm_flights;
 
-CREATE TABLE vfw440_flights (
+CREATE TABLE fm_flights (
   Id INT UNSIGNED AUTO_INCREMENT,
   PackageId INT UNSIGNED NOT NULL,
   Callsign NVARCHAR(1024) NOT NULL,
@@ -81,20 +81,24 @@ CREATE TABLE vfw440_flights (
   AircraftId INT UNSIGNED NOT NULL,
   TakeoffTime INT UNSIGNED, -- Falcon Time: minutes from midnight day 1
   PRIMARY KEY (Id),
-  FOREIGN KEY (PackageId) REFERENCES vfw440_packages(Id),
-  FOREIGN KEY (RoleId) REFERENCES vfw440_roles(Id),
-  FOREIGN KEY (AircraftId) REFERENCES vfw440_aircraft(Id)    
+  FOREIGN KEY (PackageId) REFERENCES fm_packages(Id),
+  FOREIGN KEY (RoleId) REFERENCES fm_roles(Id),
+  FOREIGN KEY (AircraftId) REFERENCES fm_aircraft(Id)    
 );
 
-DROP TABLE IF EXISTS vfw440_scheduled_participants;
+DROP TABLE IF EXISTS fm_scheduled_participants;
 
-CREATE TABLE vfw440_scheduled_participants (
+CREATE TABLE fm_scheduled_participants (
   SeatNum INT UNSIGNED NOT NULL,
   FlightId INT UNSIGNED NOT NULL,
   MemberPilot INT UNSIGNED,
   NonmemberPilot NVARCHAR(1024),
   ConfirmedFlown BIT DEFAULT b'0' NOT NULL,
-  FOREIGN KEY (FlightId) REFERENCES vfw440_flights(Id),
+  FOREIGN KEY (FlightId) REFERENCES fm_flights(Id),
   FOREIGN KEY (MemberPilot) REFERENCES phpbb_users(user_id),
   UNIQUE KEY (SeatNum, FlightId)
 );
+
+------------------------------------------
+
+INSERT INTO 
