@@ -1,17 +1,17 @@
-<!-- INCLUDECSS @VFW440_flight_management/ato.css -->
-<!-- INCLUDECSS fullcalendar.css -->
+{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
+{% INCLUDECSS 'fullcalendar.css' %}
 
-<!-- INCLUDE overall_header.html -->
+{% INCLUDE 'overall_header.html' %}
 
-<!-- INCLUDEJS lib/moment.min.js -->
-<!-- INCLUDEJS fullcalendar.js -->
-<!-- INCLUDEJS ato-index.js -->
+{% INCLUDEJS 'lib/moment.min.js' %}
+{% INCLUDEJS 'fullcalendar.js' %}
+{% INCLUDEJS 'ato-index.js' %}
 
 <h1>440th VFW ATO</h1>
 <div class="extra-bottom-margin">
-    <!-- IF SHOW_SCHEDULE_MISSION -->
-    <a class="ato-button" href="{ATO_NEW_MISSION_PAGE}">Schedule a new mission</a>
-    <!-- ENDIF -->
+    {% if SHOW_SCHEDULE_MISSION %}
+    <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
+    {% endif %}
 
   <div id="ato-calendar"></div>
 
@@ -41,4 +41,4 @@
 
 </div>
 
-<!-- INCLUDE overall_footer.html -->
+{% INCLUDE 'overall_footer.html' %}

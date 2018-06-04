@@ -1,28 +1,28 @@
 <!-- -*- mode: web -*- -->
-<!-- INCLUDE overall_header.html -->
-<!-- INCLUDECSS code_table_body.css -->
+{% INCLUDE 'overall_header.html' %}
+{% INCLUDECSS 'code_table_body.css' %}
 
-<h1>{L_SETTINGS}</h1>
+<h1>{{ lang('SETTINGS') }}</h1>
 
 <fieldset class="missiontypes">
     <div class="title">
-        Edit {TITLE}
+        Edit {{ TITLE }}
     </div>
     <form method="POST">
         <table>
             <thead>
                 <tr>
                     <td>ID</td>
-                    <!-- BEGIN tablecol -->
-                    <td>{tablecol.Name}</td>
-                    <!-- END tablecol -->
+                    {% for tablecol in loops.tablecol %}
+                    <td>{{ tablecol.Name }}</td>
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                <!-- BEGIN tablerow -->
+                {% for tablerow in loops.tablerow %}
                 <tr>
                     <td class="id">
-                        <label>{tablerow.Id}</label>
+                        <label>{{ tablerow.Id }}</label>
                     </td>
                     
                     {% for col in tablecol %}
@@ -33,14 +33,14 @@
                     {% endfor %}
 
                 </tr>
-                <!-- END tablerow -->
+                {% endfor %}
             </tbody>
         </table>
         <input type="submit" name="update" value="Save" />
         <input type="submit" name="addnew" value="Add New" />
-        {S_FORM_TOKEN}
+        {{ S_FORM_TOKEN }}
     </form>
-    <div>{MESSAGE}</div>
+    <div>{{ MESSAGE }}</div>
 </fieldset>
 
-<!-- INCLUDE overall_footer.html -->
+{% INCLUDE 'overall_footer.html' %}

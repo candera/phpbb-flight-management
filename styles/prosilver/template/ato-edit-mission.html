@@ -1,19 +1,19 @@
-<!-- INCLUDECSS @VFW440_flight_management/ato.css -->
-<!-- INCLUDECSS https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css -->
-<!-- INCLUDECSS @VFW440_flight_management/lib/jquery-ui-timepicker-addon.css -->
-<!-- INCLUDECSS https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css -->
-<!-- INCLUDECSS @VFW440_flight_management/lib/jquery.timesetter.css -->
+{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
+{% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
+{% INCLUDECSS '@VFW440_flight_management/lib/jquery-ui-timepicker-addon.css' %}
+{% INCLUDECSS 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' %}
+{% INCLUDECSS '@VFW440_flight_management/lib/jquery.timesetter.css' %}
 
-<!-- INCLUDEJS @VFW440_flight_management/lib/moment.min.js -->
-<!-- INCLUDEJS @VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js -->
-<!-- INCLUDEJS https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js -->
-<!-- INCLUDEJS @VFW440_flight_management/ato-edit-mission.js -->
-<!-- INCLUDEJS @VFW440_flight_management/lib/jquery.timesetter.js -->
+{% INCLUDEJS '@VFW440_flight_management/lib/moment.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js' %}
+{% INCLUDEJS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/ato-edit-mission.js' %}
+{% INCLUDEJS '@VFW440_flight_management/lib/jquery.timesetter.js' %}
 
-<!-- INCLUDEJS https://code.jquery.com/ui/1.12.1/jquery-ui.min.js -->
-<!-- INCLUDEJS @VFW440_flight_management/lib/jquery-ui-timepicker-addon.js -->
+{% INCLUDEJS 'https://code.jquery.com/ui/1.12.1/jquery-ui.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/lib/jquery-ui-timepicker-addon.js' %}
 
-<!-- INCLUDE overall_header.html -->
+{% INCLUDE 'overall_header.html' %}
 
 <h1>Edit a mission</h1>
 <div class="mission-editor">
@@ -25,9 +25,9 @@
                 </td>
                 <td class="value">
                     <input type="checkbox" name="published"
-                    <!-- IF PUBLISHED -->
+                    {% if PUBLISHED %}
                     checked="checked"
-                    <!-- ENDIF -->
+                    {% endif %}
                     />
                 </td>
                 <td class="error"></td>
@@ -37,22 +37,22 @@
                     <label>Mission Name</label>
                 </td>
                 <td class="value">
-                    <input type="text" name="missionname" value="{MISSIONNAME}" />
+                    <input type="text" name="missionname" value="{{ MISSIONNAME }}" />
                 </td>
-                <td class="error">{NAME_ERROR}</td>
+                <td class="error">{{ NAME_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
                 </td>
                 <td class="value">
                     <select class="select2" name="opento">
-                        <!-- BEGIN opento -->
-                        <option value="{opento.Id}"
-                            <!-- IF opento.Id == OPENTO -->
+                        {% for opento in loops.opento %}
+                        <option value="{{ opento.Id }}"
+                            {% if opento.Id == OPENTO %}
                             selected="selected"
-                            <!-- ENDIF -->
-                            >{opento.Name}</option>
-                        <!-- END opento -->
+                            {% endif %}
+                            >{{ opento.Name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
             </tr>
@@ -63,16 +63,16 @@
                 </td>
                 <td class="value">
                     <select class="select2" name="theater">
-                        <!-- BEGIN theaters -->
-                        <option value="{theaters.Id}"
-                            <!-- IF theaters.Id == THEATER -->
+                        {% for theaters in loops.theaters %}
+                        <option value="{{ theaters.Id }}"
+                            {% if theaters.Id == THEATER %}
                             selected="selected"
-                            <!-- ENDIF -->
-                            >{theaters.Name} {theaters.Version}</option>
-                        <!-- END theaters -->
+                            {% endif %}
+                            >{{ theaters.Name }} {{ theaters.Version }}</option>
+                        {% endfor %}
                     </select>
                 </td>
-                <td class="error">{THEATER_ERROR}</td>
+                <td class="error">{{ THEATER_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
@@ -80,16 +80,16 @@
                 </td>
                 <td class="value">
                     <select class="select2" name="missiontype">
-                        <!-- BEGIN missiontypes -->
-                        <option value="{missiontypes.Id}"
-                            <!-- IF missiontypes.Id == MISSIONTYPE -->
+                        {% for missiontypes in loops.missiontypes %}
+                        <option value="{{ missiontypes.Id }}"
+                            {% if missiontypes.Id == MISSIONTYPE %}
                             selected="selected"
-                            <!-- ENDIF -->
-                            >{missiontypes.Name}</option>
-                        <!-- END missiontypes -->
+                            {% endif %}
+                            >{{ missiontypes.Name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
-                <td class="error">{MISSIONTYPE_ERROR}</td>
+                <td class="error">{{ MISSIONTYPE_ERROR }}</td>
             </tr>
             <tr>
                 <td></td>
@@ -112,7 +112,7 @@
                            name="mission-time"
                            value="" />
                 </td>
-                <td class="error">{MISSIONDATETIME_ERROR}</td>
+                <td class="error">{{ MISSIONDATETIME_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
@@ -120,16 +120,16 @@
                 </td>
                 <td class="value datetimefields">
                     <select class="select2" id="timezones" name="mission-timezone">
-                        <!-- BEGIN timezones -->
-                        <option value="{timezones.Id}"
-                            <!-- IF timezones.Id == MISSIONTIMEZONE -->
+                        {% for timezones in loops.timezones %}
+                        <option value="{{ timezones.Id }}"
+                            {% if timezones.Id == MISSIONTIMEZONE %}
                             selected="selected"
-                            <!-- ENDIF -->
-                        >{timezones.Name}</option>
-                        <!-- END timezones -->
+                            {% endif %}
+                        >{{ timezones.Name }}</option>
+                        {% endfor %}
                     </select>
                 </td>
-                <td class="error">{MISSIONTIMEZONE_ERROR}</td>
+                <td class="error">{{ MISSIONTIMEZONE_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
@@ -137,52 +137,52 @@
                 </td>
                 <td class="duration">
                     <div id="duration-picker" class="duration-picker"></div>
-                    <input id="duration-value" name="duration" type="hidden" value="{DURATION}" />
-                    <!-- <input type="text" class="duration-picker" name="duration" value="{DURATION}" /> -->
+                    <input id="duration-value" name="duration" type="hidden" value="{{ DURATION }}" />
+                    <!-- <input type="text" class="duration-picker" name="duration" value="{{ DURATION }}" /> -->
                 </td>
-                <td class="error">{DURATION_ERROR}</td>
+                <td class="error">{{ DURATION_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
                     <label>Host</label>
                 </td>
                 <td class="value">
-                    <input type="text" name="server" value="{SERVER}" />
+                    <input type="text" name="server" value="{{ SERVER }}" />
                 </td>
-                <td class="error">{SERVER_ERROR}</td>
+                <td class="error">{{ SERVER_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
                     <label>Notes</label>
                 </td>
                 <td class="value">
-                    <textarea name="description" rows="7">{DESCRIPTION}</textarea>
+                    <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
                 </td>
-                <td class="error">{DESCRIPTION_ERROR}</td>
+                <td class="error">{{ DESCRIPTION_ERROR }}</td>
             </tr>
         </table>
-        <!-- BEGIN packages -->
+        {% for packages in loops.packages %}
         <fieldset class="package">
-            <legend>Package {packages.Number}</legend>
+            <legend>Package {{ packages.Number }}</legend>
             <table>
                 <tr>
                     <td class="field-label">Package Name</td>
                     <td class="value">
-                        <input type="text" name="packages[{packages.Id}][Name]" value="{packages.Name}" />
+                        <input type="text" name="packages[{{ packages.Id }}][Name]" value="{{ packages.Name }}" />
                     </td>
                 </tr>
                 <tr>
                     <td class="field-label">Package Number</td>
                     <td class="value">
-                        <input type="text" name="packages[{packages.Id}][Number]" value="{packages.Number}" />
+                        <input type="text" name="packages[{{ packages.Id }}][Number]" value="{{ packages.Number }}" />
                     </td>
                 </tr>
             </table>
         </fieldset>
-        <!-- END packages -->
+        {% endfor %}
         <input name="add-package" type="submit" value="Add Package" style="display:block" />
         <input name="save" type="submit" value="Save" />
     </form>
 </div>
 
-<!-- INCLUDE overall_footer.html -->
+{% INCLUDE 'overall_footer.html' %}

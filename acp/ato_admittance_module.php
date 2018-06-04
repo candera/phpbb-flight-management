@@ -94,7 +94,7 @@ class ato_admittance_module
 
             while ($row2 = $db->sql_fetchrow($result2))
             {
-                $template->assign_block_vars("admittance.groups", $row2)
+                $template->assign_block_vars("admittance.groups", $row2);
             }
 
             $db->sql_freeresult($result2);
