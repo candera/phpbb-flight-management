@@ -1,17 +1,17 @@
-DROP TABLE IF EXISTS fm_missiontypes;
+DROP TABLE IF EXISTS ato2_missiontypes;
 
-CREATE TABlE fm_missiontypes (
+CREATE TABlE ato2_missiontypes (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DESCRIBE fm_missiontypes;
+DESCRIBE ato2_missiontypes;
 
-DROP TABLE IF EXISTS fm_theaters;
+DROP TABLE IF EXISTS ato2_theaters;
 
-CREATE TABLE fm_theaters (
+CREATE TABLE ato2_theaters (
   Id INT UNSIGNED AUTO_INCREMENT,
   TheaterName NVARCHAR(1024) NOT NULL,
   TheaterVersion NVARCHAR(1024) NOT NULL,
@@ -19,11 +19,11 @@ CREATE TABLE fm_theaters (
   PRIMARY KEY (Id)
 );
 
-DESCRIBE fm_theaters;
+DESCRIBE ato2_theaters;
 
-DROP TABLE IF EXISTS fm_missions;
+DROP TABLE IF EXISTS ato2_missions;
 
-CREATE TABLE fm_missions (
+CREATE TABLE ato2_missions (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Date DATETIME NOT NULL,
@@ -37,42 +37,42 @@ CREATE TABLE fm_missions (
   Published BIT DEFAULT b'0' NOT NULL,
   PRIMARY KEY (Id),
   FOREIGN KEY (Creator) REFERENCES phpbb_users(user_id),
-  FOREIGN KEY (Type) REFERENCES fm_missiontypes(Id),
-  FOREIGN KEY (Theater) REFERENCES fm_theaters(Id)
+  FOREIGN KEY (Type) REFERENCES ato2_missiontypes(Id),
+  FOREIGN KEY (Theater) REFERENCES ato2_theaters(Id)
 );
 
-DROP TABLE IF EXISTS fm_packages;
+DROP TABLE IF EXISTS ato2_packages;
 
-CREATE TABLE fm_packages (
+CREATE TABLE ato2_packages (
   Id INT UNSIGNED AUTO_INCREMENT,
   MissionId INT UNSIGNED NOT NULL,
   Number INT UNSIGNED,
   NAME nvarchar(1024),
   PRIMARY KEY (Id),
-  FOREIGN KEY (MissionId) REFERENCES fm_missions(Id)
+  FOREIGN KEY (MissionId) REFERENCES ato2_missions(Id)
 );
 
-DROP TABLE IF EXISTS fm_roles;
+DROP TABLE IF EXISTS ato2_roles;
 
-CREATE TABLE fm_roles (
+CREATE TABLE ato2_roles (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DROP TABLE IF EXISTS fm_aircraft;
+DROP TABLE IF EXISTS ato2_aircraft;
 
-CREATE TABLE fm_aircraft (
+CREATE TABLE ato2_aircraft (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
   Active BIT DEFAULT b'1' NOT NULL,
   PRIMARY KEY (Id)
 );
 
-DROP TABLE IF EXISTS fm_flights;
+DROP TABLE IF EXISTS ato2_flights;
 
-CREATE TABLE fm_flights (
+CREATE TABLE ato2_flights (
   Id INT UNSIGNED AUTO_INCREMENT,
   PackageId INT UNSIGNED NOT NULL,
   Callsign NVARCHAR(1024) NOT NULL,
@@ -81,24 +81,63 @@ CREATE TABLE fm_flights (
   AircraftId INT UNSIGNED NOT NULL,
   TakeoffTime INT UNSIGNED, -- Falcon Time: minutes from midnight day 1
   PRIMARY KEY (Id),
-  FOREIGN KEY (PackageId) REFERENCES fm_packages(Id),
-  FOREIGN KEY (RoleId) REFERENCES fm_roles(Id),
-  FOREIGN KEY (AircraftId) REFERENCES fm_aircraft(Id)    
+  FOREIGN KEY (PackageId) REFERENCES ato2_packages(Id),
+  FOREIGN KEY (RoleId) REFERENCES ato2_roles(Id),
+  FOREIGN KEY (AircraftId) REFERENCES ato2_aircraft(Id)    
 );
 
-DROP TABLE IF EXISTS fm_scheduled_participants;
+DROP TABLE IF EXISTS ato2_scheduled_participants;
 
-CREATE TABLE fm_scheduled_participants (
+CREATE TABLE ato2_scheduled_participants (
   SeatNum INT UNSIGNED NOT NULL,
   FlightId INT UNSIGNED NOT NULL,
   MemberPilot INT UNSIGNED,
   NonmemberPilot NVARCHAR(1024),
   ConfirmedFlown BIT DEFAULT b'0' NOT NULL,
-  FOREIGN KEY (FlightId) REFERENCES fm_flights(Id),
+  FOREIGN KEY (FlightId) REFERENCES ato2_flights(Id),
   FOREIGN KEY (MemberPilot) REFERENCES phpbb_users(user_id),
   UNIQUE KEY (SeatNum, FlightId)
 );
 
 ------------------------------------------
+n
+INSERT INTO
 
-INSERT INTO 
+
+drop table if exists ato2_scheduled_participants;
+drop table if exists ato2_flights;
+drop table if exists ato2_aircraft;
+drop table if exists ato2_roles;
+drop table if exists ato2_packages;
+drop table if exists ato2_missions;              
+drop table if exists ato2_theaters;
+drop table if exists ato2_missiontypes;
+drop table if exists ato2_flight_callsigns;
+drop table if exists ato2_admittance_groups;
+drop table if exists ato2_admittance;
+
+show tables LIKE 'ato2%';
+
+show tables LIKE 'ato%';
+
+describe ato_callsigns;
+
+DESCRIBE ato2_flight_callsigns;
+
+INSERT INTO ato2_flight_callsigns (NAME, active) (SELECT callsign, callsign_active FROM ato_callsigns);
+
+SELECT CAST(active AS unsigned) FROM ato2_flight_callsigns;
+
+DELETE FROM ato2_flight_callsigns;
+
+DESCRIBE ato2_aircraft;
+
+SELECT * FROM ato_aircraft;
+
+DESCRIBE ato_mission_types;
+
+DESCRIBE ato2_missiontypes;
+
+SELECT a.NAME, a.Id
+FROM ato2_admittance AS a
+LEFT OUTER JOIN ag.

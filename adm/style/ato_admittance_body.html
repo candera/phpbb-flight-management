@@ -1,0 +1,54 @@
+<!-- -*- mode: web -*- -->
+<!-- INCLUDE overall_header.html -->
+<!-- INCLUDECSS ato_admittance_body.css -->
+
+<h1>ATO Admittance</h1>
+
+<form method="POST">
+    <input type="submit" name="update" value="Save Changes" />
+    <fieldset>
+        <legend>Admittance Categories</legend>
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Active</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- BEGIN admittance -->
+                <tr>
+                    <td class="id">
+                        <label>{admittance.Id}</label>
+                    </td>
+                    {{include('col-text.html',
+                    {'Id': admittance.Id,
+                    "Col": "Name",
+                    "Val": admittance.Name}) }}
+
+                    {{include('col-checkbox.html',
+                    {'Id': admittance.Id,
+                    "Col": "Active",
+                    "Val": admittance.Active}) }}
+                </tr>
+                <!-- END admittance -->
+            </tbody>
+        </table>
+        <input type="submit" name="addnew" value="Add New" />
+    </fieldset>
+
+    <!-- BEGIN admittance -->
+    <fieldset>
+        <legend>Permitted Groups for '{admittance.Name}'</legend>
+        <ul>
+            <!-- BEGIN admittance.groups -->
+            <li>{admittance.groups.Name}</li>
+            <!-- END admittance.groups -->
+        </ul>
+    </fieldset>
+    <!-- END admittance -->
+    
+    {S_FORM_TOKEN}
+</form>
+<!-- INCLUDE overall_footer.html -->

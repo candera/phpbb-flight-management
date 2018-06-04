@@ -30,7 +30,7 @@
                     <!-- ENDIF -->
                     />
                 </td>
-                <td class="error"></td>                    
+                <td class="error"></td>
             </tr>
             <tr>
                 <td class="field-label">
@@ -39,7 +39,23 @@
                 <td class="value">
                     <input type="text" name="missionname" value="{MISSIONNAME}" />
                 </td>
-                <td class="error">{NAME_ERROR}</td>                    
+                <td class="error">{NAME_ERROR}</td>
+            </tr>
+            <tr>
+                <td class="field-label">
+                </td>
+                <td class="value">
+                    <select class="select2" name="opento">
+                        <!-- BEGIN opento -->
+                        <option value="{opento.Id}"
+                            <!-- IF opento.Id == OPENTO -->
+                            selected="selected"
+                            <!-- ENDIF -->
+                            >{opento.Name}</option>
+                        <!-- END opento -->
+                    </select>
+                </td>
+            </tr>
             </tr>
             <tr>
                 <td class="field-label">
@@ -56,7 +72,7 @@
                         <!-- END theaters -->
                     </select>
                 </td>
-                <td class="error">{THEATER_ERROR}</td>                    
+                <td class="error">{THEATER_ERROR}</td>
             </tr>
             <tr>
                 <td class="field-label">
@@ -84,16 +100,16 @@
                     <label>Mission Date</label>
                 </td>
                 <td class="value datetimefields">
-                    <input type="text" 
+                    <input type="text"
                            class="datetimepicker"
                            id="mission-date"
-                           name="mission-date" 
+                           name="mission-date"
                            value="" />
                     <input type="text"
                            readonly="readonly"
                            class=""
                            id="mission-time"
-                           name="mission-time" 
+                           name="mission-time"
                            value="" />
                 </td>
                 <td class="error">{MISSIONDATETIME_ERROR}</td>
@@ -109,7 +125,7 @@
                             <!-- IF timezones.Id == MISSIONTIMEZONE -->
                             selected="selected"
                             <!-- ENDIF -->
-                        >{timezones.Name}</option> 
+                        >{timezones.Name}</option>
                         <!-- END timezones -->
                     </select>
                 </td>
