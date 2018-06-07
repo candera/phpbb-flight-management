@@ -22,15 +22,32 @@
                     <td class="id">
                         <label>{{ admittance.Id }}</label>
                     </td>
-                    {{include('col-text.html',
-                    {'Id': admittance.Id,
-                    "Col": "Name",
-                    "Val": admittance.Name}) }}
-
-                    {{include('col-checkbox.html',
-                    {'Id': admittance.Id,
-                    "Col": "Active",
-                    "Val": admittance.Active}) }}
+                    <td>
+                        <input type="hidden"
+                               name="category-initial[{{ admittance.Id }}][Name]"
+                               value="{{ admittance.Name }}"
+                        />
+                        <input class="col-text"
+                               type="text"
+                               name="category[{{ admittance.Id }}][Name]" }}
+                               value="{{ admittance.Name }}" />
+                    </td>
+                    <td>
+                        <input type="hidden"
+                               name="category-initial[{{ admittance.Id }}][Active]"
+                               {% if admittance.Active %}
+                               value="true"
+                               {% else %}
+                               value="false"
+                               {% endif %}
+                        />
+                        <input type="checkbox"
+                               name="category[{{ admittance.Id }}][Active]"
+                               {% if admittance.Active %}
+                               checked="checked"
+                               {% endif %}
+                        />
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -38,17 +55,45 @@
         <input type="submit" name="addnew" value="Add New" />
     </fieldset>
 
-    {% for admittance in loops.admittance %}
     <fieldset>
-        <legend>Permitted Groups for '{{ admittance.Name }}'</legend>
-        <ul>
-            {% for groups in admittance.groups %}
-            <li>{{ groups.Name }}</li>
-            {% endfor %}
-        </ul>
+        <legend>Permissions</legend>
+        <table class="permissions">
+            <thead>
+                <tr>
+                    <th>Group</th>
+                    {% for admittance in loops.admittance %}
+                    <th>{{ admittance.Name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for group in loops.groups %}
+                <tr>
+                    <td>{{ group.Name }}</td>
+                    {% for admittance in loops.admittance %}
+                    <td>
+                        <input type="hidden"
+                               name="admittance-initial[{{ admittance.Id }}][{{ group.Id }}]"
+                               {% if admittance_groups[admittance.Id][group.Id] %}
+                               value="true"
+                               {% else %}
+                               value="false"
+                               {% endif %}
+                               />
+                        <input type="checkbox"
+                               name="admittances[{{ admittance.Id }}][{{ group.Id }}]"
+                               {% if admittance_groups[admittance.Id][group.Id] %}
+                               checked="checked"
+                               {% endif %}
+                               />
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </fieldset>
-    {% endfor %}
-    
+
     {{ S_FORM_TOKEN }}
 </form>
 {% INCLUDE 'overall_footer.html' %}

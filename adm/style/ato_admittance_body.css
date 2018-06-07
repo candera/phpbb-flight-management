@@ -1,0 +1,7 @@
+input.col-text {
+    width: 100%
+}
+
+table.permissions tbody tr:nth-child(even) {
+    background: #EEE;
+}
