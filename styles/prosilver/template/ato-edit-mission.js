@@ -1,15 +1,16 @@
 function updateUTCMissionTime(e) {
     var date = $("#mission-date")[0].value;
-    var time = $("#mission-time")[0].value;
     var tz = $("#timezones")[0].value;
 
-    var utc = moment.tz(date + " " + time, "YYYY/MM/DD HH:mm", tz).utc().format("YYYY/MM/DD HH:mm");
+    var utc = moment.tz(date, "YYYY/MM/DD HH:mm", tz).utc().format("YYYY/MM/DD HH:mm");
 
-    $("#mission-time-utc")[0].innerHTML = "GMT: " + utc;    
+    $("#mission-time-utc")[0].innerHTML = "GMT: " + utc;
 }
 
 
 $(document).ready(function() {
+    updateUTCMissionTime();
+
     $('.select2').select2({
         width: '100%'
     });
@@ -17,12 +18,12 @@ $(document).ready(function() {
     $('.datetimepicker').datetimepicker({
         controlType: 'select',
         oneLine: true,
-        dateFormat: "yy/mm/dd",
+        dateFormat: "yy-mm-dd",
         timeFormat: 'HH:mm',
-        stepMinute: 5,
+        stepMinute: 15,
         showSecond: false,
         showTimezone: false,
-        altField: "#mission-time"
+        // altField: "#mission-time"
         // timezone: moment.tz.guess(),
         // timezoneList: tznames.map(function (tzname) {
         //     tz = moment.tz(tzname);

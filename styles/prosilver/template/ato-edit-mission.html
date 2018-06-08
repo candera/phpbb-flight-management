@@ -1,3 +1,4 @@
+<!-- -*- mode: web -*- -->
 {% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
 {% INCLUDECSS '@VFW440_flight_management/lib/jquery-ui-timepicker-addon.css' %}
@@ -34,7 +35,7 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Mission Name</label>
+                    <label>Mission Name:</label>
                 </td>
                 <td class="value">
                     <input type="text" name="missionname" value="{{ MISSIONNAME }}" />
@@ -43,6 +44,7 @@
             </tr>
             <tr>
                 <td class="field-label">
+                    <label>Open To:</label>
                 </td>
                 <td class="value">
                     <select class="select2" name="opento">
@@ -55,11 +57,12 @@
                         {% endfor %}
                     </select>
                 </td>
+                <td class="error">{{ OPENTO_ERROR }}</td>
             </tr>
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Theater</label>
+                    <label>Theater:</label>
                 </td>
                 <td class="value">
                     <select class="select2" name="theater">
@@ -76,7 +79,7 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Mission Type</label>
+                    <label>Mission Type:</label>
                 </td>
                 <td class="value">
                     <select class="select2" name="missiontype">
@@ -97,26 +100,21 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Mission Date</label>
+                    <label>Mission Date/Time:</label>
                 </td>
                 <td class="value datetimefields">
                     <input type="text"
                            class="datetimepicker"
                            id="mission-date"
                            name="mission-date"
-                           value="" />
-                    <input type="text"
-                           readonly="readonly"
-                           class=""
-                           id="mission-time"
-                           name="mission-time"
-                           value="" />
+                           value="{{ MISSIONDATE }}"
+                           autocomplete="off" />
                 </td>
                 <td class="error">{{ MISSIONDATETIME_ERROR }}</td>
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Timezone</label>
+                    <label>Timezone:</label>
                 </td>
                 <td class="value datetimefields">
                     <select class="select2" id="timezones" name="mission-timezone">
@@ -133,7 +131,7 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Duration</label>
+                    <label>Duration:</label>
                 </td>
                 <td class="duration">
                     <div id="duration-picker" class="duration-picker"></div>
@@ -144,7 +142,7 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Host</label>
+                    <label>Host:</label>
                 </td>
                 <td class="value">
                     <input type="text" name="server" value="{{ SERVER }}" />
@@ -153,7 +151,7 @@
             </tr>
             <tr>
                 <td class="field-label">
-                    <label>Notes</label>
+                    <label>Notes:</label>
                 </td>
                 <td class="value">
                     <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>

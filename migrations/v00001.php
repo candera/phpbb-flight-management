@@ -17,9 +17,9 @@ class v00001 extends \phpbb\db\migration\migration
     }
 
     static public function depends_on()
-	{
-		return array('\phpbb\db\migration\data\v32x\v322');
-	}
+    {
+        return array('\phpbb\db\migration\data\v32x\v322');
+    }
 
     // public function effectively_installed()
     // {
@@ -31,14 +31,14 @@ class v00001 extends \phpbb\db\migration\migration
     public function update_schema()
     {
         error_log("update_schema for " . Util::fm_table_name("missions"));
-    
+
         // No foreign key constraints. Sigh. Also, unbelievably, null
         // in the second position of a column definition means the
         // column is nullable. I.e. a NOT NULL column must specify a
         // default if it's going to also specify flags. So we'll do
         // everything as custom, since this is insane.
         return array(
-		);
+        );
 
     }
 
@@ -79,7 +79,7 @@ class v00001 extends \phpbb\db\migration\migration
                     'module_basename'       => '\VFW440\flight_management\acp\code_tables_module',
                     // TODO: Some day pull these from MODE_SCHEMAS
                     'modes'                 => array('theaters',
-                                                     'missiontypes', 
+                                                     'missiontypes',
                                                      'roles',
                                                      'flight-callsigns',
                     )
@@ -99,8 +99,8 @@ class v00001 extends \phpbb\db\migration\migration
             array('permission.add', array('u_schedule_mission')),
 
             // Set permissions
-			array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_schedule_mission')),
-			array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_schedule_mission')),
+            array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_schedule_mission')),
+            array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_schedule_mission')),
         );
     }
 
@@ -141,6 +141,20 @@ class v00001 extends \phpbb\db\migration\migration
   PRIMARY KEY (Id)
 );");
 
+        $this->run_sql("CREATE TABLE ${ato_table_prefix}admittance (
+  Id INT UNSIGNED AUTO_INCREMENT,
+  Name NVARCHAR(1024) NOT NULL,
+  Active BIT Default b'1' NOT NULL,
+  PRIMARY KEY (Id)
+);");
+
+        $this->run_sql("CREATE TABLE ${ato_table_prefix}admittance_groups (
+  AdmittanceId INT UNSIGNED,
+  GroupId MEDIUMINT UNSIGNED,
+  FOREIGN KEY (AdmittanceId) REFERENCES ${ato_table_prefix}admittance(Id),
+  FOREIGN KEY (GroupId) REFERENCES {$this->table_prefix}groups(group_id)
+);");
+
         $this->run_sql("CREATE TABLE {$ato_table_prefix}missions (
   Id INT UNSIGNED AUTO_INCREMENT,
   Name NVARCHAR(1024) NOT NULL,
@@ -153,10 +167,12 @@ class v00001 extends \phpbb\db\migration\migration
   Theater INT UNSIGNED NOT NULL,
   Creator INT UNSIGNED NOT NULL,
   Published BIT DEFAULT b'0' NOT NULL,
+  OpenTo INT UNSIGNED NOT NULL,
   PRIMARY KEY (Id),
   FOREIGN KEY (Creator) REFERENCES {$phpbb_table_prefix}users(user_id),
   FOREIGN KEY (Type) REFERENCES ${ato_table_prefix}missiontypes(Id),
-  FOREIGN KEY (Theater) REFERENCES ${ato_table_prefix}theaters(Id)
+  FOREIGN KEY (Theater) REFERENCES ${ato_table_prefix}theaters(Id),
+  FOREIGN KEY (OpenTo) REFERENCES ${ato_table_prefix}admittance(Id)
 );");
 
         $this->run_sql("CREATE TABLE ${ato_table_prefix}packages (
@@ -193,7 +209,7 @@ class v00001 extends \phpbb\db\migration\migration
   PRIMARY KEY (Id),
   FOREIGN KEY (PackageId) REFERENCES ${ato_table_prefix}packages(Id),
   FOREIGN KEY (RoleId) REFERENCES ${ato_table_prefix}roles(Id),
-  FOREIGN KEY (AircraftId) REFERENCES ${ato_table_prefix}aircraft(Id)    
+  FOREIGN KEY (AircraftId) REFERENCES ${ato_table_prefix}aircraft(Id)
 );");
 
         $this->run_sql("CREATE TABLE ${ato_table_prefix}scheduled_participants (
@@ -207,20 +223,6 @@ class v00001 extends \phpbb\db\migration\migration
   UNIQUE KEY (SeatNum, FlightId)
 );");
 
-        $this->run_sql("CREATE TABLE ${ato_table_prefix}admittance (
-  Id INT UNSIGNED AUTO_INCREMENT,
-  Name NVARCHAR(1024) NOT NULL,
-  Active BIT Default b'1' NOT NULL,
-  PRIMARY KEY (Id)
-);");
-
-        $this->run_sql("CREATE TABLE ${ato_table_prefix}admittance_groups (
-  AdmittanceId INT UNSIGNED,
-  GroupId MEDIUMINT UNSIGNED,
-  FOREIGN KEY (AdmittanceId) REFERENCES ${ato_table_prefix}admittance(Id),
-  FOREIGN KEY (GroupId) REFERENCES {$this->table_prefix}groups(group_id)
-);");   
-
         error_log("tables created");
         return true;
     }
@@ -233,28 +235,28 @@ class v00001 extends \phpbb\db\migration\migration
         $zeus_ato_table_prefix = "ato_";
         $zeus_fltlog_table_prefix = "fltlog_";
 
-        $this->run_sql("INSERT INTO ${ato_table_prefix}flight_callsigns 
+        $this->run_sql("INSERT INTO ${ato_table_prefix}flight_callsigns
   (NAME, active)
   (
-    SELECT callsign, callsign_active 
+    SELECT callsign, callsign_active
     FROM ${zeus_ato_table_prefix}callsigns
   );");
 
-        $this->run_sql("INSERT INTO ${ato_table_prefix}aircraft 
+        $this->run_sql("INSERT INTO ${ato_table_prefix}aircraft
   (NAME, active)
   (
-    SELECT aircraft_model, aircraft_active 
+    SELECT aircraft_model, aircraft_active
     FROM ${zeus_ato_table_prefix}aircraft
   );");
 
-        $this->run_sql("INSERT INTO ${ato_table_prefix}missiontypes 
+        $this->run_sql("INSERT INTO ${ato_table_prefix}missiontypes
   (NAME, active)
   (
     SELECT type_name, b'1'
     FROM ${zeus_ato_table_prefix}mission_types
   );");
 
-        $this->run_sql("INSERT INTO ${ato_table_prefix}roles 
+        $this->run_sql("INSERT INTO ${ato_table_prefix}roles
   (NAME, active)
   (
     SELECT rolename, b'1'
@@ -263,7 +265,7 @@ class v00001 extends \phpbb\db\migration\migration
 
         $this->run_sql("INSERT INTO ${ato_table_prefix}theaters
   (Name, Version, Active)
-  VALUES 
+  VALUES
     ('KTO'           , 'v4.33 U5',     b'1'),
     ('KTO Strong'    , 'v4.33 U5',     b'1'),
     ('ITO'           , 'v1.0.3',       b'1'),
@@ -273,7 +275,7 @@ class v00001 extends \phpbb\db\migration\migration
 
         $this->run_sql("INSERT INTO ${ato_table_prefix}admittance
   (Name, Active)
-  VALUES 
+  VALUES
     ('Wing Members Only',       b'1'),
     ('Wing Members and Cadets', b'1'),
     ('All Registered Users',    b'1')
@@ -281,7 +283,7 @@ class v00001 extends \phpbb\db\migration\migration
 
         return true;
     }
-    
+
     public function drop_tables()
     {
         $ato_table_prefix = Util::$ato_table_prefix;
@@ -306,4 +308,3 @@ class v00001 extends \phpbb\db\migration\migration
     }
 
 }
-
