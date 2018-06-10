@@ -51,8 +51,8 @@ a.ato-button {
 }
 
 .mission-editor fieldset.package {
-    border: solid 1px lightgrey;
-    padding: 4px 7px;
+    /* border: solid 1px lightgrey; */
+    /* padding: 4px 7px; */
 }
 
 .mission-editor table tr td:nth-child(2) {

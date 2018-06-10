@@ -155,6 +155,30 @@ FROM "
 
     }
 
+    public function read_db_packagedata($missionid)
+    {
+        global $db;
+
+        $result = $this->execute_sql("SELECT
+  Id,
+  Name,
+  Number
+FROM "
+                                     . Util::fm_table_name("packages")
+                                     . " WHERE MissionId = "
+                                     . $db->sql_escape($missionid));
+
+        $packagedata = [];
+        while ($row = $db->sql_fetchrow($result))
+        {
+            $packagedata[$row["Id"]] = $row;
+        }
+
+        $db->sql_freeresult($result);
+
+        return $packagedata;
+    }
+
     private function format_sql_date($date)
     {
         $utc = $date->setTimezone(new \DateTimeZone("UTC"));
@@ -203,7 +227,8 @@ FROM "
 
         if ($request->is_set_post("save") || $request->is_set_post("add-package"))
         {
-            $packagedata = $request->variable("packages", array("" => array("" => "")));
+            $packagedata = $request->variable("packages", array("" => array("Name" => "",
+                                                                            "Number" => 0)));
             if ($request->is_set_post("add-package"))
             {
                 $maxid = -1;
@@ -225,8 +250,9 @@ FROM "
 
                 $nextid = $maxid + 1;
 
-                $packagedata["new-{$nextid}"] = array("Name"   => "TODO: Package Name",
-                                                      "Number" => "TODO: Package Number");
+                $packageid = "new-{$nextid}";
+                $packagedata[$packageid] = array("Name"   => "New Package",
+                                                 "Number" => "");
             }
 
             $valid = true;
@@ -287,6 +313,7 @@ FROM "
 
             if ($valid)
             {
+                $redirect = false;
                 $params = array(
                     "Published"         => $request->variable("published", "off") == "on" ? true : false,
                     "Name"              => $request->variable("missionname", ""),
@@ -310,7 +337,7 @@ FROM "
                     $missionid = $db->sql_nextid();
                     $db->sql_freeresult($result);
 
-                    return new RedirectResponse($this->helper->route('ato_edit_mission_route', array('missionid' => $missionid)));
+                    $redirect = true;
                 }
                 else
                 {
@@ -322,8 +349,47 @@ FROM "
                     $db->sql_freeresult($this->execute_sql($sql));
                 }
 
+                $newpackagedata = [];
+                foreach ($packagedata as $packageid => $packageinfo)
+                {
+                    $packagenumber = (int) $packageinfo["Number"];
+                    $packagename = $db->sql_escape($packageinfo["Name"]);
+                    $params = array("MissionId" => $missionid,
+                                    "Name" => $packagename,
+                                    "Number" => $packagenumber);
+                    if (strpos($packageid, "new-") === 0)
+                    {
+                        $sql = "INSERT INTO "
+                             . Util::fm_table_name("packages")
+                             . " "
+                             . $db->sql_build_array("INSERT", $params);
+                        $db->sql_freeresult($this->execute_sql($sql));
+                        $packageid = $db->sql_nextid();
+                    }
+                    else
+                    {
+                        $packageid = (int) $packageid;
+                        $sql = "UPDATE "
+                             . Util::fm_table_name("packages")
+                             . " SET "
+                             . $db->sql_build_array("UPDATE", $params)
+                             . " WHERE Id = "
+                             . $db->sql_escape($packageid);
+                        $db->sql_freeresult($this->execute_sql($sql));
+                    }
+                    $newpackagedata[$packageid] = $params;
+                }
+
+                $packagedata = $newpackagedata;
+
                 $tzName = $request->variable("mission-timezone", $defaultTimezone);
                 $missiondata = $this->read_db_missiondata($missionid, $tzName);
+
+                if ($redirect)
+                {
+                    return new RedirectResponse($this->helper->route('ato_edit_mission_route', 
+                                                                     array('missionid' => $missionid)));
+                }
             }
             else
             {
@@ -343,6 +409,7 @@ FROM "
             }
 
         }
+        // It's a GET for a new mission
         else if ($missionid == "new")
         {
             $missiondata = array(
@@ -358,15 +425,19 @@ FROM "
                 "OPENTO" => 0
             );
         }
+        // It's a GET for an existing mission
         else
         {
             $tzName = $request->variable("mission-timezone", $defaultTimezone);
             $missiondata = $this->read_db_missiondata($missionid, $tzName);
+            // TODO: Return 404 for nonexistant mission
+            $packagedata = $this->read_db_packagedata($missionid);
         }
 
         foreach ($packagedata as $packageid => $packageinfo)
         {
             $packageinfo["Id"] = $packageid;
+            error_log("packageInfo['Id'] = {$packageid}");
             $template->assign_block_vars("packages", $packageinfo);
         }
 

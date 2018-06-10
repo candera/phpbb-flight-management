@@ -19,6 +19,8 @@
 <h1>Edit a mission</h1>
 <div class="mission-editor">
     <form method="post" id="edit-mission-form">
+        <input name="save" type="submit" value="Save" />
+        <h2>Mission Details</h2>
         <table>
             <tr>
                 <td class="field-label">
@@ -26,9 +28,9 @@
                 </td>
                 <td class="value">
                     <input type="checkbox" name="published"
-                    {% if PUBLISHED %}
-                    checked="checked"
-                    {% endif %}
+                           {% if PUBLISHED %}
+                           checked="checked"
+                           {% endif %}
                     />
                 </td>
                 <td class="error"></td>
@@ -50,10 +52,10 @@
                     <select class="select2" name="opento">
                         {% for opento in loops.opento %}
                         <option value="{{ opento.Id }}"
-                            {% if opento.Id == OPENTO %}
-                            selected="selected"
-                            {% endif %}
-                            >{{ opento.Name }}</option>
+                                {% if opento.Id == OPENTO %}
+                                selected="selected"
+                                {% endif %}
+                        >{{ opento.Name }}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -68,10 +70,10 @@
                     <select class="select2" name="theater">
                         {% for theaters in loops.theaters %}
                         <option value="{{ theaters.Id }}"
-                            {% if theaters.Id == THEATER %}
-                            selected="selected"
-                            {% endif %}
-                            >{{ theaters.Name }} {{ theaters.Version }}</option>
+                                {% if theaters.Id == THEATER %}
+                                selected="selected"
+                                {% endif %}
+                        >{{ theaters.Name }} {{ theaters.Version }}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -85,10 +87,10 @@
                     <select class="select2" name="missiontype">
                         {% for missiontypes in loops.missiontypes %}
                         <option value="{{ missiontypes.Id }}"
-                            {% if missiontypes.Id == MISSIONTYPE %}
-                            selected="selected"
-                            {% endif %}
-                            >{{ missiontypes.Name }}</option>
+                                {% if missiontypes.Id == MISSIONTYPE %}
+                                selected="selected"
+                                {% endif %}
+                        >{{ missiontypes.Name }}</option>
                         {% endfor %}
                     </select>
                 </td>
@@ -120,9 +122,9 @@
                     <select class="select2" id="timezones" name="mission-timezone">
                         {% for timezones in loops.timezones %}
                         <option value="{{ timezones.Id }}"
-                            {% if timezones.Id == MISSIONTIMEZONE %}
-                            selected="selected"
-                            {% endif %}
+                                {% if timezones.Id == MISSIONTIMEZONE %}
+                                selected="selected"
+                                {% endif %}
                         >{{ timezones.Name }}</option>
                         {% endfor %}
                     </select>
@@ -149,37 +151,52 @@
                 </td>
                 <td class="error">{{ SERVER_ERROR }}</td>
             </tr>
-            <tr>
-                <td class="field-label">
-                    <label>Notes:</label>
-                </td>
-                <td class="value">
-                    <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
-                </td>
-                <td class="error">{{ DESCRIPTION_ERROR }}</td>
-            </tr>
         </table>
-        {% for packages in loops.packages %}
+
+        <h2>Packages</h2>
+        {% for package in loops.packages %}
         <fieldset class="package">
-            <legend>Package {{ packages.Number }}</legend>
+            <legend>
+                {% if package.Number %}
+                Package {{ package.Number }}
+                {% endif %}
+                {% if package.Number && package.Name %}
+                --
+                {% endif %}
+                {% if package.Name %}
+                {{ package.Name }}
+                {% elseif ! package.Number %}
+                Unnamed Package
+                {% endif %}
+            </legend>
+            <input type="submit" 
+                   value="Delete This Package"
+                   name="delete-package[{{ package.Id }}]" />
             <table>
                 <tr>
                     <td class="field-label">Package Name</td>
                     <td class="value">
-                        <input type="text" name="packages[{{ packages.Id }}][Name]" value="{{ packages.Name }}" />
+                        <input type="text" name="packages[{{ package.Id }}][Name]" value="{{ package.Name }}" />
                     </td>
                 </tr>
                 <tr>
                     <td class="field-label">Package Number</td>
                     <td class="value">
-                        <input type="text" name="packages[{{ packages.Id }}][Number]" value="{{ packages.Number }}" />
+                        <input type="text" name="packages[{{ package.Id }}][Number]" value="{{ package.Number }}" />
                     </td>
                 </tr>
             </table>
         </fieldset>
         {% endfor %}
+
         <input name="add-package" type="submit" value="Add Package" style="display:block" />
+
+        <h2>Additional Information</h2>
+        <div class="error">{{ DESCRIPTION_ERROR }}</div>
+        <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
+
         <input name="save" type="submit" value="Save" />
+
     </form>
 </div>
 
