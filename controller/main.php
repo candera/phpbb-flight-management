@@ -129,6 +129,11 @@ FROM "
 
         $row = $db->sql_fetchrow($result);
 
+        if ( ! $row )
+        {
+            return null;
+        }
+
         $missiondata = array(
             "PUBLISHED"   => $row["Published"],
             "MISSIONNAME" => $row["Name"],
@@ -387,7 +392,7 @@ FROM "
 
                 if ($redirect)
                 {
-                    return new RedirectResponse($this->helper->route('ato_edit_mission_route', 
+                    return new RedirectResponse($this->helper->route('ato_edit_mission_route',
                                                                      array('missionid' => $missionid)));
                 }
             }
@@ -432,6 +437,11 @@ FROM "
             $missiondata = $this->read_db_missiondata($missionid, $tzName);
             // TODO: Return 404 for nonexistant mission
             $packagedata = $this->read_db_packagedata($missionid);
+        }
+
+        if ( ! $missiondata )
+        {
+            return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
         }
 
         foreach ($packagedata as $packageid => $packageinfo)
