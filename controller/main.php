@@ -228,12 +228,46 @@ FROM "
 
         $missiondata = null;
 
-        $packagedata = array();
+        $packagedata = $request->variable("packages", array("" => array("Name" => "",
+                                                                        "Number" => 0)));
 
-        if ($request->is_set_post("save") || $request->is_set_post("add-package"))
+        $is_delete_package = false;
+        if ($request->is_set_post("delete-package"))
         {
-            $packagedata = $request->variable("packages", array("" => array("Name" => "",
-                                                                            "Number" => 0)));
+            error_log("Deleting a package");
+            $newpackagedata = array();
+            $is_delete_package = true;
+            $deleting_packages = $request->variable("delete-package", array("" => ""));
+
+            $deleted_package_id = array_keys($deleting_packages)[0];
+
+            error_log("Deleted package has id {$deleted_package_id}");
+
+            foreach ($packagedata as $packageid => $packageinfo)
+            {
+                if ($packageid == $deleted_package_id)
+                {
+                    if (! (strpos($packageid, "new-") === 0))
+                    {
+                        $sql = "DELETE FROM "
+                             . Util::fm_table_name("packages")
+                             . " "
+                             . " WHERE MissionId = {$missionid} AND Id = "
+                             . $db->sql_escape($packageid);
+                        $db->sql_freeresult($this->execute_sql($sql));
+                    }
+                }
+                else
+                {
+                    $newpackagedata[$packageid] = $packageinfo;
+                }
+            }
+            $packagedata = $newpackagedata;
+        }
+
+
+        if ($request->is_set_post("save") || $request->is_set_post("add-package") || $is_delete_package)
+        {
             if ($request->is_set_post("add-package"))
             {
                 $maxid = -1;
