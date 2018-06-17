@@ -93,19 +93,48 @@ class main
      */
     public function handle_index()
     {
-        global $template, $auth;
+        global $template, $auth, $db;
 
         // $l_message = !$this->config['acme_demo_goodbye'] ? 'DEMO_HELLO' : 'DEMO_GOODBYE';
         // $this->template->assign_var('DEMO_MESSAGE', $this->user->lang($l_message, $name));
 
         $template->assign_var("SHOW_SCHEDULE_MISSION", $auth->acl_get('u_schedule_mission'));
 
+        $missions_table = Util::fm_table_name("missions");
+
+        $results = $this->execute_sql("SELECT
+  m.Id,
+  m.Name,
+  m.Date as Start,
+  DATE_ADD(m.Date, INTERVAL m.ScheduledDuration MINUTE) AS End
+FROM {$missions_table} AS m
+WHERE
+m.Date > DATE_SUB(NOW(), INTERVAL 1 WEEK)
+AND m.Published = b'1'");
+
+
+        while ($row = $db->sql_fetchrow($results))
+        {
+            error_log("mission row : " . json_encode($row));
+            $db_start = new \DateTime($row["Start"], new \DateTimeZone("UTC"));
+            $db_end = new \DateTime($row["End"], new \DateTimeZone("UTC"));
+            $missionid = $row["Id"];
+            $view_link = $this->helper->route('ato_display_mission_route',
+                                              array('missionid' => $missionid));
+            $template->assign_block_vars("missions", array("Title" => $row["Name"],
+                                                           "Start" => $db_start->format(DATE_ATOM),
+                                                           "End" => $db_end->format(DATE_ATOM),
+                                                           "Url" => $view_link));
+        }
+
+        $db->sql_freeresult($result);
+
         return $this->helper->render('ato-index.html', '440th VFW ATO');
     }
 
-    public function handle_show_mission($missionid)
+    public function handle_display_mission($missionid)
     {
-        return $this->helper->render('ato-show-mission.html', '440th VFW ATO');
+        return $this->helper->render('ato-display-mission.html', '440th VFW ATO');
     }
 
     public function read_db_missiondata($missionid, $tzName)

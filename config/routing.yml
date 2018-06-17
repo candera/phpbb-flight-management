@@ -4,7 +4,7 @@ ato_index_route:
 
 ato_display_mission_route:
   path: /ato/mission/{missionid}
-  defaults: { _controller: VFW440.flight_management.controller:handle_show_mission }
+  defaults: { _controller: VFW440.flight_management.controller:handle_display_mission }
   
 ato_edit_mission_route:
   path: /ato/mission/{missionid}/edit
