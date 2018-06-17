@@ -184,6 +184,39 @@ FROM "
         return $packagedata;
     }
 
+    public function read_db_flightdata($missionid)
+    {
+        global $db;
+
+        $packages_table = Util::fm_table_name("packages");
+        $flights_table = Util::fm_table_name("flights");
+        $safe_mission_id = $db->sql_escape($missionid);
+
+        $result = $this->execute_sql("SELECT
+  f.Id,
+  f.PackageId,
+  f.CallsignId,
+  f.CallsignNum,
+  f.RoleId,
+  f.AircraftId,
+  f.TakeoffTime,
+  f.Seats
+FROM {$flights_table} as f
+INNER JOIN {$packages_table} as p
+ON f.PackageId = p.Id
+WHERE p.MissionId = {$safe_mission_id}");
+
+        $flightdata = [];
+        while ($row = $db->sql_fetchrow($result))
+        {
+            $flightdata[$row["Id"]] = $row;
+        }
+
+        $db->sql_freeresult($result);
+
+        return $flightdata;
+    }
+
     private function format_sql_date($date)
     {
         $utc = $date->setTimezone(new \DateTimeZone("UTC"));
@@ -222,7 +255,7 @@ FROM "
         return array("PackageId" => $packageid,
                      "CallsignNum" => 1,
                      "Seats" => 4,
-                     "Takeoff" => "");
+                     "TakeoffTime" => "");
     }
 
     public function handle_edit_mission($missionid)
@@ -411,7 +444,7 @@ FROM "
 
             foreach ($flightdata as $flightid => $flightinfo)
             {
-                if (!in_array($flightinfo["Callsign"],
+                if (!in_array($flightinfo["CallsignId"],
                               array_column($flight_callsigns, "Id")))
                 {
                     $valid = false;
@@ -424,7 +457,7 @@ FROM "
                     $flightdata[$flightid]["CallsignNumError"] = "Valid callsign number required";
                 }
 
-                if (!in_array($flightinfo["Aircraft"],
+                if (!in_array($flightinfo["AircraftId"],
                               array_column($aircraft, "Id")))
                 {
                     $valid = false;
@@ -437,7 +470,7 @@ FROM "
                     $flightdata[$flightid]["SeatsError"] = "Valid number of seats required";
                 }
 
-                if (!in_array($flightinfo["Role"],
+                if (!in_array($flightinfo["RoleId"],
                               array_column($roles, "Id")))
                 {
                     $valid = false;
@@ -505,7 +538,16 @@ FROM "
                              . " "
                              . $db->sql_build_array("INSERT", $params);
                         $db->sql_freeresult($this->execute_sql($sql));
-                        $packageid = $db->sql_nextid();
+                        $newpackageid = $db->sql_nextid();
+
+                        foreach ($flightdata as $flightid => $flightinfo)
+                        {
+                            if ($flightinfo["PackageId"] == $packageid)
+                            {
+                                $flightdata[$flightid]["PackageId"] = $newpackageid;
+                            }
+                        }
+                        $packageid = $newpackageid;
                     }
                     else
                     {
@@ -519,9 +561,56 @@ FROM "
                         $db->sql_freeresult($this->execute_sql($sql));
                     }
                     $newpackagedata[$packageid] = $params;
+
                 }
 
                 $packagedata = $newpackagedata;
+
+                $newflightdata = [];
+                foreach ($flightdata as $flightid => $flightinfo)
+                {
+                    $callsign = (int) $flightinfo["CallsignId"];
+                    $callsign_num = (int) $flightinfo["CallsignNum"];
+                    $aircraft = (int) $flightinfo["AircraftId"];
+                    $seats = (int) $flightinfo["Seats"];
+                    $role = (int) $flightinfo["RoleId"];
+                    $takeoff = $db->sql_escape($flightinfo["TakeoffTime"]);
+                    $flight_package = (int) $flightinfo["PackageId"];
+
+                    $params = array("CallsignId" => $callsign,
+                                    "CallsignNum" => $callsign_num,
+                                    "AircraftId" => $aircraft,
+                                    "Seats" => $seats,
+                                    "RoleId" => $role,
+                                    "TakeoffTime" => $takeoff,
+                                    "PackageId" => $flight_package);
+
+                    if (strpos($flightid, "new-") === 0)
+                    {
+                        $sql = "INSERT INTO "
+                             . Util::fm_table_name("flights")
+                             . " "
+                             . $db->sql_build_array("INSERT", $params);
+                        $db->sql_freeresult($this->execute_sql($sql));
+
+                        $newflightid = $db->sql_nextid();
+                    }
+                    else
+                    {
+                        $flightid = (int) $flightid;
+                        $sql = "UPDATE "
+                             . Util::fm_table_name("flights")
+                             . " SET "
+                             . $db->sql_build_array("UPDATE", $params)
+                             . " WHERE Id = "
+                             . $db->sql_escape($flightid);
+                        $db->sql_freeresult($this->execute_sql($sql));
+                    }
+                    $newflightdata[$flightid] = $params;
+
+                }
+
+                $flightdata = $newflightdata;
 
                 $tzName = $request->variable("mission-timezone", $defaultTimezone);
                 $missiondata = $this->read_db_missiondata($missionid, $tzName);
@@ -577,6 +666,7 @@ FROM "
             $missiondata = $this->read_db_missiondata($missionid, $tzName);
             // TODO: Return 404 for nonexistant mission
             $packagedata = $this->read_db_packagedata($missionid);
+            $flightdata = $this->read_db_flightdata($missionid);
         }
 
         if ( ! $missiondata )

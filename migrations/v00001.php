@@ -201,7 +201,7 @@ class v00001 extends \phpbb\db\migration\migration
         $this->run_sql("CREATE TABLE ${ato_table_prefix}flights (
   Id INT UNSIGNED AUTO_INCREMENT,
   PackageId INT UNSIGNED NOT NULL,
-  Callsign INT UNSIGNED NOT NULL,
+  CallsignId INT UNSIGNED NOT NULL,
   CallsignNum INT UNSIGNED NOT NULL,
   RoleId INT UNSIGNED NOT NULL,
   AircraftId INT UNSIGNED NOT NULL,
@@ -212,7 +212,7 @@ class v00001 extends \phpbb\db\migration\migration
   FOREIGN KEY (PackageId) REFERENCES ${ato_table_prefix}packages(Id) ON DELETE CASCADE,
   FOREIGN KEY (RoleId) REFERENCES ${ato_table_prefix}roles(Id),
   FOREIGN KEY (AircraftId) REFERENCES ${ato_table_prefix}aircraft(Id),
-  FOREIGN KEY (Callsign) REFERENCES ${ato_table_prefix}flight_callsigns(Id)
+  FOREIGN KEY (CallsignId) REFERENCES ${ato_table_prefix}flight_callsigns(Id)
 );");
 
         $this->run_sql("CREATE TABLE ${ato_table_prefix}scheduled_participants (

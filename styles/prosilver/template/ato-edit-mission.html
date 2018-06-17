@@ -211,10 +211,10 @@
                                 {{ flight.CallsignError }}
                             </div>
                             <select class="select2"
-                                    name="flights[{{ flight.Id }}][Callsign]">
+                                    name="flights[{{ flight.Id }}][CallsignId]">
                                 {% for callsign in loops.callsigns %}
                                 <option value="{{ callsign.Id }}"
-                                        {% if callsign.Id == flight.Callsign %}
+                                        {% if callsign.Id == flight.CallsignId %}
                                         selected="selected"
                                         {% endif %}
                                 >{{ callsign.Name }}</option>
@@ -235,10 +235,10 @@
                                 {{ flight.AircraftError }}
                             </div>
                             <select class="select2"
-                                    name="flights[{{ flight.Id }}][Aircraft]">
+                                    name="flights[{{ flight.Id }}][AircraftId]">
                                 {% for aircraft in loops.aircraft %}
                                 <option value="{{ aircraft.Id }}"
-                                        {% if aircraft.Id == flight.Aircraft %}
+                                        {% if aircraft.Id == flight.AircraftId %}
                                         selected="selected"
                                         {% endif %}
                                 >{{ aircraft.Name }}</option>
@@ -259,10 +259,10 @@
                                 {{ flight.RoleError }}
                             </div>
                             <select class="select2"
-                                    name="flights[{{ flight.Id }}][Role]">
+                                    name="flights[{{ flight.Id }}][RoleId]">
                                 {% for role in loops.roles %}
                                 <option value="{{ role.Id }}"
-                                        {% if role.Id == flight.Role %}
+                                        {% if role.Id == flight.RoleId %}
                                         selected="selected"
                                         {% endif %}
                                 >{{ role.Name }}</option>
@@ -273,9 +273,9 @@
                             <div class="flight-error">
                                 {{ flight.TakeoffError }}
                             </div>
-                            <input name="flights[{{ flight.Id }}][Takeoff]"
+                            <input name="flights[{{ flight.Id }}][TakeoffTime]"
                                    type="text"
-                                   value="{{ flight.Takeoff }}"
+                                   value="{{ flight.TakeoffTime }}"
                                    placeholder="e.g. 23:45" />
                         </td>
                         <td class="delete">
