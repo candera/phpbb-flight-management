@@ -181,7 +181,7 @@ class v00001 extends \phpbb\db\migration\migration
   Number INT UNSIGNED,
   NAME nvarchar(1024),
   PRIMARY KEY (Id),
-  FOREIGN KEY (MissionId) REFERENCES ${ato_table_prefix}missions(Id)
+  FOREIGN KEY (MissionId) REFERENCES ${ato_table_prefix}missions(Id) ON DELETE CASCADE
 );");
 
         $this->run_sql("CREATE TABLE ${ato_table_prefix}roles (
@@ -201,15 +201,18 @@ class v00001 extends \phpbb\db\migration\migration
         $this->run_sql("CREATE TABLE ${ato_table_prefix}flights (
   Id INT UNSIGNED AUTO_INCREMENT,
   PackageId INT UNSIGNED NOT NULL,
-  Callsign NVARCHAR(1024) NOT NULL,
+  Callsign INT UNSIGNED NOT NULL,
   CallsignNum INT UNSIGNED NOT NULL,
   RoleId INT UNSIGNED NOT NULL,
   AircraftId INT UNSIGNED NOT NULL,
-  TakeoffTime INT UNSIGNED, -- Falcon Time: minutes from midnight day 1
+  -- Ideally Falcon Time: minutes from midnight day 1, but decided to leave it loose
+  TakeoffTime NVARCHAR(1024) NULL, 
+  Seats INT UNSIGNED NOT NULL, -- How many seats in the flight
   PRIMARY KEY (Id),
-  FOREIGN KEY (PackageId) REFERENCES ${ato_table_prefix}packages(Id),
+  FOREIGN KEY (PackageId) REFERENCES ${ato_table_prefix}packages(Id) ON DELETE CASCADE,
   FOREIGN KEY (RoleId) REFERENCES ${ato_table_prefix}roles(Id),
-  FOREIGN KEY (AircraftId) REFERENCES ${ato_table_prefix}aircraft(Id)
+  FOREIGN KEY (AircraftId) REFERENCES ${ato_table_prefix}aircraft(Id),
+  FOREIGN KEY (Callsign) REFERENCES ${ato_table_prefix}flight_callsigns(Id)
 );");
 
         $this->run_sql("CREATE TABLE ${ato_table_prefix}scheduled_participants (
@@ -218,7 +221,7 @@ class v00001 extends \phpbb\db\migration\migration
   MemberPilot INT UNSIGNED,
   NonmemberPilot NVARCHAR(1024),
   ConfirmedFlown BIT DEFAULT b'0' NOT NULL,
-  FOREIGN KEY (FlightId) REFERENCES ${ato_table_prefix}flights(Id),
+  FOREIGN KEY (FlightId) REFERENCES ${ato_table_prefix}flights(Id) ON DELETE CASCADE,
   FOREIGN KEY (MemberPilot) REFERENCES {$this->table_prefix}users(user_id),
   UNIQUE KEY (SeatNum, FlightId)
 );");

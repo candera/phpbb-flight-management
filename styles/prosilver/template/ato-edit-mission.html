@@ -21,7 +21,7 @@
     <form method="post" id="edit-mission-form">
         <input name="save" type="submit" value="Save" />
         <h2>Mission Details</h2>
-        <table>
+        <table class="mission-details">
             <tr>
                 <td class="field-label">
                     <label>Published?</label>
@@ -155,6 +155,7 @@
 
         <h2>Packages</h2>
         {% for package in loops.packages %}
+        <hr />
         <fieldset class="package">
             <legend>
                 {% if package.Number %}
@@ -169,7 +170,7 @@
                 Unnamed Package
                 {% endif %}
             </legend>
-            <input type="submit" 
+            <input type="submit"
                    value="Delete This Package"
                    name="delete-package[{{ package.Id }}]" />
             <table>
@@ -182,20 +183,127 @@
                 <tr>
                     <td class="field-label">Package Number</td>
                     <td class="value">
-                        <input type="text" name="packages[{{ package.Id }}][Number]" value="{{ package.Number }}" />
+                        <input type="text"
+                               name="packages[{{ package.Id }}][Number]"
+                               value="{{ package.Number }}"
+                               pattern="[0-9]*" />
                     </td>
                 </tr>
             </table>
+            <table class="flights">
+                <thead>
+                    <tr>
+                        <th>Callsign</th>
+                        <th>#</th>
+                        <th>Aircraft</th>
+                        <th>Seats</th>
+                        <th>Role</th>
+                        <th>Takeoff</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for flight in loops.flights %}
+                    {% if flight.PackageId == package.Id %}
+                    <tr>
+                        <td class="callsign">
+                            <div class="flight-error">
+                                {{ flight.CallsignError }}
+                            </div>
+                            <select class="select2"
+                                    name="flights[{{ flight.Id }}][Callsign]">
+                                {% for callsign in loops.callsigns %}
+                                <option value="{{ callsign.Id }}"
+                                        {% if callsign.Id == flight.Callsign %}
+                                        selected="selected"
+                                        {% endif %}
+                                >{{ callsign.Name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="callsign-num">
+                            <div class="flight-error">
+                                {{ flight.CallsignNumError }}
+                            </div>
+                            <input type="number"
+                                   min="1"
+                                   name="flights[{{ flight.Id }}][CallsignNum]"
+                                   value="{{ flight.CallsignNum }}" />
+                        </td>
+                        <td class="aircraft">
+                            <div class="flight-error">
+                                {{ flight.AircraftError }}
+                            </div>
+                            <select class="select2"
+                                    name="flights[{{ flight.Id }}][Aircraft]">
+                                {% for aircraft in loops.aircraft %}
+                                <option value="{{ aircraft.Id }}"
+                                        {% if aircraft.Id == flight.Aircraft %}
+                                        selected="selected"
+                                        {% endif %}
+                                >{{ aircraft.Name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="seats">
+                            <div class="flight-error">
+                                {{ flight.SeatsError }}
+                            </div>
+                            <input type="number"
+                                   min="1"
+                                   name="flights[{{ flight.Id }}][Seats]"
+                                   value="{{ flight.Seats }}" />
+                        </td>
+                        <td class="role">
+                            <div class="flight-error">
+                                {{ flight.RoleError }}
+                            </div>
+                            <select class="select2"
+                                    name="flights[{{ flight.Id }}][Role]">
+                                {% for role in loops.roles %}
+                                <option value="{{ role.Id }}"
+                                        {% if role.Id == flight.Role %}
+                                        selected="selected"
+                                        {% endif %}
+                                >{{ role.Name }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td class="takeoff">
+                            <div class="flight-error">
+                                {{ flight.TakeoffError }}
+                            </div>
+                            <input name="flights[{{ flight.Id }}][Takeoff]"
+                                   type="text"
+                                   value="{{ flight.Takeoff }}"
+                                   placeholder="e.g. 23:45" />
+                        </td>
+                        <td class="delete">
+                            <input type="hidden"
+                                   name="flights[{{ flight.Id }}][PackageId]"
+                                   value="{{ package.Id }}" />
+                            <input type="submit"
+                                   value="Delete This Flight"
+                                   name="delete-flight[{{ package.Id }}][{{ flight.Id }}]" />
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+            </table>
+            <input name="add-flight[{{ package.Id }}]" type="submit" value="Add Flight" />
         </fieldset>
         {% endfor %}
 
-        <input name="add-package" type="submit" value="Add Package" style="display:block" />
+        <input name="add-package"
+               type="submit"
+               value="Add Package"
+               class="add-package-button" />
 
         <h2>Additional Information</h2>
         <div class="error">{{ DESCRIPTION_ERROR }}</div>
         <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
 
-        <input name="save" type="submit" value="Save" />
+        <input name="save" type="submit" value="Save" class="save-button bottom" />
 
     </form>
 </div>

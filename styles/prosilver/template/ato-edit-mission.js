@@ -40,7 +40,6 @@ $(document).ready(function() {
     $(".duration-picker").timesetter({});
 
     $("#duration-picker").setValuesByTotalMinutes($("#duration-value")[0].value);
-
     $("#duration-picker").on("change", function() {
         var mins = $("#duration-picker").getTotalMinutes();
         $("#duration-value")[0].value = mins;

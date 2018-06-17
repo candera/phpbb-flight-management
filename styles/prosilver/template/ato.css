@@ -1,3 +1,11 @@
+.save-button.bottom {
+    display: block;
+}
+
+.add-package-button {
+    display: block;
+}
+
 a.ato-button {
     -moz-appearance: button;
     -ms-appearance: button;
@@ -13,8 +21,15 @@ a.ato-button {
 }
 
 .error {
-    font-color: red;
+    color: #9C0707;
     font-style: italic;
+}
+
+.flight-error {
+    color: #9C0707;
+    font-size: 80%;
+    font-style: italic;
+    /* min-height: 20px; */
 }
 
 .value {
@@ -55,7 +70,7 @@ a.ato-button {
     /* padding: 4px 7px; */
 }
 
-.mission-editor table tr td:nth-child(2) {
+.mission-editor table.mission-details tr td:nth-child(2) {
     width: 300px;
 }
 
@@ -68,4 +83,36 @@ a.ato-button {
     color: grey;
     font-style: italic;
     font-size: 90%;
+}
+
+table.flights tr {
+    vertical-align: bottom;
+}
+
+table.flights td.callsign {
+    width: 150px;
+}
+
+table.flights td.callsign-num {
+    width: 50px;
+}
+
+table.flights td.callsign-num input {
+    width: 50px;
+}
+
+table.flights td.aircraft {
+    width: 150px;
+}
+
+table.flights td.seats input {
+    width: 50px;
+}
+
+table.flights td.role {
+    width: 150px;
+}
+
+table.flights td.takeoff input {
+    width: 75px;
 }

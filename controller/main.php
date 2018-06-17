@@ -191,6 +191,40 @@ FROM "
         return $utc->format("Y-m-d H:i");
     }
 
+    private function get_new_flightid($flightdata)
+    {
+        foreach ($flightdata as $flightid => $data)
+        {
+            error_log("Examining existing flight {$flightid}");
+            $effectiveid = -1;
+            if (strpos($flightid, "new-") === 0)
+            {
+                $effectiveid = substr($flightid, 4);
+            }
+
+            $effectiveid = (int) $effectiveid;
+
+            if ($effectiveid > $maxid)
+            {
+                $maxid = $effectiveid;
+            }
+        }
+
+        $nextid = $maxid + 1;
+
+        $flightid = "new-{$nextid}";
+
+        return $flightid;
+    }
+
+    private function new_flight_data($packageid)
+    {
+        return array("PackageId" => $packageid,
+                     "CallsignNum" => 1,
+                     "Seats" => 4,
+                     "Takeoff" => "");
+    }
+
     public function handle_edit_mission($missionid)
     {
         global $auth, $config, $db, $request, $template, $user;
@@ -225,23 +259,28 @@ FROM "
         $missiontypes = $this->read_code_table("missiontypes", [ "Id", "Name" ]);
         $roles = $this->read_code_table("roles", [ "Id", "Name" ]);
         $opento = $this->read_code_table("admittance", [ "Id", "Name" ]);
+        $flight_callsigns = $this->read_code_table("flight_callsigns", [ "Id", "Name" ]);
+        $aircraft = $this->read_code_table("aircraft", [ "Id", "Name" ]);
 
         $missiondata = null;
 
-        $packagedata = $request->variable("packages", array("" => array("Name" => "",
-                                                                        "Number" => 0)));
+        $packagedata = $request->variable("packages", array("" => array("" => "")));
 
-        $is_delete_package = false;
+        // It sucks not to have this be nested inside the package, but
+        // I couldn't figure out how to make it work.
+        $flightdata = $request->variable("flights", array("" => array("" => "")));
+
+        error_log("submitted packagedata " . json_encode($packagedata));
+        error_log("submitted flightdata " . json_encode($flightdata));
+
+        $should_attempt_save = false;
         if ($request->is_set_post("delete-package"))
         {
-            error_log("Deleting a package");
             $newpackagedata = array();
-            $is_delete_package = true;
+            $should_attempt_save = true;
             $deleting_packages = $request->variable("delete-package", array("" => ""));
 
             $deleted_package_id = array_keys($deleting_packages)[0];
-
-            error_log("Deleted package has id {$deleted_package_id}");
 
             foreach ($packagedata as $packageid => $packageinfo)
             {
@@ -265,35 +304,57 @@ FROM "
             $packagedata = $newpackagedata;
         }
 
-
-        if ($request->is_set_post("save") || $request->is_set_post("add-package") || $is_delete_package)
+        if ($request->is_set_post("add-package"))
         {
-            if ($request->is_set_post("add-package"))
+            $should_attempt_save = true;
+            $maxid = -1;
+            foreach ($packagedata as $packageid => $data)
             {
-                $maxid = -1;
-                foreach ($packagedata as $packageid => $data)
+                $effectiveid = -1;
+                if (strpos($packageid, "new-") === 0)
                 {
-                    $effectiveid = -1;
-                    if (strpos($packageid, "new-") === 0)
-                    {
-                        $effectiveid = substr($packageid, 4);
-                    }
-
-                    $effectiveid = (int) $effectiveid;
-
-                    if ($effectiveid > $maxid)
-                    {
-                        $maxid = $effectiveid;
-                    }
+                    $effectiveid = substr($packageid, 4);
                 }
 
-                $nextid = $maxid + 1;
+                $effectiveid = (int) $effectiveid;
 
-                $packageid = "new-{$nextid}";
-                $packagedata[$packageid] = array("Name"   => "New Package",
-                                                 "Number" => "");
+                if ($effectiveid > $maxid)
+                {
+                    $maxid = $effectiveid;
+                }
             }
 
+            $nextid = $maxid + 1;
+
+            $packageid = "new-{$nextid}";
+            $packagedata[$packageid] = array("Name"   => "New Package",
+                                             "Number" => "");
+            $flightdata[$this->get_new_flightid($flightdata)]
+                = $this->new_flight_data($packageid);
+        }
+
+
+        if ($request->is_set_post("add-flight"))
+        {
+            $should_attempt_save = true;
+            $packageid_for_flight = array_keys($request->variable("add-flight", array("" => "")))[0];
+            $maxid = -1;
+
+            error_log("Adding a flight to package {$packageid_for_flight}");
+
+            $flightid = $this->get_new_flightid($flightdata);
+
+            error_log("New flight ID is {$flightid}");
+            $flightdata[$flightid] = $this->new_flight_data($packageid_for_flight);
+        }
+
+        if ($request->is_set_post("save"))
+        {
+            $should_attempt_save = true;
+        }
+
+        if ($should_attempt_save)
+        {
             $valid = true;
             // TODO: Validate. If valid, save data. If not valid,
             // return posted data with error info.
@@ -346,6 +407,47 @@ FROM "
             {
                 $valid = false;
                 $template->assign_var("OPENTO_ERROR", "A valid selection is required.");
+            }
+
+            foreach ($flightdata as $flightid => $flightinfo)
+            {
+                if (!in_array($flightinfo["Callsign"],
+                              array_column($flight_callsigns, "Id")))
+                {
+                    $valid = false;
+                    $flightdata[$flightid]["CallsignError"] = "Valid callsign required";
+                }
+
+                if ($flightinfo["CallsignNum"] <= 0)
+                {
+                    $valid = false;
+                    $flightdata[$flightid]["CallsignNumError"] = "Valid callsign number required";
+                }
+
+                if (!in_array($flightinfo["Aircraft"],
+                              array_column($aircraft, "Id")))
+                {
+                    $valid = false;
+                    $flightdata[$flightid]["AircraftError"] = "Valid aircraft required";
+                }
+
+                if ($flightinfo["Seats"] <= 0)
+                {
+                    $valid = false;
+                    $flightdata[$flightid]["SeatsError"] = "Valid number of seats required";
+                }
+
+                if (!in_array($flightinfo["Role"],
+                              array_column($roles, "Id")))
+                {
+                    $valid = false;
+                    $flightdata[$flightid]["RoleError"] = "Valid role required";
+                }
+
+                // I decided not to validate takeoff time. I don't see
+                // a ton of value in it, so I left it as freeform
+                // text.
+
             }
 
             // TODO: More validation
@@ -463,6 +565,10 @@ FROM "
                 "DURATION" => 120,
                 "OPENTO" => 0
             );
+
+            $packagedata["new-0"] = array("Name"   => "New Package",
+                                          "Number" => "");
+            $flightdata["new-0"] = $this->new_flight_data("new-0");
         }
         // It's a GET for an existing mission
         else
@@ -481,8 +587,13 @@ FROM "
         foreach ($packagedata as $packageid => $packageinfo)
         {
             $packageinfo["Id"] = $packageid;
-            error_log("packageInfo['Id'] = {$packageid}");
             $template->assign_block_vars("packages", $packageinfo);
+        }
+
+        foreach ($flightdata as $flightid => $flightinfo)
+        {
+            $flightinfo["Id"] = $flightid;
+            $template->assign_block_vars("flights", $flightinfo);
         }
 
         $template->assign_vars($missiondata);
@@ -504,6 +615,8 @@ FROM "
         $this->populate_template_code_tables("missiontypes", $missiontypes);
         $this->populate_template_code_tables("roles", $roles);
         $this->populate_template_code_tables("opento", $opento);
+        $this->populate_template_code_tables("callsigns", $flight_callsigns);
+        $this->populate_template_code_tables("aircraft", $aircraft);
 
         return $this->helper->render('ato-edit-mission.html', '440th VFW ATO');
     }
