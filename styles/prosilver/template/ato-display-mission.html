@@ -1,9 +1,102 @@
 <!-- -*- mode: web -*- -->
 {% INCLUDECSS '@VFW440_flight_management/ato.css' %}
+{% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
+
+{% INCLUDEJS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/ato-display-mission.js' %}
 
 {% INCLUDE 'overall_header.html' %}
 
-TODO
+<h1>Mission: {{ Name }}</h1>
+
+<table class="mission-details">
+    <tr>
+        <td class="field-label">
+            <label>Published?</label>
+        </td>
+        <td class="value">
+            {% if Published %}
+            Yes
+            {% else %}
+            No
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td class="field-label">
+            <label>Open To:</label>
+        </td>
+        <td class="value">{{ OpenTo }}</td>
+    </tr>
+    </tr>
+    <tr>
+        <td class="field-label">
+            <label>Theater:</label>
+        </td>
+        <td class="value">{{ Theater }}</td>
+    </tr>
+    <tr>
+        <td class="field-label">
+            <label>Mission Type:</label>
+        </td>
+        <td class="value">{{ Type }}</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td id="mission-time-utc"></td>
+    </tr>
+    <tr>
+        <td class="field-label">
+            <label>Date/Time:</label>
+        </td>
+        <td class="value datetimefields">{{ Date | date("Y/m/d H:i") }}</td>
+    </tr>
+    <!-- <tr>
+         <td class="field-label">
+         <label>Timezone:</label>
+         </td>
+         <td class="value datetimefields">
+         <select class="select2" id="timezones" name="mission-timezone">
+         {% for timezones in loops.timezones %}
+         <option value="{{ timezones.Id }}"
+         {% if timezones.Id == MISSIONTIMEZONE %}
+         selected="selected"
+         {% endif %}
+         >{{ timezones.Name }}</option>
+         {% endfor %}
+         </select>
+         </td>
+         <td class="error">{{ MISSIONTIMEZONE_ERROR }}</td>
+         </tr> -->
+    <tr>
+        <td class="field-label">
+            <label>Duration:</label>
+        </td>
+        <td class="duration">{{ Duration / 60 }}:{{ "%02d" | format(Duration % 60) }}</td>
+    </tr>
+    <tr>
+        <td class="field-label">
+            <label>Host:</label>
+        </td>
+        <td class="value">{{ ServerAddress }}</td>
+    </tr>
+</table>
+
+
+<table>
+    <thead>
+        <th>Callsign</th>
+        <th>Seats</th>
+    </thead>
+    <tbody>
+        {% for flight in loops.flights %}
+        <tr>
+            <td>{{ flight.Callsign }} {{ flight.CallsignNum }}</td>
+            <td>{{ flight.Seats }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% INCLUDE 'overall_footer.html' %}
 

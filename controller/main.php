@@ -134,6 +134,83 @@ AND m.Published = b'1'");
 
     public function handle_display_mission($missionid)
     {
+        global $db, $template;
+
+        $missions_table = Util::fm_table_name("missions");
+        $admittance_table = Util::fm_table_name("admittance");
+        $missiontypes_table = Util::fm_table_name("missiontypes");
+        $theaters_table = Util::fm_table_name("theaters");
+        $missionid = $db->sql_escape($missionid);
+        $result = $this->execute_sql("SELECT
+  m.Published         AS Published,
+  m.Name              AS Name,
+  adm.Name            AS OpenTo,
+  theater.Name        AS Theater,
+  types.Name          AS Type,
+  m.Date              AS Date,
+  m.ScheduledDuration AS ScheduledDuration,
+  m.Description       AS Description,
+  m.ServerAddress     AS ServerAddress
+FROM {$missions_table} as m
+INNER JOIN {$admittance_table} as adm
+ON adm.Id = m.OpenTo
+INNER JOIN {$theaters_table} as theater
+ON theater.Id = m.Theater
+INNER JOIN {$missiontypes_table} as types
+ON types.Id = m.Type
+WHERE m.Id = {$missionid}");
+
+        $row = $db->sql_fetchrow($result);
+
+        if ( ! $row )
+        {
+            return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
+        }
+
+        $missiondata = $row;
+
+        $duration_mins = (int) $row["ScheduledDuration"];
+        $missiondata["DurationHours"] = floor($duration_mins / 60);
+        $missiondata["DurationMins"] = sprintf("%02d", $duration_mis % 60);
+
+        $db->sql_freeresult($result);
+
+        // $db_date = new \DateTime($missiondata["MISSIONDATE"], new \DateTimeZone("UTC"));
+
+        // $db_date->setTimezone(new \DateTimeZone($tzName));
+
+
+        // $missiondata["MISSIONDATE"] = $db_date->format("Y-m-d H:i");
+        // $missiondata["MISSIONTIMEZONE"] = $tzName;
+
+        // return $missiondata;
+
+        
+        // $missiondata = $this->read_db_missiondata($missionid, "UTC"); // TODO: Set timezone
+
+        // if ( ! $missiondata )
+        // {
+        //     return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
+        // }
+
+        // $packagedata = $this->read_db_packagedata($missionid);
+        // $flightdata = $this->read_db_flightdata($missionid);
+
+        // foreach ($packagedata as $packageid => $packageinfo)
+        // {
+        //     $packageinfo["Id"] = $packageid;
+        //     $template->assign_block_vars("packages", $packageinfo);
+        // }
+
+        // foreach ($flightdata as $flightid => $flightinfo)
+        // {
+        //     $flightinfo["Id"] = $flightid;
+        //     $template->assign_block_vars("flights", $flightinfo);
+        // }
+
+        $template->assign_vars($missiondata);
+        $this->assign_timezones_var("timezones");
+        
         return $this->helper->render('ato-display-mission.html', '440th VFW ATO');
     }
 
@@ -285,6 +362,25 @@ WHERE p.MissionId = {$safe_mission_id}");
                      "CallsignNum" => 1,
                      "Seats" => 4,
                      "TakeoffTime" => "");
+    }
+
+    private function assign_timezones_var($varname)
+    {
+        global $template;
+                             
+        $template->assign_block_vars($varname, array("" => ""));
+        foreach (\DateTimeZone::listIdentifiers(\DateTimeZone::ALL) as $tzid => $tzname)
+        {
+            $tzoffset = (new \DateTimeZone($tzname))->getOffset(new \DateTime());
+            $tzoffsetstr = sprintf("%s%02d%02d",
+                                   $tzoffset < 0 ? "-" : "+",
+                                   abs($tzoffset) / 60 / 60,
+                                   (abs($tzoffset) / 60) % 60);
+
+            $template->assign_block_vars("timezones", array("Id" => $tzname,
+                                                            "Name" => "[{$tzoffsetstr}] {$tzname}"));
+        }
+
     }
 
     public function handle_edit_mission($missionid)
@@ -717,19 +813,7 @@ WHERE p.MissionId = {$safe_mission_id}");
 
         $template->assign_vars($missiondata);
 
-        $template->assign_block_vars("timezones", array("" => ""));
-        foreach (\DateTimeZone::listIdentifiers(\DateTimeZone::ALL) as $tzid => $tzname)
-        {
-            $tzoffset = (new \DateTimeZone($tzname))->getOffset(new \DateTime());
-            $tzoffsetstr = sprintf("%s%02d%02d",
-                                   $tzoffset < 0 ? "-" : "+",
-                                   abs($tzoffset) / 60 / 60,
-                                   (abs($tzoffset) / 60) % 60);
-
-            $template->assign_block_vars("timezones", array("Id" => $tzname,
-                                                            "Name" => "[{$tzoffsetstr}] {$tzname}"));
-        }
-
+        $this->assign_timezones_var("timezones");
         $this->populate_template_code_tables("theaters", $theaters);
         $this->populate_template_code_tables("missiontypes", $missiontypes);
         $this->populate_template_code_tables("roles", $roles);
