@@ -1,0 +1,11 @@
+{% if package.Number %}
+Package {{ package.Number }}
+{% endif %}
+{% if package.Number && package.Name %}
+--
+{% endif %}
+{% if package.Name %}
+{{ package.Name }}
+{% elseif ! package.Number %}
+Unnamed Package
+{% endif %}

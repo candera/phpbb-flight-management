@@ -193,20 +193,20 @@ WHERE m.Id = {$missionid}");
         //     return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
         // }
 
-        // $packagedata = $this->read_db_packagedata($missionid);
-        // $flightdata = $this->read_db_flightdata($missionid);
+        $packagedata = $this->read_db_packagedata($missionid);
+        $flightdata = $this->read_db_flightdata($missionid);
 
-        // foreach ($packagedata as $packageid => $packageinfo)
-        // {
-        //     $packageinfo["Id"] = $packageid;
-        //     $template->assign_block_vars("packages", $packageinfo);
-        // }
+        foreach ($packagedata as $packageid => $packageinfo)
+        {
+            $packageinfo["Id"] = $packageid;
+            $template->assign_block_vars("packages", $packageinfo);
+        }
 
-        // foreach ($flightdata as $flightid => $flightinfo)
-        // {
-        //     $flightinfo["Id"] = $flightid;
-        //     $template->assign_block_vars("flights", $flightinfo);
-        // }
+        foreach ($flightdata as $flightid => $flightinfo)
+        {
+            $flightinfo["Id"] = $flightid;
+            $template->assign_block_vars("flights", $flightinfo);
+        }
 
         $template->assign_vars($missiondata);
         $this->assign_timezones_var("timezones");
@@ -249,7 +249,9 @@ FROM "
             "DESCRIPTION" => $row["Description"],
             "SERVER"      => $row["ServerAddress"],
             "DURATION"    => $row["ScheduledDuration"],
-            "OPENTO"      => $row["OpenTo"]
+            "OPENTO"      => $row["OpenTo"],
+            "MISSIONLINK" => $this->helper->route('ato_display_mission_route',
+                                                  array('missionid' => $missionid))
         );
 
         $db->sql_freeresult($result);
@@ -296,20 +298,32 @@ FROM "
 
         $packages_table = Util::fm_table_name("packages");
         $flights_table = Util::fm_table_name("flights");
+        $flight_callsigns_table = Util::fm_table_name("flight_callsigns");
+        $roles_table = Util::fm_table_name("roles");
+        $aircraft_table = Util::fm_table_name("aircraft");
         $safe_mission_id = $db->sql_escape($missionid);
 
         $result = $this->execute_sql("SELECT
   f.Id,
   f.PackageId,
   f.CallsignId,
+  c.Name as CallsignName,
   f.CallsignNum,
   f.RoleId,
+  r.Name as RoleName,
   f.AircraftId,
+  a.Name as AircraftName,
   f.TakeoffTime,
   f.Seats
 FROM {$flights_table} as f
 INNER JOIN {$packages_table} as p
 ON f.PackageId = p.Id
+LEFT JOIN {$flight_callsigns_table} as c
+ON f.CallsignId = c.Id
+LEFT JOIN {$roles_table} as r
+ON f.RoleId = r.Id
+LEFT JOIN {$aircraft_table} as a
+ON f.AircraftId = a.Id
 WHERE p.MissionId = {$safe_mission_id}");
 
         $flightdata = [];

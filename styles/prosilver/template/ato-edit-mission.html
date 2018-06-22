@@ -24,6 +24,19 @@
         <table class="mission-details">
             <tr>
                 <td class="field-label">
+                    <label>Signup Link</label>
+                </td>
+                <td class="value">
+                    {% if MISSIONLINK %}
+                    <a href="{{ MISSIONLINK }}">{{ MISSIONLINK }}</a>
+                    {% else %}
+                    (Must first save mission)
+                    {% endif %}
+                </td>
+                <td class="error"></td>
+            </tr>
+            <tr>
+                <td class="field-label">
                     <label>Published?</label>
                 </td>
                 <td class="value">
@@ -157,19 +170,7 @@
         {% for package in loops.packages %}
         <hr />
         <fieldset class="package">
-            <legend>
-                {% if package.Number %}
-                Package {{ package.Number }}
-                {% endif %}
-                {% if package.Number && package.Name %}
-                --
-                {% endif %}
-                {% if package.Name %}
-                {{ package.Name }}
-                {% elseif ! package.Number %}
-                Unnamed Package
-                {% endif %}
-            </legend>
+            <legend>{% include "package-name.html" %}</legend>
             <input type="submit"
                    value="Delete This Package"
                    name="delete-package[{{ package.Id }}]" />
