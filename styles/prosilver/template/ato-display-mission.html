@@ -119,10 +119,27 @@
                 {% for flight in loops.flights %}
                 {% if flight.PackageId == package.Id %}
                 {% for seat in 1..flight.Seats %}
+                {% set participant = flight.Participants[seat] %}
                 <tr>
                     <td>{{ flight.CallsignName }}</td>
                     <td>{{ flight.CallsignNum }}-{{ seat }}</td>
-                    <td><input type="Submit" name="sign-in" value="Sign In" /></td>
+                    <td>{% if participant %}
+                        {{ participant.MemberPilot }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if participant.Action == 'sign-in' %}
+                        <input type="Submit"
+                               name="sign-in[{{ flight.Id }}][{{ seat }}]"
+                               value="Sign In" />
+                        {% elseif participant.Action == 'sign-out' %}
+                        <input type="Submit"
+                               name="sign-out[{{ flight.Id }}][{{ seat }}]"
+                               value="Sign Out" />
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
                 <tr><td colspan="2">&nbsp;</td></tr>
@@ -136,4 +153,3 @@
 </form>
 
 {% INCLUDE 'overall_footer.html' %}
-

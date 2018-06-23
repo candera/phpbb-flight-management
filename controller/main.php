@@ -77,6 +77,8 @@ class main
     {
         global $template;
 
+        error_log("populate_template_code_tables {$table} : " . count($data));
+
         $template->assign_block_vars($table, array("Id" => 0));
 
         foreach ($data as $row)
@@ -134,7 +136,7 @@ AND m.Published = b'1'");
 
     public function handle_display_mission($missionid)
     {
-        global $db, $template;
+        global $db, $request, $template, $user;
 
         $missions_table = Util::fm_table_name("missions");
         $admittance_table = Util::fm_table_name("admittance");
@@ -167,6 +169,46 @@ WHERE m.Id = {$missionid}");
             return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
         }
 
+        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
+
+        if ($request->is_set_post("sign-in"))
+        {
+            // TODO: Validate permission to sign in
+            $signin_data = $request->variable("sign-in", array(0 => array(0 => "")));
+            $signin_flight = array_keys($signin_data)[0];
+            $signin_seat = array_keys($signin_data[$signin_flight])[0];
+            $userid = $user->data["user_id"];
+
+            $signin_flight = $db->sql_escape($signin_flight);
+            $signin_seat = $db->sql_escape($signin_seat);
+
+            $sql = "INSERT INTO {$scheduled_participants_table}
+(FlightId, SeatNum, MemberPilot)
+VALUES ({$signin_flight}, {$signin_seat}, {$userid})";
+            $db->sql_freeresult($this->execute_sql($sql));
+        }
+
+        if ($request->is_set_post("sign-out"))
+        {
+            // TODO: Validate permission to sign out
+            $signout_data = $request->variable("sign-out", array(0 => array(0 => "")));
+            $signout_flight = array_keys($signout_data)[0];
+            $signout_seat = array_keys($signout_data[$signout_flight])[0];
+            $userid = $user->data["user_id"];
+
+            $signout_flight = $db->sql_escape($signout_flight);
+            $signout_seat = $db->sql_escape($signout_seat);
+
+            $sql = "DELETE FROM {$scheduled_participants_table}
+WHERE FlightId = {$signout_flight}
+AND SeatNum = {$signout_seat}";
+            $db->sql_freeresult($this->execute_sql($sql));
+        }
+
+
+        // TODO: If mission is not published, display or don't display as approproate
+        // TODO: What is "appropriate"?
+
         $missiondata = $row;
 
         $duration_mins = (int) $row["ScheduledDuration"];
@@ -174,24 +216,6 @@ WHERE m.Id = {$missionid}");
         $missiondata["DurationMins"] = sprintf("%02d", $duration_mis % 60);
 
         $db->sql_freeresult($result);
-
-        // $db_date = new \DateTime($missiondata["MISSIONDATE"], new \DateTimeZone("UTC"));
-
-        // $db_date->setTimezone(new \DateTimeZone($tzName));
-
-
-        // $missiondata["MISSIONDATE"] = $db_date->format("Y-m-d H:i");
-        // $missiondata["MISSIONTIMEZONE"] = $tzName;
-
-        // return $missiondata;
-
-        
-        // $missiondata = $this->read_db_missiondata($missionid, "UTC"); // TODO: Set timezone
-
-        // if ( ! $missiondata )
-        // {
-        //     return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
-        // }
 
         $packagedata = $this->read_db_packagedata($missionid);
         $flightdata = $this->read_db_flightdata($missionid);
@@ -205,12 +229,31 @@ WHERE m.Id = {$missionid}");
         foreach ($flightdata as $flightid => $flightinfo)
         {
             $flightinfo["Id"] = $flightid;
+            for ($i = 1; $i <= (int) $flightinfo["Seats"]; $i++)
+            {
+                // TODO: Also check if participant is self and for
+                // permission (via admittance) to join and to sign out
+                // other people.
+
+                // TODO: Also do not display sign-in if user is
+                // already signed in to some seat.
+                if ($flightinfo["Participants"][$i] != null)
+                {
+                    $flightinfo["Participants"][$i]["Action"] = "sign-out";
+                }
+                else
+                {
+                    $flightinfo["Participants"][$i] = array("Action" => "sign-in");
+                }
+            }
             $template->assign_block_vars("flights", $flightinfo);
+
+            error_log("flightinfo (flightdata loop) : " . json_encode($flightinfo));
         }
 
         $template->assign_vars($missiondata);
         $this->assign_timezones_var("timezones");
-        
+
         return $this->helper->render('ato-display-mission.html', '440th VFW ATO');
     }
 
@@ -301,6 +344,8 @@ FROM "
         $flight_callsigns_table = Util::fm_table_name("flight_callsigns");
         $roles_table = Util::fm_table_name("roles");
         $aircraft_table = Util::fm_table_name("aircraft");
+        $users_table = USERS_TABLE;
+        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
         $safe_mission_id = $db->sql_escape($missionid);
 
         $result = $this->execute_sql("SELECT
@@ -327,9 +372,31 @@ ON f.AircraftId = a.Id
 WHERE p.MissionId = {$safe_mission_id}");
 
         $flightdata = [];
+        $flight_ids = [];
         while ($row = $db->sql_fetchrow($result))
         {
-            $flightdata[$row["Id"]] = $row;
+            $flightid = $row["Id"];
+            $flightdata[$flightid] = $row;
+            $flight_ids[] = $flightid;
+        }
+
+        $db->sql_freeresult($result);
+
+        $result = $this->execute_sql("SELECT
+  sp.SeatNum,
+  sp.FlightId,
+  sp.MemberPilot as MemberPilotId,
+  u.username as MemberPilot,
+  sp.NonmemberPilot,
+  sp.ConfirmedFlown
+FROM {$scheduled_participants_table} as sp
+LEFT JOIN {$users_table} as u
+ON sp.MemberPilot = u.user_id
+WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
+
+        while ($row = $db->sql_fetchrow($result))
+        {
+            $flightdata[$row["FlightId"]]["Participants"][$row["SeatNum"]] = $row;
         }
 
         $db->sql_freeresult($result);
@@ -381,7 +448,7 @@ WHERE p.MissionId = {$safe_mission_id}");
     private function assign_timezones_var($varname)
     {
         global $template;
-                             
+
         $template->assign_block_vars($varname, array("" => ""));
         foreach (\DateTimeZone::listIdentifiers(\DateTimeZone::ALL) as $tzid => $tzname)
         {
@@ -665,7 +732,7 @@ WHERE p.MissionId = {$safe_mission_id}");
                 $newpackagedata = [];
                 foreach ($packagedata as $packageid => $packageinfo)
                 {
-                    $packagenumber = (int) $packageinfo["Number"];
+                    $packagenumber = $packageinfo["Number"] == "" ? null : (int) $packageinfo["Number"];
                     $packagename = $db->sql_escape($packageinfo["Name"]);
                     $params = array("MissionId" => $missionid,
                                     "Name" => $packagename,
@@ -710,7 +777,7 @@ WHERE p.MissionId = {$safe_mission_id}");
                 {
                     $callsign = (int) $flightinfo["CallsignId"];
                     $callsign_num = (int) $flightinfo["CallsignNum"];
-                    $aircraft = (int) $flightinfo["AircraftId"];
+                    $aircraftid = (int) $flightinfo["AircraftId"];
                     $seats = (int) $flightinfo["Seats"];
                     $role = (int) $flightinfo["RoleId"];
                     $takeoff = $db->sql_escape($flightinfo["TakeoffTime"]);
@@ -718,7 +785,7 @@ WHERE p.MissionId = {$safe_mission_id}");
 
                     $params = array("CallsignId" => $callsign,
                                     "CallsignNum" => $callsign_num,
-                                    "AircraftId" => $aircraft,
+                                    "AircraftId" => $aircraftid,
                                     "Seats" => $seats,
                                     "RoleId" => $role,
                                     "TakeoffTime" => $takeoff,
@@ -828,12 +895,12 @@ WHERE p.MissionId = {$safe_mission_id}");
         $template->assign_vars($missiondata);
 
         $this->assign_timezones_var("timezones");
+        $this->populate_template_code_tables("aircraft", $aircraft);
         $this->populate_template_code_tables("theaters", $theaters);
         $this->populate_template_code_tables("missiontypes", $missiontypes);
         $this->populate_template_code_tables("roles", $roles);
         $this->populate_template_code_tables("opento", $opento);
         $this->populate_template_code_tables("callsigns", $flight_callsigns);
-        $this->populate_template_code_tables("aircraft", $aircraft);
 
         return $this->helper->render('ato-edit-mission.html', '440th VFW ATO');
     }
