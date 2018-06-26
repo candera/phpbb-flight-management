@@ -665,6 +665,35 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
             $flightdata[$flightid] = $this->new_flight_data($packageid_for_flight);
         }
 
+        if ($request->is_set_post("delete-flight"))
+        {
+            $newflightdata = array();
+            $should_attempt_save = true;
+            $deleted_flight_id = array_keys($request->variable("delete-flight", array("" => "")))[0];
+
+            foreach ($flightdata as $flightid => $flightinfo)
+            {
+                if ($flightid == $deleted_flight_id)
+                {
+                    if (! (strpos($flightid, "new-") === 0))
+                    {
+                        $sql = "DELETE FROM "
+                             . Util::fm_table_name("flights")
+                             . " "
+                             . " WHERE Id = "
+                             . $db->sql_escape($flightid);
+                        $db->sql_freeresult($this->execute_sql($sql));
+                    }
+                }
+                else
+                {
+                    $newflightdata[$flightid] = $flightinfo;
+                }
+            }
+
+            $flightdata = $newflightdata;
+        }
+
         if ($request->is_set_post("save"))
         {
             $should_attempt_save = true;
