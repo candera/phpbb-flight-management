@@ -5,11 +5,11 @@ $(function() {
     $('#ato-calendar').fullCalendar({
         events: atoEventData,
         timezone: "local",
-        defaultView: 'agendaWeek',
+        defaultView: 'month',
         header: {
             left: 'title',
             center: '',
-            right: 'today prev,next month agendaWeek'
+            right: 'today prev,next month agendaWeek listMonth'
         }
     })
 

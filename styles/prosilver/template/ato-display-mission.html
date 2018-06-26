@@ -9,6 +9,10 @@
 
 <h1>Mission: {{ Name }}</h1>
 
+{% if SHOW_EDIT_MISSION %}
+<a class="ato-button" href="{{ ATO_EDIT_MISSION_PAGE }}">Edit this mission</a>
+{% endif %}
+
 <fieldset>
     <legend>Data</legend>
     <table class="mission-details">

@@ -24,7 +24,10 @@
                title  : '{{ mission.Title }}',
                start  : '{{ mission.Start }}',
                end    : '{{ mission.End }}',
-               url    : '{{ mission.Url }}'
+               url    : '{{ mission.Url }}',
+               {% if not mission.Published %}
+               color  : 'grey'
+               {% endif %}
            },
            {% endfor %}
        ];

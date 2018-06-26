@@ -87,6 +87,31 @@ class main
         }
     }
 
+    /* Returns an array of the group IDs to which $userid belongs */
+    private function group_memberships($userid)
+    {
+        global $db;
+
+        $user_group_table = USER_GROUP_TABLE;
+        $safe_userid = $db->sql_escape($userid);
+
+        $sql = "SELECT group_id
+FROM {$user_group_table}
+WHERE user_id = {$safe_userid}";
+
+        $result = $this->execute_sql($sql);
+
+        $groups = array();
+
+        while ($row = $db->sql_fetchrow($result))
+        {
+            $groups[] = $row["group_id"];
+        }
+
+        $db->sql_freeresult($result);
+
+        return $groups;
+    }
 
     /**
      * Controller for route /ato
@@ -95,35 +120,44 @@ class main
      */
     public function handle_index()
     {
-        global $template, $auth, $db;
-
-        // $l_message = !$this->config['acme_demo_goodbye'] ? 'DEMO_HELLO' : 'DEMO_GOODBYE';
-        // $this->template->assign_var('DEMO_MESSAGE', $this->user->lang($l_message, $name));
+        global $template, $auth, $db, $user;
 
         $template->assign_var("SHOW_SCHEDULE_MISSION", $auth->acl_get('u_schedule_mission'));
 
+        $userid = $user->data["user_id"];
+        $user_is_admin = $auth->acl_get("a_");
+
+        $admin_sees_all_clause = $user_is_admin ? "OR 1=1" : "";
+
         $missions_table = Util::fm_table_name("missions");
+        $users_table = USERS_TABLE;
 
         $results = $this->execute_sql("SELECT
   m.Id,
   m.Name,
   m.Date as Start,
+  m.Creator,
+  m.Published,
+  u.username as CreatorName,
   DATE_ADD(m.Date, INTERVAL m.ScheduledDuration MINUTE) AS End
 FROM {$missions_table} AS m
+INNER JOIN {$users_table} AS u
+ON m.Creator = u.user_id
 WHERE
-m.Date > DATE_SUB(NOW(), INTERVAL 1 WEEK)
-AND m.Published = b'1'");
-
+m.Published = b'1'
+OR m.Creator = {$userid}
+{$admin_sees_all_clause}");
 
         while ($row = $db->sql_fetchrow($results))
         {
-            error_log("mission row : " . json_encode($row));
             $db_start = new \DateTime($row["Start"], new \DateTimeZone("UTC"));
             $db_end = new \DateTime($row["End"], new \DateTimeZone("UTC"));
             $missionid = $row["Id"];
             $view_link = $this->helper->route('ato_display_mission_route',
                                               array('missionid' => $missionid));
             $template->assign_block_vars("missions", array("Title" => $row["Name"],
+                                                           "Creator" => $row["CreatorName"],
+                                                           "Published" => $row["Published"],
                                                            "Start" => $db_start->format(DATE_ATOM),
                                                            "End" => $db_end->format(DATE_ATOM),
                                                            "Url" => $view_link));
@@ -136,23 +170,31 @@ AND m.Published = b'1'");
 
     public function handle_display_mission($missionid)
     {
-        global $db, $request, $template, $user;
+        global $auth, $db, $request, $template, $user;
+
+        $userid = $user->data["user_id"];
+        $user_is_admin = $auth->acl_get("a_");
 
         $missions_table = Util::fm_table_name("missions");
         $admittance_table = Util::fm_table_name("admittance");
+        $admittance_groups_table = Util::fm_table_name("admittance_groups");
         $missiontypes_table = Util::fm_table_name("missiontypes");
         $theaters_table = Util::fm_table_name("theaters");
+        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
+
         $missionid = $db->sql_escape($missionid);
         $result = $this->execute_sql("SELECT
   m.Published         AS Published,
   m.Name              AS Name,
+  m.OpenTo            AS OpenToId,
   adm.Name            AS OpenTo,
   theater.Name        AS Theater,
   types.Name          AS Type,
   m.Date              AS Date,
   m.ScheduledDuration AS ScheduledDuration,
   m.Description       AS Description,
-  m.ServerAddress     AS ServerAddress
+  m.ServerAddress     AS ServerAddress,
+  m.Creator           AS Creator
 FROM {$missions_table} as m
 INNER JOIN {$admittance_table} as adm
 ON adm.Id = m.OpenTo
@@ -164,20 +206,63 @@ WHERE m.Id = {$missionid}");
 
         $row = $db->sql_fetchrow($result);
 
+        $db->sql_freeresult($result);
+
         if ( ! $row )
         {
             return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
         }
 
-        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
+        // TODO: If mission is not published, display or don't display as approproate
+        // TODO: What is "appropriate"?
+
+        $missiondata = $row;
+
+        $user_is_editor = $user_is_admin || ($userid == $missiondata["Creator"]);
+
+        $template->assign_var("SHOW_EDIT_MISSION", $user_is_editor);
+        $template->assign_var("ATO_EDIT_MISSION_PAGE", $this->helper->route('ato_edit_mission_route',
+                                                                            array('missionid' => $missionid)));
+
+        $user_can_sign_in = false;
+
+        if ($user_is_editor)
+        {
+            $user_can_sign_in = true;
+        }
+        else
+        {
+            $opento_admittance_id = $missiondata["OpenToId"];
+            $result = $this->execute_sql("SELECT GroupId
+FROM {$admittance_groups_table}
+WHERE AdmittanceId = {$opento_admittance_id}");
+
+            $user_groups = $this->group_memberships($userid);
+
+            $admitted_groups = array();
+            while ($row = $db->sql_fetchrow($result))
+            {
+                $admitted_groups[] = $row["GroupId"];
+            }
+
+            $db->sql_freeresult($result);
+
+            if (! empty(array_intersect($admitted_groups, $user_groups)))
+            {
+                $user_can_sign_in = true;
+            }
+        }
 
         if ($request->is_set_post("sign-in"))
         {
-            // TODO: Validate permission to sign in
+            if (! $user_can_sign_in)
+            {
+                trigger_error('NOT_AUTHORISED');
+            }
+
             $signin_data = $request->variable("sign-in", array(0 => array(0 => "")));
             $signin_flight = array_keys($signin_data)[0];
             $signin_seat = array_keys($signin_data[$signin_flight])[0];
-            $userid = $user->data["user_id"];
 
             $signin_flight = $db->sql_escape($signin_flight);
             $signin_seat = $db->sql_escape($signin_seat);
@@ -190,7 +275,11 @@ VALUES ({$signin_flight}, {$signin_seat}, {$userid})";
 
         if ($request->is_set_post("sign-out"))
         {
-            // TODO: Validate permission to sign out
+            if (! $user_can_sign_in)
+            {
+                trigger_error('NOT_AUTHORISED');
+            }
+
             $signout_data = $request->variable("sign-out", array(0 => array(0 => "")));
             $signout_flight = array_keys($signout_data)[0];
             $signout_seat = array_keys($signout_data[$signout_flight])[0];
@@ -204,12 +293,6 @@ WHERE FlightId = {$signout_flight}
 AND SeatNum = {$signout_seat}";
             $db->sql_freeresult($this->execute_sql($sql));
         }
-
-
-        // TODO: If mission is not published, display or don't display as approproate
-        // TODO: What is "appropriate"?
-
-        $missiondata = $row;
 
         $duration_mins = (int) $row["ScheduledDuration"];
         $missiondata["DurationHours"] = floor($duration_mins / 60);
@@ -231,24 +314,19 @@ AND SeatNum = {$signout_seat}";
             $flightinfo["Id"] = $flightid;
             for ($i = 1; $i <= (int) $flightinfo["Seats"]; $i++)
             {
-                // TODO: Also check if participant is self and for
-                // permission (via admittance) to join and to sign out
-                // other people.
-
-                // TODO: Also do not display sign-in if user is
-                // already signed in to some seat.
-                if ($flightinfo["Participants"][$i] != null)
+                if ($user_can_sign_in)
                 {
-                    $flightinfo["Participants"][$i]["Action"] = "sign-out";
-                }
-                else
-                {
-                    $flightinfo["Participants"][$i] = array("Action" => "sign-in");
+                    if ($flightinfo["Participants"][$i] != null)
+                    {
+                        $flightinfo["Participants"][$i]["Action"] = "sign-out";
+                    }
+                    else
+                    {
+                        $flightinfo["Participants"][$i] = array("Action" => "sign-in");
+                    }
                 }
             }
             $template->assign_block_vars("flights", $flightinfo);
-
-            error_log("flightinfo (flightdata loop) : " . json_encode($flightinfo));
         }
 
         $template->assign_vars($missiondata);
