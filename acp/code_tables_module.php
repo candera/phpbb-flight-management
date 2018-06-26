@@ -74,7 +74,16 @@ class code_tables_module
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",
                                    "Active" => "checkbox" ]
-            ]
+            ],
+            "aircraft" => [
+                "title" => "Aircraft",
+                "table" => Util::fm_table_name("aircraft"),
+                "addnew-data" => ["Name" => "Change Me"],
+                "columns" => ["Id", "Name", "Active"],
+                "column-types" => ["Name" => "text",
+                                   "Active" => "checkbox" ]
+            ],
+
         ];
 
         $schema = $MODE_SCHEMAS[$mode];

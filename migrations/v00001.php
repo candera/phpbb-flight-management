@@ -82,6 +82,7 @@ class v00001 extends \phpbb\db\migration\migration
                                                      'missiontypes',
                                                      'roles',
                                                      'flight-callsigns',
+                                                     'aircraft',
                     )
                 ),
             )),

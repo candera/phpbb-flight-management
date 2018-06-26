@@ -36,6 +36,12 @@ class code_tables_info
 					'auth'	=> 'ext_VFW440/flight_management',
 					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
 				),
+                'aircraft'	=> array(
+					'title'	=> 'ACP_VFW440_FM_AIRCRAFT_TITLE',
+					'auth'	=> 'ext_VFW440/flight_management',
+					'cat'	=> array('ACP_VFW440_FM_CODE_TABLES_TITLE')
+				),
+
 			),
 		);
 	}
