@@ -650,18 +650,13 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                 = $this->new_flight_data($packageid);
         }
 
-
         if ($request->is_set_post("add-flight"))
         {
             $should_attempt_save = true;
             $packageid_for_flight = array_keys($request->variable("add-flight", array("" => "")))[0];
             $maxid = -1;
 
-            error_log("Adding a flight to package {$packageid_for_flight}");
-
             $flightid = $this->get_new_flightid($flightdata);
-
-            error_log("New flight ID is {$flightid}");
             $flightdata[$flightid] = $this->new_flight_data($packageid_for_flight);
         }
 
@@ -910,7 +905,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     }
                     else
                     {
-                        $flightid = (int) $flightid;
+                        $newflightid = (int) $flightid;
                         $sql = "UPDATE "
                              . Util::fm_table_name("flights")
                              . " SET "
@@ -919,7 +914,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                              . $db->sql_escape($flightid);
                         $db->sql_freeresult($this->execute_sql($sql));
                     }
-                    $newflightdata[$flightid] = $params;
+                    $newflightdata[$newflightid] = $params;
 
                 }
 
