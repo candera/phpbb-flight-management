@@ -228,6 +228,11 @@ WHERE m.Id = {$missionid}");
 
         $user_is_editor = $user_is_admin || ($userid == $missiondata["Creator"]);
 
+        if ( ! $missiondata["Published"] && ! $user_is_editor )
+        {
+            return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
+        }
+
         $template->assign_var("SHOW_EDIT_MISSION", $user_is_editor);
         $template->assign_var("ATO_EDIT_MISSION_PAGE", $this->helper->route('ato_edit_mission_route',
                                                                             array('missionid' => $missionid)));
