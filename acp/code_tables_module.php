@@ -2,8 +2,6 @@
 
 namespace VFW440\flight_management\acp;
 
-use \VFW440\flight_management\helper\Util;
-
 /* At some point I might want to merge the various column bits together. */
 
 class code_tables_module

@@ -5,7 +5,6 @@ namespace VFW440\flight_management\controller;
 use \Symfony\Component\HttpFoundation\JsonResponse;
 use \Symfony\Component\HttpFoundation\Response;
 use \Symfony\Component\HttpFoundation\RedirectResponse;
-use \VFW440\flight_management\helper\Util;
 
 class main
 {

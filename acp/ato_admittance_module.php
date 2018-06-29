@@ -2,12 +2,19 @@
 
 namespace VFW440\flight_management\acp;
 
-use \VFW440\flight_management\helper\Util;
-
 /* At some point I might want to merge the various column bits together. */
 
 class ato_admittance_module
 {
+    // I hate that I have to put this in every file that uses it, but
+    // PHP has so far thwarted my every attempt to reuse code.
+    private static $ato_table_prefix = "ato2_";
+    private static function fm_table_name($basename)
+    {
+        $prefix = self::$ato_table_prefix;
+        return "{$prefix}{$basename}";
+    }
+
     var $u_action;
 
     function update_params($coltypes, $vals)
@@ -42,7 +49,7 @@ class ato_admittance_module
 
         $schema = $MODE_SCHEMAS[$mode];
 
-        $ato_table_prefix = Util::$ato_table_prefix;
+        $ato_table_prefix = self::$ato_table_prefix;
 
 
         if ($request->is_set_post('addnew'))
