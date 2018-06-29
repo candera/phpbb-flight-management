@@ -50,7 +50,7 @@ class code_tables_module
         $MODE_SCHEMAS = [
             "missiontypes" => [
                 "title" => "Mission Types",
-                "table" => self::fm_table_name("MissionTypes"),
+                "table" => self::fm_table_name("missiontypes"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",
@@ -76,7 +76,7 @@ class code_tables_module
             ],
             "flight-callsigns" => [
                 "title" => "Flight Callsigns",
-                "table" => self::fm_table_name("Flight_Callsigns"),
+                "table" => self::fm_table_name("flight_callsigns"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",

@@ -1019,14 +1019,14 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
     {
         array(
             "MissionTypes" =>
-            array("Table" => self::fm_table_name("MissionTypes"),
+            array("Table" => self::fm_table_name("missiontypes"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
                         ),
                   "Filter" => "Active = true"),
             "Theaters" =>
-            array("Table" => self::fm_table_name("Theaters"),
+            array("Table" => self::fm_table_name("theaters"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
