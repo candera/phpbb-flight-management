@@ -705,8 +705,13 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         if ($should_attempt_save)
         {
             $valid = true;
-            // TODO: Validate. If valid, save data. If not valid,
-            // return posted data with error info.
+
+            if (trim($request->variable("MISSIONNAME", "")) == false)
+            {
+                $valid = false;
+                $template->assign_var("NAME_ERROR", "Mission name is required");
+            }
+
             if (!in_array($request->variable("theater", ""), array_column($theaters, "Id")))
             {
                 $valid = false;
@@ -942,7 +947,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                 // Turn the existing data back around - it's invalid
                 $missiondata = array(
                     "PUBLISHED" => $request->variable("published", "off") == "on" ? true : false,
-                    "MISSIONNAME" => $request->variable("missionname", "Mission name"),
+                    "MISSIONNAME" => $request->variable("missionname", ""),
                     "THEATER" => (int) $request->variable("theater", 0),
                     "MISSIONTYPE" => (int) $request->variable("missiontype", 0),
                     "MISSIONDATE" => $request->variable("mission-date", date("Y-m-d 12:00", strtotime("+1 week"))),
@@ -960,7 +965,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         {
             $missiondata = array(
                 "PUBLISHED" => false,
-                "MISSIONNAME" => "Mission name",
+                "MISSIONNAME" => "",
                 "THEATER" => 0,
                 "MISSIONTYPE" => 0,
                 "MISSIONDATE" => "",
