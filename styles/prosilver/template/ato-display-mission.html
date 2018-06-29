@@ -2,10 +2,16 @@
 {% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
 
+{% INCLUDEJS '@VFW440_flight_management/lib/moment.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js' %}
 {% INCLUDEJS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js' %}
 {% INCLUDEJS '@VFW440_flight_management/ato-display-mission.js' %}
 
 {% INCLUDE 'overall_header.html' %}
+
+<script>
+ missiondatetime = '{{ Date | date("Y-m-d\\TH:iO") }}';
+</script>
 
 <h1>Mission: {{ Name }}</h1>
 
@@ -55,8 +61,30 @@
             <td class="field-label">
                 <label>Date/Time:</label>
             </td>
-            <td class="value datetimefields">{{ Date | date("Y/m/d H:i") }}</td>
+            <td class="value datetimefields">
+                <div class="missiontime-utc">
+                    (<span id="missiontime-utc"></span>
+                    <span class="utc-label">UTC</span>)
+                </div>
+                <span id="missiontime"></span>
+            </td>
         </tr>
+        <tr>
+            <td class="field-label">
+                <label>Timezone</label>
+            </td>
+            <td class="value">
+                <select class="select2" id="timezones" name="mission-timezone">
+                    {% for timezones in loops.timezones %}
+                    <option value="{{ timezones.Id }}">{{ timezones.Name }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <button onclick="setDefaultTimezone()">Set as Default</button>
+            </td>
+
+
         <!-- <tr>
              <td class="field-label">
              <label>Timezone:</label>

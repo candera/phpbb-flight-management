@@ -223,13 +223,11 @@ WHERE m.Id = {$missionid}");
             return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
         }
 
-        // TODO: If mission is not published, display or don't display as approproate
-        // TODO: What is "appropriate"?
-
         $missiondata = $row;
 
         $user_is_editor = $user_is_admin || ($userid == $missiondata["Creator"]);
 
+        // Only editors can see unpublished missions
         if ( ! $missiondata["Published"] && ! $user_is_editor )
         {
             return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
