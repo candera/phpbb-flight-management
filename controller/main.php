@@ -711,7 +711,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         {
             $valid = true;
 
-            if (trim($request->variable("MISSIONNAME", "")) == false)
+            if (trim($request->variable("missionname", "")) == false)
             {
                 $valid = false;
                 $template->assign_var("NAME_ERROR", "Mission name is required");
