@@ -8,6 +8,15 @@ use \VFW440\flight_management\helper\Util;
 
 class code_tables_module
 {
+    // I hate that I have to put this in every file that uses it, but
+    // PHP has so far thwarted my every attempt to reuse code.
+    private static $ato_table_prefix = "ato2_";
+    private static function fm_table_name($basename)
+    {
+        $prefix = self::$ato_table_prefix;
+        return "{$prefix}{$basename}"; 
+    }
+
     var $u_action;
 
     function update_params($coltypes, $vals)
@@ -43,7 +52,7 @@ class code_tables_module
         $MODE_SCHEMAS = [
             "missiontypes" => [
                 "title" => "Mission Types",
-                "table" => Util::fm_table_name("MissionTypes"),
+                "table" => self::fm_table_name("MissionTypes"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",
@@ -51,7 +60,7 @@ class code_tables_module
             ],
             "theaters" => [
                 "title" => "Theaters",
-                "table" => Util::fm_table_name("theaters"),
+                "table" => self::fm_table_name("theaters"),
                 "addnew-data" => ["Name" => "Change Me",
                                   "Version" => "Change Me"],
                 "columns" => ["Id", "Name", "Version", "Active"],
@@ -61,7 +70,7 @@ class code_tables_module
             ],
             "roles" => [
                 "title" => "Roles",
-                "table" => Util::fm_table_name("roles"),
+                "table" => self::fm_table_name("roles"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",
@@ -69,7 +78,7 @@ class code_tables_module
             ],
             "flight-callsigns" => [
                 "title" => "Flight Callsigns",
-                "table" => Util::fm_table_name("Flight_Callsigns"),
+                "table" => self::fm_table_name("Flight_Callsigns"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",
@@ -77,7 +86,7 @@ class code_tables_module
             ],
             "aircraft" => [
                 "title" => "Aircraft",
-                "table" => Util::fm_table_name("aircraft"),
+                "table" => self::fm_table_name("aircraft"),
                 "addnew-data" => ["Name" => "Change Me"],
                 "columns" => ["Id", "Name", "Active"],
                 "column-types" => ["Name" => "text",

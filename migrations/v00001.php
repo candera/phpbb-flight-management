@@ -2,10 +2,17 @@
 
 namespace VFW440\flight_management\migrations;
 
-use \VFW440\flight_management\helper\Util;
-
 class v00001 extends \phpbb\db\migration\migration
 {
+    // I hate that I have to put this in every file that uses it, but
+    // PHP has so far thwarted my every attempt to reuse code.
+    private static $ato_table_prefix = "ato2_";
+    private static function fm_table_name($basename)
+    {
+        $prefix = self::$ato_table_prefix;
+        return "{$prefix}{$basename}";
+    }
+
     private function run_sql($sql)
     {
         error_log("run_sql: " . $sql);
@@ -30,7 +37,7 @@ class v00001 extends \phpbb\db\migration\migration
 
     public function update_schema()
     {
-        error_log("update_schema for " . Util::fm_table_name("missions"));
+        error_log("update_schema for " . self::fm_table_name("missions"));
 
         // No foreign key constraints. Sigh. Also, unbelievably, null
         // in the second position of a column definition means the
@@ -118,7 +125,7 @@ class v00001 extends \phpbb\db\migration\migration
         error_log("create_tables");
 
         $phpbb_table_prefix = $this->table_prefix;
-        $ato_table_prefix = Util::$ato_table_prefix;
+        $ato_table_prefix = self::$ato_table_prefix;
 
         $this->run_sql("CREATE TABLE {$ato_table_prefix}missiontypes (
   Id INT UNSIGNED AUTO_INCREMENT,
@@ -207,7 +214,7 @@ class v00001 extends \phpbb\db\migration\migration
   RoleId INT UNSIGNED NOT NULL,
   AircraftId INT UNSIGNED NOT NULL,
   -- Ideally Falcon Time: minutes from midnight day 1, but decided to leave it loose
-  TakeoffTime NVARCHAR(1024) NULL, 
+  TakeoffTime NVARCHAR(1024) NULL,
   Seats INT UNSIGNED NOT NULL, -- How many seats in the flight
   PRIMARY KEY (Id),
   FOREIGN KEY (PackageId) REFERENCES ${ato_table_prefix}packages(Id) ON DELETE CASCADE,
@@ -235,7 +242,7 @@ class v00001 extends \phpbb\db\migration\migration
     {
         error_log("populate_tables");
 
-        $ato_table_prefix = Util::$ato_table_prefix;
+        $ato_table_prefix = self::$ato_table_prefix;
         $zeus_ato_table_prefix = "ato_";
         $zeus_fltlog_table_prefix = "fltlog_";
 
@@ -290,7 +297,7 @@ class v00001 extends \phpbb\db\migration\migration
 
     public function drop_tables()
     {
-        $ato_table_prefix = Util::$ato_table_prefix;
+        $ato_table_prefix = self::$ato_table_prefix;
         error_log("drop_tables");
         $tables = array("{$ato_table_prefix}scheduled_participants",
                         "{$ato_table_prefix}flights",

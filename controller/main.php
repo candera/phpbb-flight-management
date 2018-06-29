@@ -23,6 +23,15 @@ class main
 
     protected $db;
 
+    // I hate that I have to put this in every file that uses it, but
+    // PHP has so far thwarted my every attempt to reuse code.
+    private static $ato_table_prefix = "ato2_";
+    private static function fm_table_name($basename)
+    {
+        $prefix = self::$ato_table_prefix;
+        return "{$prefix}{$basename}";
+    }
+
     /**
      * Constructor
      *
@@ -59,7 +68,7 @@ class main
 
         $sql = "select "
              . implode(", ", $columns)
-             . " from " . Util::fm_table_name($table) . " where active = b'1'";
+             . " from " . self::fm_table_name($table) . " where active = b'1'";
         $result = $this->execute_sql($sql);
 
         $data = array();
@@ -129,7 +138,7 @@ WHERE user_id = {$safe_userid}";
 
         $admin_sees_all_clause = $user_is_admin ? "OR 1=1" : "";
 
-        $missions_table = Util::fm_table_name("missions");
+        $missions_table = self::fm_table_name("missions");
         $users_table = USERS_TABLE;
 
         $results = $this->execute_sql("SELECT
@@ -175,12 +184,12 @@ OR m.Creator = {$userid}
         $userid = $user->data["user_id"];
         $user_is_admin = $auth->acl_get("a_");
 
-        $missions_table = Util::fm_table_name("missions");
-        $admittance_table = Util::fm_table_name("admittance");
-        $admittance_groups_table = Util::fm_table_name("admittance_groups");
-        $missiontypes_table = Util::fm_table_name("missiontypes");
-        $theaters_table = Util::fm_table_name("theaters");
-        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
+        $missions_table = self::fm_table_name("missions");
+        $admittance_table = self::fm_table_name("admittance");
+        $admittance_groups_table = self::fm_table_name("admittance_groups");
+        $missiontypes_table = self::fm_table_name("missiontypes");
+        $theaters_table = self::fm_table_name("theaters");
+        $scheduled_participants_table = self::fm_table_name("scheduled_participants");
 
         $missionid = $db->sql_escape($missionid);
         $result = $this->execute_sql("SELECT
@@ -350,7 +359,7 @@ AND SeatNum = {$signout_seat}";
   ScheduledDuration,
   OpenTo
 FROM "
-                                     . Util::fm_table_name("missions")
+                                     . self::fm_table_name("missions")
                                      . " WHERE Id = "
                                      . $db->sql_escape($missionid));
 
@@ -398,7 +407,7 @@ FROM "
   Name,
   Number
 FROM "
-                                     . Util::fm_table_name("packages")
+                                     . self::fm_table_name("packages")
                                      . " WHERE MissionId = "
                                      . $db->sql_escape($missionid));
 
@@ -417,13 +426,13 @@ FROM "
     {
         global $db;
 
-        $packages_table = Util::fm_table_name("packages");
-        $flights_table = Util::fm_table_name("flights");
-        $flight_callsigns_table = Util::fm_table_name("flight_callsigns");
-        $roles_table = Util::fm_table_name("roles");
-        $aircraft_table = Util::fm_table_name("aircraft");
+        $packages_table = self::fm_table_name("packages");
+        $flights_table = self::fm_table_name("flights");
+        $flight_callsigns_table = self::fm_table_name("flight_callsigns");
+        $roles_table = self::fm_table_name("roles");
+        $aircraft_table = self::fm_table_name("aircraft");
         $users_table = USERS_TABLE;
-        $scheduled_participants_table = Util::fm_table_name("scheduled_participants");
+        $scheduled_participants_table = self::fm_table_name("scheduled_participants");
         $safe_mission_id = $db->sql_escape($missionid);
 
         $result = $this->execute_sql("SELECT
@@ -555,7 +564,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         }
         else
         {
-            $result = $this->execute_sql("select Creator from " . Util::fm_table_name("missions") . " where Id = {$missionid}");
+            $result = $this->execute_sql("select Creator from " . self::fm_table_name("missions") . " where Id = {$missionid}");
 
             $creator = $db->sql_fetchfield("Creator");
 
@@ -606,7 +615,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     if (! (strpos($packageid, "new-") === 0))
                     {
                         $sql = "DELETE FROM "
-                             . Util::fm_table_name("packages")
+                             . self::fm_table_name("packages")
                              . " "
                              . " WHERE MissionId = {$missionid} AND Id = "
                              . $db->sql_escape($packageid);
@@ -673,7 +682,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     if (! (strpos($flightid, "new-") === 0))
                     {
                         $sql = "DELETE FROM "
-                             . Util::fm_table_name("flights")
+                             . self::fm_table_name("flights")
                              . " "
                              . " WHERE Id = "
                              . $db->sql_escape($flightid);
@@ -812,7 +821,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                 {
                     $params["Creator"] = $user->data["user_id"];
                     $sql = "INSERT INTO "
-                         . Util::fm_table_name("missions")
+                         . self::fm_table_name("missions")
                          . " "
                          . $db->sql_build_array("INSERT", $params);
                     $result = $this->execute_sql($sql);
@@ -824,7 +833,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                 else
                 {
                     $sql = "UPDATE "
-                         . Util::fm_table_name("missions")
+                         . self::fm_table_name("missions")
                          . " SET "
                          . $db->sql_build_array("UPDATE", $params)
                          . " WHERE Id = " . $db->sql_escape($missionid);
@@ -842,7 +851,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     if (strpos($packageid, "new-") === 0)
                     {
                         $sql = "INSERT INTO "
-                             . Util::fm_table_name("packages")
+                             . self::fm_table_name("packages")
                              . " "
                              . $db->sql_build_array("INSERT", $params);
                         $db->sql_freeresult($this->execute_sql($sql));
@@ -861,7 +870,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     {
                         $packageid = (int) $packageid;
                         $sql = "UPDATE "
-                             . Util::fm_table_name("packages")
+                             . self::fm_table_name("packages")
                              . " SET "
                              . $db->sql_build_array("UPDATE", $params)
                              . " WHERE Id = "
@@ -896,7 +905,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     if (strpos($flightid, "new-") === 0)
                     {
                         $sql = "INSERT INTO "
-                             . Util::fm_table_name("flights")
+                             . self::fm_table_name("flights")
                              . " "
                              . $db->sql_build_array("INSERT", $params);
                         $db->sql_freeresult($this->execute_sql($sql));
@@ -907,7 +916,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     {
                         $newflightid = (int) $flightid;
                         $sql = "UPDATE "
-                             . Util::fm_table_name("flights")
+                             . self::fm_table_name("flights")
                              . " SET "
                              . $db->sql_build_array("UPDATE", $params)
                              . " WHERE Id = "
@@ -1011,14 +1020,14 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
     {
         array(
             "MissionTypes" =>
-            array("Table" => Util::fm_table_name("MissionTypes"),
+            array("Table" => self::fm_table_name("MissionTypes"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
                         ),
                   "Filter" => "Active = true"),
             "Theaters" =>
-            array("Table" => Util::fm_table_name("Theaters"),
+            array("Table" => self::fm_table_name("Theaters"),
                   "Columns" =>
                   array("Id" => "Id",
                         "Name" => "Name",
