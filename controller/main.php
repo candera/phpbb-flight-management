@@ -173,6 +173,8 @@ OR m.Creator = {$userid}
 
         $db->sql_freeresult($result);
 
+        $this->assign_timezones_var("timezones", true);
+
         return $this->helper->render('ato-index.html', '440th VFW ATO');
     }
 
@@ -536,11 +538,15 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                      "TakeoffTime" => "");
     }
 
-    private function assign_timezones_var($varname)
+    private function assign_timezones_var($varname, $exclude_blank = false)
     {
         global $template;
 
-        $template->assign_block_vars($varname, array("" => ""));
+        if (! $exclude_blank)
+        {
+            $template->assign_block_vars($varname, array("" => ""));
+        }
+
         foreach (\DateTimeZone::listIdentifiers(\DateTimeZone::ALL) as $tzid => $tzname)
         {
             $tzoffset = (new \DateTimeZone($tzname))->getOffset(new \DateTime());

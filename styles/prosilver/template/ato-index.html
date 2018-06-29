@@ -1,10 +1,13 @@
 <!-- -*- mode: web -*- -->
 {% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'fullcalendar.css' %}
+{% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
 
 {% INCLUDE 'overall_header.html' %}
 
 {% INCLUDEJS 'lib/moment.min.js' %}
+{% INCLUDEJS '@VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js' %}
+{% INCLUDEJS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js' %}
 {% INCLUDEJS 'fullcalendar.js' %}
 {% INCLUDEJS 'ato-index.js' %}
 
@@ -14,24 +17,34 @@
     <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
     {% endif %}
 
-  <div id="ato-calendar"></div>
+    <div class="timezone-selector">
+        <span>Times shown in timezone:</span>
+        <select class="select2" id="timezones" name="mission-timezone">
+            {% for timezones in loops.timezones %}
+            <option value="{{ timezones.Id }}">{{ timezones.Name }}</option>
+            {% endfor %}
+        </select>
+        <button onclick="setDefaultTimezone()">Set as Default</button>
+    </div>
 
-  <script>
-   atoEventData =
-       [
-           {% for mission in loops.missions %}
-           {
-               title  : '{{ mission.Title }}',
-               start  : '{{ mission.Start }}',
-               end    : '{{ mission.End }}',
-               url    : '{{ mission.Url }}',
-               {% if not mission.Published %}
-               color  : 'grey'
-               {% endif %}
-           },
-           {% endfor %}
-       ];
-  </script>
+    <div id="ato-calendar"></div>
+
+    <script>
+     atoEventData =
+         [
+             {% for mission in loops.missions %}
+             {
+                 title  : '{{ mission.Title }}',
+                 start  : '{{ mission.Start }}',
+                 end    : '{{ mission.End }}',
+                 url    : '{{ mission.Url }}',
+                 {% if not mission.Published %}
+                 color  : 'grey'
+                 {% endif %}
+             },
+             {% endfor %}
+         ];
+    </script>
 
 </div>
 
