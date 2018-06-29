@@ -32,6 +32,9 @@
                     {% else %}
                     (Must first save mission)
                     {% endif %}
+                    {% if not PUBLISHED %}
+                    (unpublished)
+                    {% endif %}
                 </td>
                 <td class="error"></td>
             </tr>
