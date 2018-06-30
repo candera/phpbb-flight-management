@@ -127,6 +127,16 @@ table.flights td.takeoff input {
 
 .ato-index .top-bar {
     margin-bottom: 20px;
+    font-size: 120%;
+}
+
+.ato-index .ato-button {
+    background: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border-color: lightgrey;
+    border-width: 1px;
+    border-style: solid;
 }
 
 .ato-index .top-bar .ato-button {
