@@ -11,41 +11,45 @@
 {% INCLUDEJS 'fullcalendar.js' %}
 {% INCLUDEJS 'ato-index.js' %}
 
-<h1>440th VFW ATO</h1>
-<div class="extra-bottom-margin">
-    {% if SHOW_SCHEDULE_MISSION %}
-    <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
-    {% endif %}
+<div class="ato-index">
+    <h1>440th VFW ATO</h1>
+    <div class="extra-bottom-margin">
+        <div class="top-bar">
+            {% if SHOW_SCHEDULE_MISSION %}
+            <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
+            {% endif %}
 
-    <div class="timezone-selector">
-        <span>Times shown in timezone:</span>
-        <select class="select2" id="timezones" name="mission-timezone">
-            {% for timezones in loops.timezones %}
-            <option value="{{ timezones.Id }}">{{ timezones.Name }}</option>
-            {% endfor %}
-        </select>
-        <button onclick="setDefaultTimezone()">Set as Default</button>
+            <div class="timezone-selector">
+                <span>Times shown in timezone:</span>
+                <select class="select2" id="timezones" name="mission-timezone">
+                    {% for timezones in loops.timezones %}
+                    <option value="{{ timezones.Id }}">{{ timezones.Name }}</option>
+                    {% endfor %}
+                </select>
+                <button onclick="setDefaultTimezone()">Set as Default</button>
+            </div>
+        </div>
+
+        <div id="ato-calendar"></div>
+
+        <script>
+         atoEventData =
+             [
+                 {% for mission in loops.missions %}
+                 {
+                     title  : '{{ mission.Title }}',
+                     start  : '{{ mission.Start }}',
+                     end    : '{{ mission.End }}',
+                     url    : '{{ mission.Url }}',
+                     {% if not mission.Published %}
+                     color  : 'grey'
+                     {% endif %}
+                 },
+                 {% endfor %}
+             ];
+        </script>
+
     </div>
-
-    <div id="ato-calendar"></div>
-
-    <script>
-     atoEventData =
-         [
-             {% for mission in loops.missions %}
-             {
-                 title  : '{{ mission.Title }}',
-                 start  : '{{ mission.Start }}',
-                 end    : '{{ mission.End }}',
-                 url    : '{{ mission.Url }}',
-                 {% if not mission.Published %}
-                 color  : 'grey'
-                 {% endif %}
-             },
-             {% endfor %}
-         ];
-    </script>
-
 </div>
 
 {% INCLUDE 'overall_footer.html' %}

@@ -3,7 +3,14 @@
 }
 
 .add-package-button {
-    display: block;
+    font-size: 60%;
+    padding: 0.2em;
+}
+
+.delete-package-button{
+    font-size: 70%;
+    padding: 0.1em;
+
 }
 
 a.ato-button {
@@ -68,6 +75,7 @@ a.ato-button {
 .mission-editor fieldset.package {
     /* border: solid 1px lightgrey; */
     /* padding: 4px 7px; */
+    margin-bottom: 25px;
 }
 
 .mission-editor table.mission-details tr td:nth-child(2) {
@@ -115,4 +123,94 @@ table.flights td.role {
 
 table.flights td.takeoff input {
     width: 75px;
+}
+
+.ato-index .top-bar {
+    margin-bottom: 20px;
+}
+
+.ato-index .top-bar .ato-button {
+    display: inline-block;
+}
+
+.ato-index .top-bar .timezone-selector {
+    display: inline-block;
+    float:right;
+}
+
+.ato-display-mission h1 {
+    font-size: 200%;
+}
+
+.ato-display-mission legend {
+    font-size: 200%;
+}
+
+.ato-display-mission fieldset {
+    margin-bottom: 20px;
+}
+
+.ato-display-mission table td {
+    padding: 0 15px 0 0;
+}
+
+.ato-display-mission td .package-name {
+    font-weight: bold;
+    font-size: 110%;
+    margin-top: 16px;
+}
+
+.ato-display-mission .signin tr:nth-child(odd) {
+    background: lightgrey;
+}
+
+.ato-display-mission .seat-open {
+    text-align: center;
+}
+
+.ato-display-mission .signup-button {
+    min-width: 88px;
+    padding: 2px;
+    margin: 2px 0;
+    border-radius: 5px;
+}
+
+.ato-display-mission .mission-details {
+    font-size: 135%;
+    margin-top: 15px;
+}
+
+.ato-display-mission .mission-details td {
+    padding-bottom: 5px;
+}
+
+.ato-display-mission .set-default-timezone {
+    background: white;
+    padding: 3px 6px;
+    border-radius: 4px;
+    border-color: lightgrey;
+    border-width: 1px;
+    border-style: solid;
+}
+
+.ato-display-mission .missiontime-utc {
+    font-size: 90%;
+    opacity: 0.9;
+}
+
+.ato-display-mission .ato-edit-mission-button {
+    font-weight: normal;
+    font-size: 58%;
+    border-radius: 5px;
+}
+
+.ato-display-mission .signin .flight-header {
+    padding-top: 5px;
+    padding-bottom: 2px;
+    border-top: solid 1px black;
+    font-weight: bold;
+}
+
+.ato-display-mission .signin td {
+    padding-left: 2px;
 }

@@ -2,7 +2,7 @@ function updateUTCMissionTime(e) {
     var date = $("#mission-date")[0].value;
     var tz = $("#timezones")[0].value;
 
-    var utc = moment.tz(date, "YYYY/MM/DD HH:mm", tz).utc().format("YYYY/MM/DD HH:mm");
+    var utc = moment.tz(date, "YYYY/MM/DD HH:mm", tz).utc().format("YYYY-MM-DD HH:mm");
 
     $("#mission-time-utc")[0].innerHTML = "GMT: " + utc;
 }

@@ -661,7 +661,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
             $nextid = $maxid + 1;
 
             $packageid = "new-{$nextid}";
-            $packagedata[$packageid] = array("Name"   => "New Package",
+            $packagedata[$packageid] = array("Name"   => "",
                                              "Number" => "");
             $flightdata[$this->get_new_flightid($flightdata)]
                 = $this->new_flight_data($packageid);
@@ -985,7 +985,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                 "OPENTO" => 0
             );
 
-            $packagedata["new-0"] = array("Name"   => "New Package",
+            $packagedata["new-0"] = array("Name"   => "",
                                           "Number" => "");
             $flightdata["new-0"] = $this->new_flight_data("new-0");
         }

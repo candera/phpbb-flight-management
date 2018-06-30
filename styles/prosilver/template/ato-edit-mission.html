@@ -172,19 +172,29 @@
             </tr>
         </table>
 
-        <h2>Packages</h2>
+        <h2 class="packages-header">Packages
+            <input name="add-package"
+                   type="submit"
+                   value="Add Package"
+                   class="add-package-button" />
+        </h2>
+
         {% for package in loops.packages %}
-        <hr />
         <fieldset class="package">
-            <legend>{% include "package-name.html" %}</legend>
-            <input type="submit"
-                   value="Delete This Package"
-                   name="delete-package[{{ package.Id }}]" />
+            <legend>{% include "package-name.html" %}
+                <input type="submit"
+                       value="Delete This Package"
+                       name="delete-package[{{ package.Id }}]"
+                       class="delete-package-button" />
+            </legend>
             <table>
                 <tr>
                     <td class="field-label">Package Name</td>
                     <td class="value">
-                        <input type="text" name="packages[{{ package.Id }}][Name]" value="{{ package.Name }}" />
+                        <input type="text"
+                               name="packages[{{ package.Id }}][Name]"
+                               value="{{ package.Name }}"
+                               placeholder="Name" />
                     </td>
                 </tr>
                 <tr>
@@ -193,7 +203,8 @@
                         <input type="text"
                                name="packages[{{ package.Id }}][Number]"
                                value="{{ package.Number }}"
-                               pattern="[0-9]*" />
+                               pattern="[0-9]*"
+                               placeholder="1234" />
                     </td>
                 </tr>
             </table>
@@ -300,11 +311,6 @@
             <input name="add-flight[{{ package.Id }}]" type="submit" value="Add Flight" />
         </fieldset>
         {% endfor %}
-
-        <input name="add-package"
-               type="submit"
-               value="Add Package"
-               class="add-package-button" />
 
         <h2>Additional Information</h2>
         <div class="error">{{ DESCRIPTION_ERROR }}</div>
