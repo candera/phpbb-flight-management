@@ -32,7 +32,7 @@ $(function() {
 
     // page is now ready, initialize the calendar...
 
-    var timezoneOverride = localStorage.getItem("ATODisplayedTimezone")
+    var timezoneOverride = localStorage.getItem("ATODisplayedTimezone");
     var timezone;
     if (timezoneOverride)
     {
@@ -48,22 +48,30 @@ $(function() {
     $('#ato-calendar').fullCalendar({
         events: localizedEventData(timezone),
         timezone: timezone,
-        defaultView: 'month',
+        defaultView: 'sixtyDay',
         header: {
             left: 'title',
             center: '',
-            right: 'today prev,next month agendaWeek listMonth'
+            right: 'today prev,next sixtyDay month agendaWeek'
+        },
+        views: {
+            sixtyDay: {
+                type: "list",
+                duration: { days: 60 },
+                buttonText: "list",
+                dateIncrement: { days: 60 }
+            }
         }
     });
 
     $('.select2').select2({
     });
 
-        
+
     $("#timezones").val(timezone).trigger("change");
 
     $('#timezones').on("change", updateCalendarTimezone);
-    
+
 });
 
 function setDefaultTimezone()
