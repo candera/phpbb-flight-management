@@ -11,16 +11,17 @@
 {% INCLUDEJS 'fullcalendar.js' %}
 {% INCLUDEJS 'ato-index.js' %}
 
-<div class="ato-index">
-    <h1>440th VFW ATO</h1>
+<div class="ato ato-index">
     <div class="extra-bottom-margin">
+        <h1>Air Tasking Order</h1>
+
         <div class="top-bar">
             {% if SHOW_SCHEDULE_MISSION %}
             <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
             {% endif %}
 
             <div class="timezone-selector">
-                <span>Times shown in timezone:</span>
+                <span>Show times in:</span>
                 <select class="select2" id="timezones" name="mission-timezone">
                     {% for timezones in loops.timezones %}
                     <option value="{{ timezones.Id }}">{{ timezones.Name }}</option>

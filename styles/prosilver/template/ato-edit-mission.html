@@ -17,7 +17,7 @@
 {% INCLUDE 'overall_header.html' %}
 
 <h1>Edit a mission</h1>
-<div class="mission-editor">
+<div class="ato mission-editor">
     <form method="post" id="edit-mission-form">
         <input name="save" type="submit" value="Save" />
         <h2>Mission Details</h2>
@@ -43,7 +43,9 @@
                     <label>Published?</label>
                 </td>
                 <td class="value">
-                    <input type="checkbox" name="published"
+                    <input class="publication-checkbox"
+                           type="checkbox"
+                           name="published"
                            {% if PUBLISHED %}
                            checked="checked"
                            {% endif %}

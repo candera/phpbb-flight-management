@@ -1,3 +1,7 @@
+.ato input[type=submit] {
+    border-radius: 4px;
+}
+
 .save-button.bottom {
     display: block;
 }
@@ -21,7 +25,8 @@ a.ato-button {
     appearance: button;
     text-decoration: none;
     color: #000;
-    padding: 0.2em 0.4em;
+    padding: 0.2em 0.4em 0 0.2em;
+    border-radius: 4px;
 }
 
 .extra-margin-bottom {
@@ -62,6 +67,10 @@ a.ato-button {
 
 .mission-editor .value select {
     width: 100%;
+}
+
+.mission-editor input {
+    padding-top: 3px;
 }
 
 .mission-editor .value input {
@@ -128,6 +137,8 @@ table.flights td.takeoff input {
 .ato-index .top-bar {
     margin-bottom: 20px;
     font-size: 120%;
+    display: flex;
+    justify-content: space-between;
 }
 
 .ato-index .ato-button {
@@ -140,12 +151,12 @@ table.flights td.takeoff input {
 }
 
 .ato-index .top-bar .ato-button {
-    display: inline-block;
+    /* display: inline-block; */
 }
 
 .ato-index .top-bar .timezone-selector {
-    display: inline-block;
-    float:right;
+    /* display: inline-block; */
+    /* float:right; */
 }
 
 .ato-display-mission h1 {
@@ -237,4 +248,19 @@ table.flights td.takeoff input {
     font-family: monospace;
     padding: 5px;
     margin-right: 20px;
+}
+
+.ato input[type=text] {
+    padding: 2px;
+    overflow: visible;
+}
+
+.ato input[type=number] {
+    padding: 2px;
+    overflow: visible;
+}
+
+.ato .mission-editor .publication-checkbox {
+    /* Fix for stupid IE problem where checkbox centers itself */
+    width: auto;
 }
