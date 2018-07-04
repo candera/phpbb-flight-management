@@ -794,7 +794,7 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                     $flightdata[$flightid]["AircraftError"] = "Valid aircraft required";
                 }
 
-                if ($flightinfo["Seats"] <= 0)
+                if ($flightinfo["Seats"] < 0)
                 {
                     $valid = false;
                     $flightdata[$flightid]["SeatsError"] = "Valid number of seats required";
