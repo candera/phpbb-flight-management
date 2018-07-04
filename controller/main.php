@@ -994,7 +994,6 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         {
             $tzName = $request->variable("mission-timezone", $defaultTimezone);
             $missiondata = $this->read_db_missiondata($missionid, $tzName);
-            // TODO: Return 404 for nonexistant mission
             $packagedata = $this->read_db_packagedata($missionid);
             $flightdata = $this->read_db_flightdata($missionid);
         }
@@ -1028,86 +1027,4 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
 
         return $this->helper->render('ato-edit-mission.html', '440th VFW ATO');
     }
-
-    private function query_table_infos()
-    {
-        array(
-            "MissionTypes" =>
-            array("Table" => self::fm_table_name("missiontypes"),
-                  "Columns" =>
-                  array("Id" => "Id",
-                        "Name" => "Name",
-                        ),
-                  "Filter" => "Active = true"),
-            "Theaters" =>
-            array("Table" => self::fm_table_name("theaters"),
-                  "Columns" =>
-                  array("Id" => "Id",
-                        "Name" => "Name",
-                        "Version" => "Version",
-                        ),
-                  "Filter" => "Active = true"));
-    }
-
-    public function handle_api_query()
-    {
-        try
-        {
-            if (!$_POST) {
-                return new Response("Only POST is supported", 405);
-            }
-            $request = json_decode(file_get_contents('php://input'), true);
-
-            $request_from = $request["from"];
-            $request_select = $request["select"];
-            // error_log("select: " . implode(', ', $request_select) . " from: {$request_from}");
-
-            $table_info = $this->query_table_infos()[$request_from];
-            $db_table = $table_info["Table"];
-
-            if (!$db_table) {
-                return new JsonResponse(array("Errors" => array("Unknown table <<{$request['from']}>>")), 400);
-            }
-
-            $data = array();
-
-            $info_filter = $table_info["Filter"];
-
-            $db_where = "";
-            if ($info_filter) {
-                $db_where = "WHERE {$info_filter}";
-            }
-
-            $info_columns = $table_info["Columns"];
-
-            $db_columns = array();
-            foreach ($request_select as $request_column) {
-                $column = $info_columns[$request_column];
-                if ($column) {
-                    $db_columns[] = $info_columns[$request_column];
-                }
-                else
-                {
-                    return new JsonResponse(array("Errors" => array("Unknown attribute: {$request_column}")), 400);
-                }
-            }
-
-            $db_select = implode(", ", $db_columns);
-
-            $result = $this->db->sql_query("SELECT $db_select FROM {$db_table} ${db_where}");
-
-            while ($row = $this->db->sql_fetchrow($result))
-            {
-                $data[] = $row;
-            }
-
-            $this->db->sql_freeresult($result);
-
-            return new JsonResponse(array("Results" => $data));
-        }
-        catch (Throwable $t) {
-            return new Response("Error", 500);
-        }
-    }
-
 }
