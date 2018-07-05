@@ -59,7 +59,8 @@ $(function() {
                 type: "list",
                 duration: { days: 60 },
                 buttonText: "list",
-                dateIncrement: { days: 60 }
+                dateIncrement: { days: 60 },
+                listDayFormat: 'ddd MMM D'
             }
         }
     });
