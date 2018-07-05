@@ -1,9 +1,9 @@
 <!-- -*- mode: web -*- -->
-{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
 {% INCLUDECSS '@VFW440_flight_management/lib/jquery-ui-timepicker-addon.css' %}
 {% INCLUDECSS 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css' %}
 {% INCLUDECSS '@VFW440_flight_management/lib/jquery.timesetter.css' %}
+{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 
 {% INCLUDEJS '@VFW440_flight_management/lib/moment.min.js' %}
 {% INCLUDEJS '@VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js' %}
@@ -62,6 +62,7 @@
                 </td>
                 <td class="value">
                     <input type="text"
+                           class="ato-text-input"
                            name="missionname"
                            value="{{ MISSIONNAME }}"
                            placeholder="Mission name" />
@@ -130,7 +131,7 @@
                 </td>
                 <td class="value datetimefields">
                     <input type="text"
-                           class="datetimepicker"
+                           class="datetimepicker ato-text-input"
                            id="mission-date"
                            name="mission-date"
                            value="{{ MISSIONDATE }}"
@@ -171,7 +172,10 @@
                     <label>Host:</label>
                 </td>
                 <td class="value">
-                    <input type="text" name="server" value="{{ SERVER }}" />
+                    <input type="text"
+                           name="server"
+                           class="ato-text-input"
+                           value="{{ SERVER }}" />
                 </td>
                 <td class="error">{{ SERVER_ERROR }}</td>
             </tr>
@@ -181,7 +185,7 @@
             <input name="add-package"
                    type="submit"
                    value="Add Package"
-                   class="add-package-button" />
+                   class="add-package-button ato-submit-input" />
         </h2>
 
         {% for package in loops.packages %}
@@ -190,7 +194,7 @@
                 <input type="submit"
                        value="Delete This Package"
                        name="delete-package[{{ package.Id }}]"
-                       class="delete-package-button" />
+                       class="delete-package-button ato-submit-input" />
             </legend>
             <table>
                 <tr>
@@ -199,6 +203,7 @@
                         <input type="text"
                                name="packages[{{ package.Id }}][Name]"
                                value="{{ package.Name }}"
+                               class="ato-text-input"
                                placeholder="Name" />
                     </td>
                 </tr>
@@ -206,6 +211,7 @@
                     <td class="field-label">Package Number</td>
                     <td class="value">
                         <input type="text"
+                               class="ato-number-input"
                                name="packages[{{ package.Id }}][Number]"
                                value="{{ package.Number }}"
                                pattern="[0-9]*"
@@ -306,6 +312,7 @@
                                    name="flights[{{ flight.Id }}][PackageId]"
                                    value="{{ package.Id }}" />
                             <input type="submit"
+                                   class="ato-submit-input"
                                    value="Delete This Flight"
                                    name="delete-flight[{{ flight.Id }}]" />
                         </td>
@@ -313,7 +320,10 @@
                     {% endif %}
                     {% endfor %}
             </table>
-            <input name="add-flight[{{ package.Id }}]" type="submit" value="Add Flight" />
+            <input name="add-flight[{{ package.Id }}]"
+                   class="ato-submit-input"
+                   type="submit"
+                   value="Add Flight" />
         </fieldset>
         {% endfor %}
 
@@ -321,7 +331,7 @@
         <div class="error">{{ DESCRIPTION_ERROR }}</div>
         <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
 
-        <input name="save" type="submit" value="Save" class="save-button bottom" />
+        <input name="save" type="submit" value="Save" class="save-button bottom ato-submit-input" />
 
     </form>
 </div>

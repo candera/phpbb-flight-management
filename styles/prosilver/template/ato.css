@@ -1,5 +1,19 @@
-.ato input[type=submit] {
+.ato .ato-submit-input {
     border-radius: 4px;
+    padding: 2px 4px;
+    background: white;
+}
+
+.top-save-button {
+}
+
+#edit-mission-form {
+    position: relative;
+}
+
+.top-delete-button {
+    position: absolute;
+    right: 10px;
 }
 
 .save-button.bottom {
@@ -58,7 +72,7 @@ a.ato-button {
 }
 
 .mission-editor .field-label {
-    vertical-align: top;
+    vertical-align: bottom;
 }
 
 .mission-editor .value textarea {
@@ -250,17 +264,21 @@ table.flights td.takeoff input {
     margin-right: 20px;
 }
 
-.ato input[type=text] {
+.ato .ato-text-input {
     padding: 2px;
     overflow: visible;
 }
 
-.ato input[type=number] {
-    padding: 2px;
+.ato .ato-number-input {
+    padding: 4px 2px 0 2px;
     overflow: visible;
 }
 
 .ato .mission-editor .publication-checkbox {
     /* Fix for stupid IE problem where checkbox centers itself */
     width: auto;
+}
+
+.divTimeSetterContainer {
+    margin: 0;
 }
