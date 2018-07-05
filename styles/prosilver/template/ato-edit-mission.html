@@ -19,7 +19,10 @@
 <h1>Edit a mission</h1>
 <div class="ato mission-editor">
     <form method="post" id="edit-mission-form">
-        <input name="save" type="submit" value="Save" />
+        <input class="top-save-button ato-submit-input" name="save" type="submit" value="Save" />
+        {% if SHOW_DELETE_BUTTON %}
+        <input class="top-delete-button ato-submit-input" name="delete-mission" type="submit" value="Delete Mission" />
+        {% endif %}
         <h2>Mission Details</h2>
         <table class="mission-details">
             <tr>

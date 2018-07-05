@@ -614,8 +614,51 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
         // I couldn't figure out how to make it work.
         $flightdata = $request->variable("flights", array("" => array("" => "")));
 
-        error_log("submitted packagedata " . json_encode($packagedata));
-        error_log("submitted flightdata " . json_encode($flightdata));
+        if ($missionid != "new" && $request->is_set_post("delete-mission"))
+        {
+            $deletestage = $request->variable("deletestage", "");
+            error_log("Delete attempted ({$deletestage})...");
+            if ($deletestage == "Confirming")
+            {
+                error_log("Delete confirming...");
+                // check mode
+                if (confirm_box(true))
+                {
+                    error_log("Delete confirmed...");
+
+                    $missionid = $db->sql_escape($missionid);
+
+                    $sql = "DELETE FROM "
+                         . $missions_table
+                         . " "
+                         . " WHERE Id = {$missionid}";
+                    $db->sql_freeresult($this->execute_sql($sql));
+
+                    return new RedirectResponse($this->helper->route('ato_index_route',
+                                                                     array()));
+                }
+                else
+                {
+                    error_log("Delete disconfirmed");
+                    return new RedirectResponse($this->helper->route('ato_edit_mission_route',
+                                                                     array("missionid" => $missionid)));
+                }
+            }
+            else
+            {
+                error_log("Checking delete confirmation");
+                $s_hidden_fields = build_hidden_fields(array(
+                    'submit'         => true,
+                    'missionid'      => $missionid,
+                    'delete-mission' => "Yes",
+                    'deletestage'    => 'Confirming'
+                )
+                );
+
+                //display mode
+                confirm_box(false, 'This action cannot be undone. Really delete this mission?', $s_hidden_fields);
+            }
+        }
 
         $should_attempt_save = false;
         if ($request->is_set_post("delete-package"))
@@ -1024,6 +1067,8 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
             $flightinfo["Id"] = $flightid;
             $template->assign_block_vars("flights", $flightinfo);
         }
+
+        $template->assign_var("SHOW_DELETE_BUTTON", $missionid != "new");
 
         $template->assign_vars($missiondata);
 
