@@ -563,6 +563,8 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
     {
         global $auth, $config, $db, $request, $template, $user;
 
+        $missions_table = self::fm_table_name("missions");
+
         if ($missionid == "new")
         {
             if (!$auth->acl_get('u_schedule_mission'))
@@ -575,13 +577,21 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
             $result = $this->execute_sql("select Creator from " . self::fm_table_name("missions") . " where Id = {$missionid}");
 
             $creator = $db->sql_fetchfield("Creator");
+            $db->sql_freeresult($result);
 
             if (!($auth->acl_get("a_") || $creator == $user->data["user_id"]))
             {
                 trigger_error('You must be the creator of this mission (or an administrator) to edit it.');
             }
 
-            $db->sql_freeresult($result);
+            $missionid = $db->sql_escape($missionid);
+            $result = $this->execute_sql("SELECT Id from {$missions_table} where Id = {$missionid}");
+            $row = $db->sql_fetchrow($result);
+
+            if ( ! $row )
+            {
+                return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
+            }
         }
 
         $defaultTimezone = request_var($config['cookie_name'] . '_mission-timezone', "", false, true);
