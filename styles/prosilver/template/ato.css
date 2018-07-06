@@ -1,3 +1,32 @@
+/* h1, h2 { */
+/*     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; */
+/* } */
+
+.ato h1 {
+    font-size: 170%;
+}
+
+.ato h2 {
+    font-size: 150%;
+}
+
+.ato h3 {
+    font-size: 110%;
+}
+
+.ato fieldset {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+.ato legend {
+    font-size: 110%;
+}
+
+.ato-display-mission legend {
+    font-size: 200%;
+    margin-bottom: 5px;
+}
+
 .ato .ato-submit-input {
     border-radius: 4px;
     padding: 2px 4px;
@@ -39,8 +68,9 @@ a.ato-button {
     appearance: button;
     text-decoration: none;
     color: #000;
-    padding: 0.2em 0.4em 0 0.2em;
+    padding: 3px 6px;
     border-radius: 4px;
+    margin-bottom: 3px;
 }
 
 .extra-margin-bottom {
@@ -173,14 +203,6 @@ table.flights td.takeoff input {
     /* float:right; */
 }
 
-.ato-display-mission h1 {
-    font-size: 200%;
-}
-
-.ato-display-mission legend {
-    font-size: 200%;
-}
-
 .ato-display-mission fieldset {
     margin-bottom: 20px;
 }
@@ -192,10 +214,11 @@ table.flights td.takeoff input {
 .ato-display-mission td .package-name {
     font-weight: bold;
     font-size: 110%;
-    margin-top: 16px;
+    margin-top: 8px;
+    margin-bottom: 5px;
 }
 
-.ato-display-mission .signin tr:nth-child(odd) {
+.ato-display-mission .signin tr.oddrow {
     background: lightgrey;
 }
 
@@ -235,19 +258,35 @@ table.flights td.takeoff input {
 
 .ato-display-mission .ato-edit-mission-button {
     font-weight: normal;
-    font-size: 58%;
+    font-size: 75%;
     border-radius: 5px;
+    padding: 3px 5px;
 }
 
 .ato-display-mission .signin .flight-header {
-    padding-top: 5px;
-    padding-bottom: 2px;
     border-top: solid 1px black;
     font-weight: bold;
+    border-bottom: dashed 1px black;
+}
+
+.ato-display-mission .signin .flight-name {
+    padding-top: 5px;
+    padding-bottom: 4px;
+    font-size: 105%;
+}
+
+.ato-display-mission .package-header {
+    border-top: solid 1px black;
+    background: #ddd;
 }
 
 .ato-display-mission .signin td {
     padding-left: 2px;
+}
+
+.ato-display-mission .signin .pilot-name {
+    text-align: center;
+    min-width: 100px;
 }
 
 .ato-display-mission .additional-info.field-label {
@@ -320,7 +359,12 @@ table.flights td.takeoff input {
     flex-wrap: wrap;
 }
 
-.date-time-label {
+.mission-editor .date-time-label {
     padding-top: 15px;
 }
+
+.ato-display-mission .date-time-label {
+    vertical-align: bottom;
+}
+
 

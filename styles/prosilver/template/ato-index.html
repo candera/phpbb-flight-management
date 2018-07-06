@@ -1,7 +1,7 @@
 <!-- -*- mode: web -*- -->
-{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'fullcalendar.css' %}
 {% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
+{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 
 {% INCLUDE 'overall_header.html' %}
 
@@ -17,7 +17,7 @@
 
         <div class="top-bar">
             {% if SHOW_SCHEDULE_MISSION %}
-            <a class="ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
+            <a class="whatever ato-button" href="{{ ATO_NEW_MISSION_PAGE }}">Schedule a new mission</a>
             {% endif %}
 
             <div class="timezone-selector">

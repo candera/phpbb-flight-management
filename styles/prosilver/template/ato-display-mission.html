@@ -1,5 +1,4 @@
 <!-- -*- mode: web -*- -->
-{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 {% INCLUDECSS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css' %}
 
 {% INCLUDEJS '@VFW440_flight_management/lib/moment.min.js' %}
@@ -8,6 +7,8 @@
 {% INCLUDEJS '@VFW440_flight_management/ato-display-mission.js' %}
 
 {% INCLUDE 'overall_header.html' %}
+
+{% INCLUDECSS '@VFW440_flight_management/ato.css' %}
 
 <script>
  missiondatetime = '{{ Date | date("Y-m-d\\TH:iO") }}';
@@ -65,7 +66,7 @@
                 <td id="mission-time-utc"></td>
             </tr>
             <tr>
-                <td class="field-label">
+                <td class="field-label date-time-label">
                     <label>Date/Time:</label>
                 </td>
                 <td class="value datetimefields" colspan="2">
@@ -119,49 +120,38 @@
         <fieldset>
             <legend>Flights</legend>
 
-            <!-- Flight summary -->
-            <table class="flight-summary">
+            <table class="signin">
                 <tbody>
                     {% for package in loops.packages %}
-                    <tr>
+                    <tr class="package-header">
                         <td colspan="4">
                             <div class="package-name">{% include "package-name.html" %}</div>
                         </td>
                     </tr>
                     {% for flight in loops.flights %}
                     {% if flight.PackageId == package.Id %}
-                    <tr>
-                        <td>{{ flight.CallsignName }}-{{ flight.CallsignNum }}</td>
-                        <td>{{ flight.Seats }} x {{ flight.AircraftName }}</td>
-                        <td>{{ flight.RoleName }}</td>
+                    <tr class="flight-header">
+                        <td class="flight-name">{{ flight.CallsignName }}-{{ flight.CallsignNum }}</td>
+                        <td colspan="2">{{ flight.RoleName }}</td>
                         <td>T/O: {% if flight.TakeoffTime %}
                             {{ flight.TakeoffTime }}
                             {% else %}
                             N/A
                             {% endif %}</td>
                     </tr>
-                    {% endif %}
-                    {% endfor %}
-                    {% endfor %}
-                </tbody>
-            </table>
-        </fieldset>
-
-        <!-- Signin -->
-        <fieldset>
-            <legend>Pilots</legend>
-
-            <table class="signin">
-                <tbody>
-                    {% for package in loops.packages %}
-                    {% for flight in loops.flights %}
-                    {% if flight.PackageId == package.Id %}
-                    <tr><td class="flight-header" colspan="3">{{ flight.AircraftName }} : {{ flight.RoleName }}</td></tr>
                     {% for seat in 1..flight.Seats %}
                     {% set participant = flight.Participants[seat] %}
-                    <tr>
+                    <tr
+                        {% if seat is divisibleby(2)  %}
+                        class="evenrow"
+                        {% else %}
+                        class="oddrow"
+                        {% endif %}
+                    >
                         <td>{{ flight.CallsignName }} {{ flight.CallsignNum }}-{{ seat }}</td>
-                        <td>{% if participant.MemberPilot %}
+                        <td>{{ flight.AircraftName }}</td>
+                        <td class="pilot-name">
+                            {% if participant.MemberPilot %}
                             <a href="{{ ROOT_PATH }}/memberlist.php?mode=viewprofile&un={{ participant.MemberPilot }}">{{ participant.MemberPilot }}</a>
                             {% else %}
                             <div class="seat-open">-</span>
@@ -181,10 +171,10 @@
                             {% endif %}
                         </td>
                     </tr>
-                    {% endfor %}
+                    {% endfor %} <!-- Seat -->
                     {% endif %}
-                    {% endfor %}
-                    {% endfor %}
+                    {% endfor %} <!-- Flight -->
+                    {% endfor %} <!-- Package -->
                 </tbody>
             </table>
         </fieldset>
