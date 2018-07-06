@@ -24,12 +24,12 @@
         <input class="top-delete-button ato-submit-input" name="delete-mission" type="submit" value="Delete Mission" />
         {% endif %}
         <h2>Mission Details</h2>
-        <table class="mission-details">
-            <tr>
-                <td class="field-label">
-                    <label>Signup Link</label>
-                </td>
-                <td class="value">
+        <div class="mission-details">
+            <div class="details-element signup-link">
+                <div class="field-label">
+                    <label>Signup Link:</label>
+                </div>
+                <div class="value">
                     {% if MISSIONLINK %}
                     <a href="{{ MISSIONLINK }}">{{ MISSIONLINK }}</a>
                     {% else %}
@@ -38,14 +38,14 @@
                     {% if not PUBLISHED %}
                     (unpublished)
                     {% endif %}
-                </td>
-                <td class="error"></td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error"></div>
+            </div>
+            <div class="details-element published">
+                <div class="field-label">
                     <label>Published?</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <input class="publication-checkbox"
                            type="checkbox"
                            name="published"
@@ -53,27 +53,27 @@
                            checked="checked"
                            {% endif %}
                     />
-                </td>
-                <td class="error"></td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error"></div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Mission Name:</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <input type="text"
                            class="ato-text-input"
                            name="missionname"
                            value="{{ MISSIONNAME }}"
                            placeholder="Mission name" />
-                </td>
-                <td class="error">{{ NAME_ERROR }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ NAME_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Open To:</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <select class="select2" name="opento">
                         {% for opento in loops.opento %}
                         <option value="{{ opento.Id }}"
@@ -83,15 +83,14 @@
                         >{{ opento.Name }}</option>
                         {% endfor %}
                     </select>
-                </td>
-                <td class="error">{{ OPENTO_ERROR }}</td>
-            </tr>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ OPENTO_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Theater:</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <select class="select2" name="theater">
                         {% for theaters in loops.theaters %}
                         <option value="{{ theaters.Id }}"
@@ -101,14 +100,14 @@
                         >{{ theaters.Name }} {{ theaters.Version }}</option>
                         {% endfor %}
                     </select>
-                </td>
-                <td class="error">{{ THEATER_ERROR }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ THEATER_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Mission Type:</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <select class="select2" name="missiontype">
                         {% for missiontypes in loops.missiontypes %}
                         <option value="{{ missiontypes.Id }}"
@@ -118,32 +117,29 @@
                         >{{ missiontypes.Name }}</option>
                         {% endfor %}
                     </select>
-                </td>
-                <td class="error">{{ MISSIONTYPE_ERROR }}</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td id="mission-time-utc"></td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ MISSIONTYPE_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label date-time-label">
                     <label>Mission Date/Time:</label>
-                </td>
-                <td class="value datetimefields">
+                </div>
+                <div class="value datetimefields">
+                    <div id="mission-time-utc"></div>
                     <input type="text"
                            class="datetimepicker ato-text-input"
                            id="mission-date"
                            name="mission-date"
                            value="{{ MISSIONDATE }}"
                            autocomplete="off" />
-                </td>
-                <td class="error">{{ MISSIONDATETIME_ERROR }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ MISSIONDATETIME_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Timezone:</label>
-                </td>
-                <td class="value datetimefields">
+                </div>
+                <div class="value datetimefields">
                     <select class="select2" id="timezones" name="mission-timezone">
                         {% for timezones in loops.timezones %}
                         <option value="{{ timezones.Id }}"
@@ -153,33 +149,33 @@
                         >{{ timezones.Name }}</option>
                         {% endfor %}
                     </select>
-                </td>
-                <td class="error">{{ MISSIONTIMEZONE_ERROR }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ MISSIONTIMEZONE_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Duration:</label>
-                </td>
-                <td class="duration">
+                </div>
+                <div class="duration">
                     <div id="duration-picker" class="duration-picker"></div>
                     <input id="duration-value" name="duration" type="hidden" value="{{ DURATION }}" />
                     <!-- <input type="text" class="duration-picker" name="duration" value="{{ DURATION }}" /> -->
-                </td>
-                <td class="error">{{ DURATION_ERROR }}</td>
-            </tr>
-            <tr>
-                <td class="field-label">
+                </div>
+                <div class="error">{{ DURATION_ERROR }}</div>
+            </div>
+            <div class="details-element">
+                <div class="field-label">
                     <label>Host:</label>
-                </td>
-                <td class="value">
+                </div>
+                <div class="value">
                     <input type="text"
                            name="server"
                            class="ato-text-input"
                            value="{{ SERVER }}" />
-                </td>
-                <td class="error">{{ SERVER_ERROR }}</td>
-            </tr>
-        </table>
+                </div>
+                <div class="error">{{ SERVER_ERROR }}</div>
+            </div>
+        </div>
 
         <h2 class="packages-header">Packages
             <input name="add-package"

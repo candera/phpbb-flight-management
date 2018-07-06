@@ -277,8 +277,50 @@ table.flights td.takeoff input {
 .ato .mission-editor .publication-checkbox {
     /* Fix for stupid IE problem where checkbox centers itself */
     width: auto;
+    margin-top: 5px;
 }
 
 .divTimeSetterContainer {
     margin: 0;
 }
+
+.field-label {
+    display: inline-block;
+    width: 150px;
+}
+
+.value {
+    display: inline-block;
+    width: 300px;
+}
+
+.error {
+    display: inline-block;
+}
+
+.duration {
+    display: inline-block;
+}
+
+.details-element {
+    margin-bottom: 5px;
+    display: flex;
+    flex-basis: 40%;
+    min-width: 470px;
+}
+
+.details-element.published .value {
+    margin-bottom: 5px;
+    white-space: nowrap;
+}
+
+.mission-details {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+.date-time-label {
+    padding-top: 15px;
+}
+
