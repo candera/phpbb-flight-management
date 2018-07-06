@@ -240,6 +240,7 @@ table.flights td.takeoff input {
 
 .ato-display-mission .mission-details td {
     padding-bottom: 5px;
+    margin-top: 5px;
 }
 
 .ato-display-mission .set-default-timezone {
