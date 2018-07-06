@@ -191,6 +191,7 @@ OR m.Creator = {$userid}
         $missiontypes_table = self::fm_table_name("missiontypes");
         $theaters_table = self::fm_table_name("theaters");
         $scheduled_participants_table = self::fm_table_name("scheduled_participants");
+        $users_table = USERS_TABLE;
 
         $missionid = $db->sql_escape($missionid);
         $result = $this->execute_sql("SELECT
@@ -204,7 +205,8 @@ OR m.Creator = {$userid}
   m.ScheduledDuration AS ScheduledDuration,
   m.Description       AS Description,
   m.ServerAddress     AS ServerAddress,
-  m.Creator           AS Creator
+  m.Creator           AS Creator,
+  u.username          AS CreatorName
 FROM {$missions_table} as m
 INNER JOIN {$admittance_table} as adm
 ON adm.Id = m.OpenTo
@@ -212,6 +214,8 @@ INNER JOIN {$theaters_table} as theater
 ON theater.Id = m.Theater
 INNER JOIN {$missiontypes_table} as types
 ON types.Id = m.Type
+INNER JOIN {$users_table} as u
+ON m.Creator = u.user_id
 WHERE m.Id = {$missionid}");
 
         $row = $db->sql_fetchrow($result);
