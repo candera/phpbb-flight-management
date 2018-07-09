@@ -49,6 +49,7 @@ $(function() {
         events: localizedEventData(timezone),
         timezone: timezone,
         defaultView: 'sixtyDay',
+        timeFormat: 'HH:mm',
         header: {
             left: 'title',
             center: '',
