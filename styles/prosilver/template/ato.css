@@ -2,6 +2,10 @@
 /*     font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; */
 /* } */
 
+#site-description,#search-box {
+    display: none;
+}
+
 .ato h1 {
     font-size: 170%;
 }
