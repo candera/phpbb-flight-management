@@ -38,7 +38,7 @@
              [
                  {% for mission in loops.missions %}
                  {
-                     title  : '{{ mission.Title }}',
+                     title  : '{{ mission.Title | e('js') }}',
                      start  : '{{ mission.Start }}',
                      end    : '{{ mission.End }}',
                      url    : '{{ mission.Url }}',
