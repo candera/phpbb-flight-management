@@ -45,15 +45,23 @@ $(function() {
 
     console.log("using timezone " + timezone);
 
+    defaultView = "sixtyDay";
+
+    storedView = localStorage.getItem("ATOIndexView")
+    if (storedView != null)
+    {
+        defaultView = storedView;
+    }
+
     $('#ato-calendar').fullCalendar({
         events: localizedEventData(timezone),
         timezone: timezone,
-        defaultView: 'sixtyDay',
+        defaultView: defaultView,
         timeFormat: 'HH:mm',
         header: {
-            left: 'title',
+            left: 'prev,next today title',
             center: '',
-            right: 'today prev,next sixtyDay month agendaWeek'
+            right: 'sixtyDay month agendaWeek'
         },
         views: {
             sixtyDay: {
@@ -63,6 +71,9 @@ $(function() {
                 dateIncrement: { days: 60 },
                 listDayFormat: 'ddd MMM D'
             }
+        },
+        viewRender: function(view, element) {
+            localStorage.setItem("ATOIndexView", view.name);
         }
     });
 
