@@ -72,6 +72,7 @@ class main_listener implements EventSubscriberInterface
 	{
 		$permissions = $event['permissions'];
 		$permissions['u_schedule_mission']	= array('lang' => 'ACL_U_SCHEDULE_MISSION', 'cat' => 'misc');
+		$permissions['u_ato_assign_seats']	= array('lang' => 'ACL_U_ATO_ASSIGN_SEATS', 'cat' => 'misc');
 		$event['permissions'] = $permissions;
 	}
 

@@ -217,6 +217,7 @@ OR m.Creator = {$userid}
 
         $userid = $user->data["user_id"];
         $user_is_admin = $auth->acl_get("a_");
+        $can_sign_others_in = $auth->acl_get("u_ato_assign_seats");
 
         $missions_table = self::fm_table_name("missions");
         $admittance_table = self::fm_table_name("admittance");
@@ -273,6 +274,8 @@ WHERE m.Id = {$missionid}");
         $template->assign_var("SHOW_EDIT_MISSION", $user_is_editor);
         $template->assign_var("ATO_EDIT_MISSION_PAGE", $this->helper->route('ato_edit_mission_route',
                                                                             array('missionid' => $missionid)));
+        $template->assign_var("SHOW_SIGNIN_USERS", $can_sign_others_in);
+        $template->assign_var("USER_ID", $user->data["user_id"]);
 
         $user_can_sign_in = false;
 
@@ -316,10 +319,12 @@ WHERE AdmittanceId = {$opento_admittance_id}");
 
             $signin_flight = $db->sql_escape($signin_flight);
             $signin_seat = $db->sql_escape($signin_seat);
+            $signin_pilots = $request->variable("sign-in-pilot", array(0 => array(0 => "")));
+            $signin_userid = $can_sign_others_in ? $signin_pilots[$signin_flight][$signin_seat] : $userid;
 
             $sql = "INSERT INTO {$scheduled_participants_table}
 (FlightId, SeatNum, MemberPilot)
-VALUES ({$signin_flight}, {$signin_seat}, {$userid})";
+VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
             $db->sql_freeresult($this->execute_sql($sql));
         }
 
@@ -337,10 +342,12 @@ VALUES ({$signin_flight}, {$signin_seat}, {$userid})";
 
             $signout_flight = $db->sql_escape($signout_flight);
             $signout_seat = $db->sql_escape($signout_seat);
+            $user_clause = $can_sign_others_in ? "" : "AND MemberPilot = {$userid}";
 
             $sql = "DELETE FROM {$scheduled_participants_table}
 WHERE FlightId = {$signout_flight}
-AND SeatNum = {$signout_seat}";
+AND SeatNum = {$signout_seat}
+{$user_clause}";
             $db->sql_freeresult($this->execute_sql($sql));
         }
 
@@ -364,11 +371,16 @@ AND SeatNum = {$signout_seat}";
             $flightinfo["Id"] = $flightid;
             for ($i = 1; $i <= (int) $flightinfo["Seats"]; $i++)
             {
+                $signed_in_pilot = (int) $flightinfo["Participants"][$i]["MemberPilotId"];
                 if ($user_can_sign_in)
                 {
-                    if ($flightinfo["Participants"][$i] != null)
+                    if ($signed_in_pilot != null)
                     {
-                        $flightinfo["Participants"][$i]["Action"] = "sign-out";
+                        error_log("signed in pilot: {$signed_in_pilot}");
+                        if ($can_sign_others_in || ($signed_in_pilot == $user->data["user_id"]))
+                        {
+                            $flightinfo["Participants"][$i]["Action"] = "sign-out";
+                        }
                     }
                     else
                     {
@@ -381,6 +393,10 @@ AND SeatNum = {$signout_seat}";
 
         $template->assign_vars($missiondata);
         $this->assign_timezones_var("timezones");
+        if ($can_sign_others_in)
+        {
+            $this->assign_pilots_var("pilots", $missiondata["OpenToId"]);
+        }
 
         return $this->helper->render('ato-display-mission.html', '440th VFW ATO');
     }
@@ -590,11 +606,40 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
                                    abs($tzoffset) / 60 / 60,
                                    (abs($tzoffset) / 60) % 60);
 
-            $template->assign_block_vars("timezones", array("Id" => $tzname,
-                                                            "Name" => "[{$tzoffsetstr}] {$tzname}"));
+            $template->assign_block_vars($varname, array("Id" => $tzname,
+                                                         "Name" => "[{$tzoffsetstr}] {$tzname}"));
         }
 
     }
+
+    private function assign_pilots_var($varname, $opento)
+    {
+        global $db, $template;
+
+        $admittance_groups_table = self::fm_table_name("admittance_groups");
+
+        $sql = "SELECT DISTINCT
+  u.user_id as Id,
+  u.username as Name
+FROM phpbb_users AS u
+INNER JOIN phpbb_user_group AS ug
+ON ug.user_id = u.user_id
+INNER JOIN phpbb_groups as g
+ON ug.group_id = g.group_id
+INNER JOIN {$admittance_groups_table} AS ag
+ON ag.GroupId = g.group_id
+WHERE ag.AdmittanceId = {$opento}
+ORDER BY LOWER(u.username)";
+        $result = $this->execute_sql($sql);
+
+        while ($row = $db->sql_fetchrow($result))
+        {
+            $template->assign_block_vars($varname, $row);
+        }
+
+        $db->sql_freeresult($result);
+    }
+
 
     public function handle_edit_mission($missionid)
     {

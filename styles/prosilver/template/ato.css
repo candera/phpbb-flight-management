@@ -292,6 +292,12 @@ table.flights td.takeoff input {
 .ato-display-mission .signin .pilot-name {
     text-align: center;
     min-width: 100px;
+    padding: 2px 0;
+}
+
+.ato-display-mission .signin .signed-in-pilot {
+    padding: 4px 0;
+    display: inline-block;
 }
 
 .ato-display-mission .additional-info.field-label {
@@ -372,4 +378,6 @@ table.flights td.takeoff input {
     vertical-align: bottom;
 }
 
-
+.ato-display-mission .signin-selector {
+    white-space: nowrap;
+}

@@ -155,17 +155,29 @@
                         <td>{{ flight.AircraftName }}</td>
                         <td class="pilot-name">
                             {% if participant.MemberPilot %}
-                            <a href="{{ ROOT_PATH }}/memberlist.php?mode=viewprofile&un={{ participant.MemberPilot }}">{{ participant.MemberPilot }}</a>
+                            <a class="signed-in-pilot"
+                               href="{{ ROOT_PATH }}/memberlist.php?mode=viewprofile&un={{ participant.MemberPilot }}">{{ participant.MemberPilot }}</a>
+                            {% elseif participant.Action == 'sign-in' and SHOW_SIGNIN_USERS %}
+                            <select class="select2"
+                                    name="sign-in-pilot[{{ flight.Id }}][{{ seat }}]">
+                                {% for pilot in loops.pilots %}
+                                <option value="{{ pilot.Id }}"
+                                        {% if pilot.Id == USER_ID %}
+                                        selected="selected"
+                                        {% endif %}
+                                >{{ pilot.Name }}</option>
+                                {% endfor %}
+                            </select>
                             {% else %}
-                            <div class="seat-open">-</span>
-                                {% endif %}
+                            <div class="seat-open">-</div>
+                            {% endif %}
                         </td>
                         <td>
                             {% if participant.Action == 'sign-in' %}
-                            <input type="Submit"
-                                   name="sign-in[{{ flight.Id }}][{{ seat }}]"
-                                   value="Sign In"
-                                   class="signup-button" />
+                                <input type="Submit"
+                                       name="sign-in[{{ flight.Id }}][{{ seat }}]"
+                                       value="Sign In"
+                                       class="signup-button" />
                             {% elseif participant.Action == 'sign-out' %}
                             <input type="Submit"
                                    name="sign-out[{{ flight.Id }}][{{ seat }}]"

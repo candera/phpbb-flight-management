@@ -109,6 +109,13 @@ class v00001 extends \phpbb\db\migration\migration
             // Set permissions
             array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_schedule_mission')),
             array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_schedule_mission')),
+
+            // Permission to assign other people to seats
+            array('permission.add', array('u_ato_assign_seats')),
+
+            array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_ato_assign_seats')),
+            array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_ato_assign_seats')),
+
         );
     }
 
