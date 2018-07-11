@@ -138,9 +138,14 @@ WHERE user_id = {$safe_userid}";
         $admin_sees_all_clause = $user_is_admin ? "OR 1=1" : "";
 
         $missions_table = self::fm_table_name("missions");
+        $packages_table = self::fm_table_name("packages");
+        $flights_table = self::fm_table_name("flights");
+        $participants_table = self::fm_table_name("scheduled_participants");
         $users_table = USERS_TABLE;
 
         $results = $this->execute_sql("SELECT
+  st.TotalSeats as TotalSeats,
+  sf.FilledSeats as FilledSeats,
   m.Id,
   m.Name,
   m.Date as Start,
@@ -148,7 +153,33 @@ WHERE user_id = {$safe_userid}";
   m.Published,
   u.username as CreatorName,
   DATE_ADD(m.Date, INTERVAL m.ScheduledDuration MINUTE) AS End
-FROM {$missions_table} AS m
+FROM
+(SELECT
+  m.Id as MissionId,
+  SUM(Seats) as TotalSeats
+FROM {$flights_table} as f
+INNER JOIN {$packages_table} as p
+on f.PackageId = p.Id
+INNER JOIN {$missions_table} as m
+on p.MissionId = m.Id
+GROUP BY m.Id
+) as st
+LEFT JOIN
+(SELECT
+  m.Id as MissionId,
+  COUNT(*) as FilledSeats
+FROM {$participants_table} as sp
+INNER JOIN {$flights_table} as f
+ON sp.FlightId = f.Id
+INNER JOIN {$packages_table} as p
+on f.PackageId = p.Id
+INNER JOIN {$missions_table} as m
+on p.MissionId = m.Id
+GROUP BY m.Id
+) as sf
+ON sf.MissionId = st.MissionId
+INNER JOIN {$missions_table} AS m
+ON m.Id = st.MissionId
 INNER JOIN {$users_table} AS u
 ON m.Creator = u.user_id
 WHERE
@@ -166,6 +197,8 @@ OR m.Creator = {$userid}
             $template->assign_block_vars("missions", array("Title" => $row["Name"],
                                                            "Creator" => $row["CreatorName"],
                                                            "Published" => $row["Published"],
+                                                           "TotalSeats" => $row["TotalSeats"],
+                                                           "FilledSeats" => $row["FilledSeats"],
                                                            "Start" => $db_start->format(DATE_ATOM),
                                                            "End" => $db_end->format(DATE_ATOM),
                                                            "Url" => $view_link));

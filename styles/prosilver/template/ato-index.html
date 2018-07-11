@@ -38,7 +38,7 @@
              [
                  {% for mission in loops.missions %}
                  {
-                     title  : '{{ mission.Title | e('js') }}',
+                     title  : '{{ mission.Title | e('js') }} ( {{ mission.FilledSeats | default(0) }} of {{ mission.TotalSeats }} seats filled )',
                      start  : '{{ mission.Start }}',
                      end    : '{{ mission.End }}',
                      url    : '{{ mission.Url }}',
