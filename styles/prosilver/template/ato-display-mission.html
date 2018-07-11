@@ -30,9 +30,11 @@
                 <td class="value">
                     <a href="{{ ROOT_PATH }}/memberlist.php?mode=viewprofile&un={{ CreatorName }}">{{ CreatorName }}</a>
                 </td>
+            </tr>
+            {% if SHOW_EDIT_MISSION %}
             <tr>
                 <td class="field-label">
-                    <label>Published?</label>
+                    <label>Visible:</label>
                 </td>
                 <td class="value">
                     {% if Published %}
@@ -42,6 +44,7 @@
                     {% endif %}
                 </td>
             </tr>
+            {% endif %}
             <tr>
                 <td class="field-label">
                     <label>Open To:</label>
