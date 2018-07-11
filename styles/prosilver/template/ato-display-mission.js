@@ -32,6 +32,13 @@ $(document).ready(function() {
     $('#timezones').on("change", updateMissionTimezone);
     $("#timezones").val(timezone).trigger("change");
 
+    // Open select2 controls when tabbing to them
+    $(document).on('focus', '.select2', function (e) {
+        if (e.originalEvent) {
+            $(this).siblings('select').select2('open');
+        }
+    });
+
 })
 
 function setDefaultTimezone()
