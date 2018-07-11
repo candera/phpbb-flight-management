@@ -35,8 +35,8 @@
                     {% else %}
                     (Must first save mission)
                     {% endif %}
-                    {% if not PUBLISHED %}
-                    (unpublished)
+                    {% if MISSIONLINK and not PUBLISHED %}
+                    (not visible)
                     {% endif %}
                 </div>
                 <div class="error"></div>
