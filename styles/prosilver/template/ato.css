@@ -83,6 +83,9 @@ a.ato-button {
 .error {
     color: #9C0707;
     font-style: italic;
+    margin-left: 5px;
+    max-width: 150px;
+    display: inline-block;
 }
 
 .flight-error {
@@ -344,10 +347,6 @@ table.flights td.takeoff input {
     width: 300px;
 }
 
-.error {
-    display: inline-block;
-}
-
 .duration {
     display: inline-block;
 }
@@ -356,7 +355,7 @@ table.flights td.takeoff input {
     margin-bottom: 5px;
     display: flex;
     flex-basis: 40%;
-    min-width: 470px;
+    min-width: 615px;
 }
 
 .details-element.published .value {
