@@ -9,15 +9,17 @@
 {% INCLUDEJS '@VFW440_flight_management/lib/moment.min.js' %}
 {% INCLUDEJS '@VFW440_flight_management/lib/moment-timezone-with-data-2012-2022.js' %}
 {% INCLUDEJS 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js' %}
-{% INCLUDEJS '@VFW440_flight_management/ato-edit-mission.js' %}
 {% INCLUDEJS '@VFW440_flight_management/lib/jquery.timesetter.js' %}
 {% INCLUDEJS '@VFW440_flight_management/lib/jquery-ui-timepicker-addon.js' %}
+
+{% INCLUDEJS '@VFW440_flight_management/ato-edit-mission.js' %}
 
 {% INCLUDE 'overall_header.html' %}
 
 <h1>Edit a mission</h1>
 <div class="ato mission-editor">
     <form method="post" id="edit-mission-form">
+        {S_FORM_TOKEN}
         <input class="top-save-button ato-submit-input" name="save" type="submit" value="Save" />
         {% if SHOW_DELETE_BUTTON %}
         <input class="top-delete-button ato-submit-input" name="delete-mission" type="submit" value="Delete Mission" />
@@ -179,7 +181,7 @@
         <h2 class="packages-header">Packages
             <input name="add-package"
                    type="submit"
-                   value="Add Package"
+                   value="Add Package to Mission"
                    class="add-package-button ato-submit-input" />
         </h2>
 
@@ -318,7 +320,7 @@
             <input name="add-flight[{{ package.Id }}]"
                    class="ato-submit-input"
                    type="submit"
-                   value="Add Flight" />
+                   value="Add Flight to Package" />
         </fieldset>
         {% endfor %}
 

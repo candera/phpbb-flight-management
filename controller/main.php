@@ -215,6 +215,10 @@ OR m.Creator = {$userid}
     {
         global $auth, $db, $request, $template, $user;
 
+        $form_key = "ato-display-mission";
+
+        add_form_key($form_key);
+
         $userid = $user->data["user_id"];
         $user_is_admin = $auth->acl_get("a_");
         $can_sign_others_in = $auth->acl_get("u_ato_assign_seats");
@@ -308,6 +312,11 @@ WHERE AdmittanceId = {$opento_admittance_id}");
 
         if ($request->is_set_post("sign-in"))
         {
+            if (!check_form_key($form_key))
+            {
+                trigger_error($user->lang['FORM_INVALID']);
+            }
+
             if (! $user_can_sign_in)
             {
                 trigger_error('NOT_AUTHORISED');
@@ -330,6 +339,11 @@ VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
 
         if ($request->is_set_post("sign-out"))
         {
+            if (!check_form_key($form_key))
+            {
+                trigger_error($user->lang['FORM_INVALID']);
+            }
+
             if (! $user_can_sign_in)
             {
                 trigger_error('NOT_AUTHORISED');
@@ -645,6 +659,10 @@ ORDER BY LOWER(u.username)";
     {
         global $auth, $config, $db, $request, $template, $user;
 
+        $form_key = "ato-display-mission";
+
+        add_form_key($form_key);
+
         $missions_table = self::fm_table_name("missions");
 
         if ($missionid == "new")
@@ -848,6 +866,11 @@ ORDER BY LOWER(u.username)";
 
         if ($should_attempt_save)
         {
+            if (!check_form_key($form_key))
+            {
+                trigger_error($user->lang['FORM_INVALID']);
+            }
+
             $valid = true;
 
             if (trim($request->variable("missionname", "")) == false)
