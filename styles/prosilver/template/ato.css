@@ -286,7 +286,8 @@ table.flights td.takeoff input {
 
 .ato-display-mission .package-header {
     border-top: solid 1px black;
-    background: #ddd;
+    background: #034172;
+    color: white;
 }
 
 .ato-display-mission .signin td {
