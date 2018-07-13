@@ -397,3 +397,7 @@ table.flights td.takeoff input {
     display: inline-block;
     height: 20px;
 }
+
+.ato-index-link {
+    float: left;
+}
