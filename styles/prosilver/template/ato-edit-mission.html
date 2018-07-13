@@ -178,12 +178,7 @@
             </div>
         </div>
 
-        <h2 class="packages-header">Packages
-            <input name="add-package"
-                   type="submit"
-                   value="Add Package to Mission"
-                   class="add-package-button ato-submit-input" />
-        </h2>
+        <h2 class="packages-header">Packages</h2>
 
         {% for package in loops.packages %}
         <fieldset class="package">
@@ -323,6 +318,10 @@
                    value="Add Flight to Package" />
         </fieldset>
         {% endfor %}
+        <input name="add-package"
+               type="submit"
+               value="Add Package to Mission"
+               class="add-package-button ato-submit-input" />
 
         <h2>Additional Information</h2>
         <div class="error">{{ DESCRIPTION_ERROR }}</div>
