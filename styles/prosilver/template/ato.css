@@ -380,3 +380,18 @@ table.flights td.takeoff input {
 .ato-display-mission .signin-selector {
     white-space: nowrap;
 }
+
+.ato-index #bottom-bar {
+    margin-bottom: 20px;
+}
+
+.ato-index #ical-image {
+    background-image: url("images/ical.ico");
+    background-repeat: no-repeat;
+    background-size: 25px 25px;
+    padding-right: 1px;
+    padding-top: 1px;
+    width: 20px;
+    display: inline-block;
+    height: 20px;
+}

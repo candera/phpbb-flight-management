@@ -85,8 +85,6 @@ class main
     {
         global $template;
 
-        error_log("populate_template_code_tables {$table} : " . count($data));
-
         $template->assign_block_vars($table, array("Id" => 0));
 
         foreach ($data as $row)
@@ -121,6 +119,51 @@ WHERE user_id = {$safe_userid}";
         return $groups;
     }
 
+    public function iCalResponse($missiondata)
+    {
+        /* I wound up having to do it this way because I couldn't get
+         * the templating system to do the CRLF line endings that are
+         * required by the iCal spec. */
+        $body = "BEGIN:VCALENDAR\r
+PRODID:-//VFW440//ATO//EN\r
+VERSION:2.0\r
+CALSCALE:GREGORIAN\r
+NAME:440th VFW ATO\r
+X-WR-CALNAME:440th VFW ATO\r
+X-WR-CALDESC:440th VFW ATO\r
+REFRESH-INTERVAL;VALUE=DURATION:PT15M\r
+METHOD:PUBLISH\r
+";
+        $board_url = generate_board_url(true);
+        foreach ($missiondata as $mission)
+        {
+            $title = $mission["Title"];
+            $url = $mission["Url"];
+            $clean_url = substr($url, 0, strpos($url, "?"));
+            $start = $mission["StartICS"];
+            $end = $mission["EndICS"];
+            $missionid = $mission["Id"];
+
+            $body .= "BEGIN:VEVENT\r
+UID:{$board_url}/missions/{$missionid}\r
+DTSTAMP:{$start}\r
+DTSTART:{$start}\r
+DTEND:{$end}\r
+TRANSP:TRANSPARENT\r
+DESCRIPTION:{$board_url}{$clean_url}\r
+URL:{$board_url}{$clean_url}\r
+SUMMARY:{$title}\r
+SEQUENCE:1\r
+END:VEVENT\r
+";
+        }
+
+        $body .= "END:VCALENDAR\r\n";
+
+        $response = new Response($body, 200, array("Content-Type" => "text/calendar"));
+        return $response;
+    }
+
     /**
      * Controller for route /ato
      *
@@ -128,7 +171,7 @@ WHERE user_id = {$safe_userid}";
      */
     public function handle_index()
     {
-        global $template, $auth, $db, $user;
+        global $auth, $db, $request, $template, $user;
 
         $template->assign_var("SHOW_SCHEDULE_MISSION", $auth->acl_get('u_schedule_mission'));
 
@@ -146,7 +189,7 @@ WHERE user_id = {$safe_userid}";
         $results = $this->execute_sql("SELECT
   st.TotalSeats as TotalSeats,
   sf.FilledSeats as FilledSeats,
-  m.Id,
+  m.Id as Id,
   m.Name,
   m.Date as Start,
   m.Creator,
@@ -187,6 +230,7 @@ m.Published = b'1'
 OR m.Creator = {$userid}
 {$admin_sees_all_clause}");
 
+        $missiondata = [];
         while ($row = $db->sql_fetchrow($results))
         {
             $db_start = new \DateTime($row["Start"], new \DateTimeZone("UTC"));
@@ -194,21 +238,33 @@ OR m.Creator = {$userid}
             $missionid = $row["Id"];
             $view_link = $this->helper->route('ato_display_mission_route',
                                               array('missionid' => $missionid));
-            $template->assign_block_vars("missions", array("Title" => $row["Name"],
-                                                           "Creator" => $row["CreatorName"],
-                                                           "Published" => $row["Published"],
-                                                           "TotalSeats" => $row["TotalSeats"],
-                                                           "FilledSeats" => $row["FilledSeats"],
-                                                           "Start" => $db_start->format(DATE_ATOM),
-                                                           "End" => $db_end->format(DATE_ATOM),
-                                                           "Url" => $view_link));
+            $missioninfo = array("Id" => $missionid,
+                                 "Title" => $row["Name"],
+                                 "Creator" => $row["CreatorName"],
+                                 "Published" => $row["Published"],
+                                 "TotalSeats" => $row["TotalSeats"],
+                                 "FilledSeats" => $row["FilledSeats"],
+                                 "Start" => $db_start->format(DATE_ATOM),
+                                 "End" => $db_end->format(DATE_ATOM),
+                                 "StartICS" => $db_start->format("Ymd\THis\Z"),
+                                 "EndICS" => $db_end->format("Ymd\THis\Z"),
+                                 "Url" => $view_link);
+            $template->assign_block_vars("missions", $missioninfo);
+            $missiondata[] = $missioninfo;
         }
 
         $db->sql_freeresult($result);
 
         $this->assign_timezones_var("timezones", true);
 
-        return $this->helper->render('ato-index.html', '440th VFW ATO');
+        if ($request->variable("format", "html") == "ics")
+        {
+            return $this->iCalResponse($missiondata);
+        }
+        else
+        {
+            return $this->helper->render('ato-index.html', '440th VFW ATO');
+        }
     }
 
     public function handle_display_mission($missionid)
@@ -390,7 +446,6 @@ AND SeatNum = {$signout_seat}
                 {
                     if ($signed_in_pilot != null)
                     {
-                        error_log("signed in pilot: {$signed_in_pilot}");
                         if ($can_sign_others_in || ($signed_in_pilot == $user->data["user_id"]))
                         {
                             $flightinfo["Participants"][$i]["Action"] = "sign-out";
@@ -573,7 +628,6 @@ WHERE FlightId IN (" . implode($flight_ids, ", ") . ")");
     {
         foreach ($flightdata as $flightid => $data)
         {
-            error_log("Examining existing flight {$flightid}");
             $effectiveid = -1;
             if (strpos($flightid, "new-") === 0)
             {
@@ -717,15 +771,11 @@ ORDER BY LOWER(u.username)";
         if ($missionid != "new" && $request->is_set_post("delete-mission"))
         {
             $deletestage = $request->variable("deletestage", "");
-            error_log("Delete attempted ({$deletestage})...");
             if ($deletestage == "Confirming")
             {
-                error_log("Delete confirming...");
                 // check mode
                 if (confirm_box(true))
                 {
-                    error_log("Delete confirmed...");
-
                     $missionid = $db->sql_escape($missionid);
 
                     $sql = "DELETE FROM "
@@ -739,14 +789,12 @@ ORDER BY LOWER(u.username)";
                 }
                 else
                 {
-                    error_log("Delete disconfirmed");
                     return new RedirectResponse($this->helper->route('ato_edit_mission_route',
                                                                      array("missionid" => $missionid)));
                 }
             }
             else
             {
-                error_log("Checking delete confirmation");
                 $s_hidden_fields = build_hidden_fields(array(
                     'submit'         => true,
                     'missionid'      => $missionid,
