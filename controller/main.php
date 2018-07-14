@@ -332,7 +332,7 @@ OR m.Creator = {$userid}
 FROM {$flights_table} AS f
 INNER JOIN {$flight_callsigns_table} AS cs
 ON f.CallsignId = cs.Id
-WHERE F.Id = {$safe_flight_id}");
+WHERE f.Id = {$safe_flight_id}");
 
         $val = null;
 
