@@ -20,6 +20,12 @@ class main
     /* @var \phpbb\user */
     protected $user;
 
+    /** @var string phpBB root path */
+    protected $root_path;
+
+    /** @var string phpEx */
+    protected $php_ext;
+
     protected $db;
 
     // I hate that I have to put this in every file that uses it, but
@@ -43,14 +49,44 @@ class main
                                 \phpbb\controller\helper $helper,
                                 \phpbb\template\template $template,
                                 \phpbb\user $user,
-                                \phpbb\db\driver\driver_interface $db)
+                                \phpbb\db\driver\driver_interface $db,
+                                $root_path,
+                                $php_ext)
     {
         $this->config = $config;
         $this->helper = $helper;
         $this->template = $template;
         $this->user = $user;
         $this->db = $db;
+        $this->root_path = $root_path;
+        $this->php_ext = $php_ext;
+
+        /* It's pretty gross that I have to hard-code the name of the
+         * extension here, but I couldn't figure out how to get stupid
+         * PHP to load this library otherwise. */
+        include('./ext/VFW440/flight_management/vendor/rmccue/requests/library/Requests.php');
     }
+
+    private function post_discord_message($content)
+    {
+        global $config;
+
+        if ($config['ato_discord_url'])
+        {
+            try
+            {
+                error_log('Attempting to post to discord via webhook');
+                \Requests::post($config['ato_discord_url'],
+                                array(),
+                                json_encode(array("content" => $content)));
+            }
+            catch (\Exception $x)
+            {
+                error_log("Exception thrown while posting to discord webhook (sign-in)");
+            }
+        }
+    }
+
 
     private function execute_sql($sql)
     {
@@ -139,7 +175,7 @@ METHOD:PUBLISH\r
         {
             $title = $mission["Title"];
             $url = $mission["Url"];
-            $clean_url = substr($url, 0, strpos($url, "?"));
+            $clean_url = $this->strip_query_string($url);
             $start = $mission["StartICS"];
             $end = $mission["EndICS"];
             $missionid = $mission["Id"];
@@ -267,9 +303,95 @@ OR m.Creator = {$userid}
         }
     }
 
+    private function get_username($user_id)
+    {
+        global $db;
+
+        $safe_user_id = $db->sql_escape($user_id);
+        $result = $this->execute_sql("SELECT `username` FROM `phpbb_users` WHERE `user_id` = {$safe_user_id} LIMIT 1");
+
+        $val = null;
+        if ($row = $db->sql_fetchrow($result))
+        {
+            $val = $row["username"];
+        }
+
+        $db->sql_freeresult($result);
+        return $val;
+    }
+
+    private function get_flight_callsign($flight_id)
+    {
+        global $db;
+
+        $flights_table = self::fm_table_name("flights");
+        $flight_callsigns_table = self::fm_table_name("flight_callsigns");
+
+        $safe_flight_id = $db->sql_escape($flight_id);
+        $result = $this->execute_sql("SELECT cs.Name as Name, f.CallsignNum as Num
+FROM {$flights_table} AS f
+INNER JOIN {$flight_callsigns_table} AS cs
+ON f.CallsignId = cs.Id
+WHERE F.Id = {$safe_flight_id}");
+
+        $val = null;
+
+        if ($row = $db->sql_fetchrow($result))
+        {
+            $val = $row["Name"] . " " . $row["Num"];
+        }
+
+        $db->sql_freeresult($result);
+        return $val;
+
+    }
+    private function get_signed_in_pilot_username($flight_id, $seat)
+    {
+        global $db;
+
+        $flights_table = self::fm_table_name("flights");
+        $flight_callsigns_table = self::fm_table_name("flight_callsigns");
+        $scheduled_participants_table = self::fm_table_name("scheduled_participants");
+        $users_table = USERS_TABLE;
+
+        $safe_flight_id = $db->sql_escape($flight_id);
+        $safe_seat = $db->sql_escape($seat);
+        $result = $this->execute_sql("SELECT
+  u.username AS username
+FROM {$users_table} AS u
+INNER JOIN {$scheduled_participants_table} AS sp
+ON sp.FlightId = {$safe_flight_id}
+WHERE sp.SeatNum = {$safe_seat}
+AND sp.MemberPilot = u.user_id");
+
+        $val = null;
+
+        if ($row = $db->sql_fetchrow($result))
+        {
+            $val = $row["username"];
+        }
+
+        $db->sql_freeresult($result);
+        return $val;
+    }
+
+    private function strip_query_string($url)
+    {
+        $pos = strpos($url, "?");
+
+        if ($pos === false)
+        {
+            return $url;
+        }
+        else
+        {
+            substr($url, 0, $pos);
+        }
+    }
+
     public function handle_display_mission($missionid)
     {
-        global $auth, $db, $request, $template, $user;
+        global $auth, $config, $db, $request, $template, $user;
 
         $form_key = "ato-display-mission";
 
@@ -391,6 +513,19 @@ WHERE AdmittanceId = {$opento_admittance_id}");
 (FlightId, SeatNum, MemberPilot)
 VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
             $db->sql_freeresult($this->execute_sql($sql));
+
+            if ($config['ato_discord_url'])
+            {
+                $board_url = generate_board_url(true);
+                $mission_url = $this->helper->route('ato_display_mission_route',
+                                                    array('missionid' => $missionid));
+                $clean_url = $this->strip_query_string($mission_url);
+                $mission_name = $missiondata["Name"];
+                $initiator_username = $this->get_username($userid);
+                $flight_callsign = $this->get_flight_callsign($signin_flight);
+                $pilot_username = $signin_userid == $userid ? "" : ($this->get_username($signin_userid) . " ");
+                $this->post_discord_message("{$initiator_username} signed {$pilot_username}in to {$flight_callsign}-{$signin_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url})");
+            }
         }
 
         if ($request->is_set_post("sign-out"))
@@ -414,11 +549,27 @@ VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
             $signout_seat = $db->sql_escape($signout_seat);
             $user_clause = $can_sign_others_in ? "" : "AND MemberPilot = {$userid}";
 
+            $signout_username = $this->get_signed_in_pilot_username($signout_flight, $signout_seat);
+
             $sql = "DELETE FROM {$scheduled_participants_table}
 WHERE FlightId = {$signout_flight}
 AND SeatNum = {$signout_seat}
 {$user_clause}";
             $db->sql_freeresult($this->execute_sql($sql));
+
+            if ($config['ato_discord_url'])
+            {
+                $board_url = generate_board_url(true);
+                $mission_url = $this->helper->route('ato_display_mission_route',
+                                                    array('missionid' => $missionid));
+                $clean_url = $this->strip_query_string($mission_url);
+                $mission_name = $missiondata["Name"];
+                $initiator_username = $this->get_username($userid);
+                $flight_callsign = $this->get_flight_callsign($signout_flight);
+                $pilot_username = $initiator_username == $signout_username ? "" : ($signout_username . " ");
+                $this->post_discord_message("{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url})");
+            }
+
         }
 
         $duration_mins = (int) $row["ScheduledDuration"];
@@ -501,7 +652,7 @@ FROM "
             "MISSIONNAME" => $row["Name"],
             "THEATER"     => $row["Theater"],
             "MISSIONTYPE" => $row["Type"],
-            "MISSIONDATE" => $row["Date"],
+            "MISSIONUTCDATE" => $row["Date"],
             "DESCRIPTION" => $row["Description"],
             "SERVER"      => $row["ServerAddress"],
             "DURATION"    => $row["ScheduledDuration"],
@@ -512,10 +663,10 @@ FROM "
 
         $db->sql_freeresult($result);
 
-        $db_date = new \DateTime($missiondata["MISSIONDATE"], new \DateTimeZone("UTC"));
+        $db_date = new \DateTime($missiondata["MISSIONUTCDATE"], new \DateTimeZone("UTC"));
+        $missiondata["MISSIONUTCDATE"] = $db_date->format("Y-m-d H:i");
 
         $db_date->setTimezone(new \DateTimeZone($tzName));
-
 
         $missiondata["MISSIONDATE"] = $db_date->format("Y-m-d H:i");
         $missiondata["MISSIONTIMEZONE"] = $tzName;
@@ -719,6 +870,8 @@ ORDER BY LOWER(u.username)";
 
         $missions_table = self::fm_table_name("missions");
 
+        $is_published = false;
+
         if ($missionid == "new")
         {
             if (!$auth->acl_get('u_schedule_mission'))
@@ -739,13 +892,18 @@ ORDER BY LOWER(u.username)";
             }
 
             $missionid = $db->sql_escape($missionid);
-            $result = $this->execute_sql("SELECT Id from {$missions_table} where Id = {$missionid}");
+            $result = $this->execute_sql("SELECT Id, Published from {$missions_table} where Id = {$missionid}");
             $row = $db->sql_fetchrow($result);
 
             if ( ! $row )
             {
                 return $this->helper->render('ato-mission-not-found.html', '440th VFW ATO');
             }
+
+            $is_published = $row["Published"];
+
+            $db->sql_freeresult($result);
+
         }
 
         $defaultTimezone = request_var($config['cookie_name'] . '_mission-timezone', "", false, true);
@@ -1150,6 +1308,22 @@ ORDER BY LOWER(u.username)";
 
                 $tzName = $request->variable("mission-timezone", $defaultTimezone);
                 $missiondata = $this->read_db_missiondata($missionid, $tzName);
+
+                // Notify when state goes from not published (including nonexistent) to published
+                if (!$is_published && $missiondata["PUBLISHED"])
+                {
+                    if ($config['ato_discord_url'])
+                    {
+                        $board_url = generate_board_url(true);
+                        $mission_url = $this->helper->route('ato_display_mission_route',
+                                                        array('missionid' => $missionid));
+                        $clean_url = $this->strip_query_string($mission_url);
+                        $mission_name = $missiondata["MISSIONNAME"];
+                        $mission_utc_date = $missiondata["MISSIONUTCDATE"];
+                        $initiator_username = $this->get_username($user->data["user_id"]);
+                        $this->post_discord_message("{$initiator_username} created mission _{$mission_name}_, to be flown at {$mission_utc_date} (GMT). See details at {$board_url}{$clean_url}");
+                    }
+                }
 
                 if ($redirect)
                 {

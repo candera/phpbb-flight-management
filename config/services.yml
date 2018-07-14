@@ -7,6 +7,8 @@ services:
             - '@template'
             - '@user'
             - '@dbal.conn'
+            - '%core.root_path%'
+            - '%core.php_ext%'
     VFW440.flight_management.listener:
         class: VFW440\flight_management\event\main_listener
         arguments:

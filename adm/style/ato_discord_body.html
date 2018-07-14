@@ -1,0 +1,17 @@
+<!-- -*- mode: web -*- -->
+{% INCLUDE 'overall_header.html' %}
+{% INCLUDECSS 'ato_admittance_body.css' %}
+
+<h1>ATO Admittance</h1>
+
+<form method="POST">
+    <fieldset>
+        <legend>Discord Integration</legend>
+        <label>Discord Webhook URL:</label>
+        <input style="width:50%;max-width:500px" type="text" name="ato-discord-url" value="{{ ATO_DISCORD_URL }}" />
+        <input type="submit" name="submit" value="Save Changes" />
+    </fieldset>
+
+    {{ S_FORM_TOKEN }}
+</form>
+{% INCLUDE 'overall_footer.html' %}

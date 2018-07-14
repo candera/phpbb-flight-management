@@ -78,6 +78,12 @@ class v00001 extends \phpbb\db\migration\migration
                 'ACP_VFW440_ATO_ADMITTANCE_TITLE'
             )),
 
+            array('module.add', array(
+                'acp',
+                'ACP_CAT_DOT_MODS',
+                'ACP_VFW440_ATO_DISCORD_TITLE'
+            )),
+
             // Add our modules to the parent module
             array('module.add', array(
                 'acp',
@@ -103,6 +109,16 @@ class v00001 extends \phpbb\db\migration\migration
                 ),
             )),
 
+            array('module.add', array(
+                'acp',
+                "ACP_VFW440_ATO_DISCORD_TITLE",
+                array(
+                    'module_basename'       => '\VFW440\flight_management\acp\ato_discord_module',
+                    'modes'                 => array('discord')
+                ),
+            )),
+
+
             // Permission to schedule a new mission
             array('permission.add', array('u_schedule_mission')),
 
@@ -115,6 +131,9 @@ class v00001 extends \phpbb\db\migration\migration
 
             array('permission.permission_set', array('ROLE_ADMIN_FULL', 'u_ato_assign_seats')),
             array('permission.permission_set', array('ROLE_ADMIN_STANDARD', 'u_ato_assign_seats')),
+
+            array('config.add', array('ato_discord_url', "")),
+
 
         );
     }
