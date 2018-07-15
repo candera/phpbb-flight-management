@@ -100,7 +100,7 @@
                 <td class="field-label">
                     <label>Duration:</label>
                 </td>
-                <td class="duration">{{ ScheduledDuration / 60 }}:{{ "%02d" | format(ScheduledDuration % 60) }}</td>
+                <td class="duration">{{ (ScheduledDuration / 60) | round(0, 'floor') }}:{{ "%02d" | format(ScheduledDuration % 60) }}</td>
             </tr>
             <tr>
                 <td class="field-label">
