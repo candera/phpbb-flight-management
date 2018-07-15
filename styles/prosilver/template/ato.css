@@ -466,3 +466,8 @@ table.flights td.takeoff input {
 .ato-display-mission #missiontime {
     font-size: 90%;
 }
+
+#bottom-bar a {
+    color: black;
+    text-decoration: underline;
+}
