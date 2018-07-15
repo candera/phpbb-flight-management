@@ -401,3 +401,18 @@ table.flights td.takeoff input {
 .ato-index-link {
     float: left;
 }
+
+.pilot-name span[role="textbox"] {
+    color: hsla(120, 100%, 30%, 1) !important;
+    font-style: italic;
+}
+
+.signup-button.sign-in {
+    color: hsla(120, 100%, 30%, 1);
+    /* font-style: italic; */
+}
+
+.signup-button.sign-out {
+    color: hsla(0, 100%, 30%, 1);
+    /* font-style: italic; */
+}

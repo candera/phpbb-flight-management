@@ -179,12 +179,12 @@
                                 <input type="Submit"
                                        name="sign-in[{{ flight.Id }}][{{ seat }}]"
                                        value="Sign In"
-                                       class="signup-button" />
+                                       class="signup-button sign-in" />
                             {% elseif participant.Action == 'sign-out' %}
                             <input type="Submit"
                                    name="sign-out[{{ flight.Id }}][{{ seat }}]"
                                    value="Sign Out"
-                                   class="signup-button" />
+                                   class="signup-button sign-out" />
                             {% endif %}
                         </td>
                     </tr>
