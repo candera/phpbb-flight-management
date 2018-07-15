@@ -6,6 +6,10 @@
     display: none;
 }
 
+.ato {
+    color: white;
+}
+
 .ato h1 {
     font-size: 170%;
 }
@@ -24,6 +28,7 @@
 
 .ato legend {
     font-size: 110%;
+    color: white;
 }
 
 .ato-display-mission legend {
@@ -35,6 +40,7 @@
     border-radius: 4px;
     padding: 2px 4px;
     background: white;
+    color: black;
 }
 
 .top-save-button {
@@ -227,7 +233,7 @@ table.flights td.takeoff input {
 }
 
 .ato-display-mission .signin tr.oddrow {
-    background: lightgrey;
+    background: #777;
 }
 
 .ato-display-mission .seat-open {
@@ -276,6 +282,12 @@ table.flights td.takeoff input {
     border-top: solid 1px black;
     font-weight: bold;
     border-bottom: dashed 1px black;
+    background: #555;
+}
+
+.ato-display-mission .signin .flight-header td {
+    padding-top: 5px;
+    padding-bottom: 4px;
 }
 
 .ato-display-mission .signin .flight-name {
@@ -353,6 +365,10 @@ table.flights td.takeoff input {
     display: inline-block;
 }
 
+.mission-editor .duration {
+    color: black;
+}
+
 .details-element {
     margin-bottom: 5px;
     display: flex;
@@ -415,4 +431,38 @@ table.flights td.takeoff input {
 .signup-button.sign-out {
     color: hsla(0, 100%, 30%, 1);
     /* font-style: italic; */
+}
+
+/******************************************/
+/* Adapt to the production site's theme */
+
+.ato-display-mission .oddrow {
+    background: 
+}
+
+.ato-index {
+    color: #222;
+    background: #f9f9f9;
+    border-radius: 5px;
+    padding: 10px
+}
+
+.ato-index h1 {
+    color: #222;
+}
+
+.select2-container {
+    color:black;
+}
+
+.ato button {
+    color:#222;
+}
+
+.ato-display-mission {
+    font-size: 90%;
+}
+
+.ato-display-mission #missiontime {
+    font-size: 90%;
 }

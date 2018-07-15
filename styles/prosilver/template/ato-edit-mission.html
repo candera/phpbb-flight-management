@@ -16,9 +16,9 @@
 
 {% INCLUDE 'overall_header.html' %}
 
-<div class="ato-index-link"><a href="{{ ATO_INDEX_PAGE }}">View ATO</a></div>
-<h1>Edit a mission</h1>
 <div class="ato mission-editor">
+    <div class="ato-index-link"><a href="{{ ATO_INDEX_PAGE }}">View ATO</a></div>
+    <h1>Edit a mission</h1>
     <form method="post" id="edit-mission-form">
         {S_FORM_TOKEN}
         <input class="top-save-button ato-submit-input" name="save" type="submit" value="Save" />

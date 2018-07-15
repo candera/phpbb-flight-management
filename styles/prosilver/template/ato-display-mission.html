@@ -176,10 +176,10 @@
                         </td>
                         <td>
                             {% if participant.Action == 'sign-in' %}
-                                <input type="Submit"
-                                       name="sign-in[{{ flight.Id }}][{{ seat }}]"
-                                       value="Sign In"
-                                       class="signup-button sign-in" />
+                            <input type="Submit"
+                                   name="sign-in[{{ flight.Id }}][{{ seat }}]"
+                                   value="Sign In"
+                                   class="signup-button sign-in" />
                             {% elseif participant.Action == 'sign-out' %}
                             <input type="Submit"
                                    name="sign-out[{{ flight.Id }}][{{ seat }}]"
@@ -190,6 +190,9 @@
                     </tr>
                     {% endfor %} <!-- Seat -->
                     {% endif %}
+                    <tr>
+                        <td colspan="4" class="flight-spacer">&nbsp;</td>
+                    </tr>
                     {% endfor %} <!-- Flight -->
                     {% endfor %} <!-- Package -->
                 </tbody>
