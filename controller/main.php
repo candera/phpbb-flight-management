@@ -289,7 +289,7 @@ OR m.Creator = {$userid}
             $missiondata[] = $missioninfo;
         }
 
-        $db->sql_freeresult($result);
+        $db->sql_freeresult($results);
 
         $this->assign_timezones_var("timezones", true);
 
@@ -575,8 +575,6 @@ AND SeatNum = {$signout_seat}
         $duration_mins = (int) $row["ScheduledDuration"];
         $missiondata["DurationHours"] = floor($duration_mins / 60);
         $missiondata["DurationMins"] = sprintf("%02d", $duration_mis % 60);
-
-        $db->sql_freeresult($result);
 
         $packagedata = $this->read_db_packagedata($missionid);
         $flightdata = $this->read_db_flightdata($missionid);
