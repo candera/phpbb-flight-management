@@ -514,7 +514,7 @@ WHERE AdmittanceId = {$opento_admittance_id}");
 VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
             $db->sql_freeresult($this->execute_sql($sql));
 
-            if ($config['ato_discord_url'])
+            if ($config['ato_discord_url'] && $missiondata["Published"])
             {
                 $board_url = generate_board_url(true);
                 $mission_url = $this->helper->route('ato_display_mission_route',
@@ -557,7 +557,7 @@ AND SeatNum = {$signout_seat}
 {$user_clause}";
             $db->sql_freeresult($this->execute_sql($sql));
 
-            if ($config['ato_discord_url'])
+            if ($config['ato_discord_url'] && $missiondata["Published"])
             {
                 $board_url = generate_board_url(true);
                 $mission_url = $this->helper->route('ato_display_mission_route',
