@@ -385,7 +385,7 @@ AND sp.MemberPilot = u.user_id");
         }
         else
         {
-            substr($url, 0, $pos);
+            return substr($url, 0, $pos);
         }
     }
 
