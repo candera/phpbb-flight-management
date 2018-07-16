@@ -471,3 +471,22 @@ table.flights td.takeoff input {
     color: black;
     text-decoration: underline;
 }
+
+.ato-display-mission .signin {
+    font-size: 120%;
+}
+
+.ato-index h1 {
+    margin: 5px 0 10px;
+}
+
+.ato-index h2 {
+    color: #222;
+}
+
+.mission-editor input {
+    color: #222;
+}
+.mission-editor textarea {
+    color: #222;
+}
