@@ -129,7 +129,7 @@
                 <tbody>
                     {% for package in loops.packages %}
                     <tr class="package-header">
-                        <td colspan="4">
+                        <td colspan="5">
                             <div class="package-name">{% include "package-name.html" %}</div>
                         </td>
                     </tr>
@@ -137,7 +137,7 @@
                     {% if flight.PackageId == package.Id %}
                     <tr class="flight-header">
                         <td class="flight-name">{{ flight.CallsignName }}-{{ flight.CallsignNum }}</td>
-                        <td colspan="2">{{ flight.RoleName }}</td>
+                        <td colspan="3">{{ flight.RoleName }}</td>
                         <td>T/O: {% if flight.TakeoffTime %}
                             {{ flight.TakeoffTime | escape }}
                             {% else %}
@@ -155,25 +155,16 @@
                     >
                         <td>{{ flight.CallsignName }} {{ flight.CallsignNum }}-{{ seat }}</td>
                         <td>{{ flight.AircraftName }}</td>
+
                         <td class="pilot-name">
                             {% if participant.MemberPilot %}
                             <a class="signed-in-pilot"
                                href="{{ ROOT_PATH }}/memberlist.php?mode=viewprofile&un={{ participant.MemberPilot }}">{{ participant.MemberPilot }}</a>
-                            {% elseif participant.Action == 'sign-in' and SHOW_SIGNIN_USERS %}
-                            <select class="select2"
-                                    name="sign-in-pilot[{{ flight.Id }}][{{ seat }}]">
-                                {% for pilot in loops.pilots %}
-                                <option value="{{ pilot.Id }}"
-                                        {% if pilot.Id == USER_ID %}
-                                        selected="selected"
-                                        {% endif %}
-                                >{{ pilot.Name }}</option>
-                                {% endfor %}
-                            </select>
                             {% else %}
-                            <div class="seat-open">-</div>
+                            -
                             {% endif %}
                         </td>
+
                         <td>
                             {% if participant.Action == 'sign-in' %}
                             <input type="Submit"
@@ -187,11 +178,29 @@
                                    class="signup-button sign-out" />
                             {% endif %}
                         </td>
+
+                        <td>
+                            {% if not participant.MemberPilot and participant.Action == 'sign-in' and SHOW_SIGNIN_USERS %}
+                            <select class="select2"
+                                    name="sign-in-pilot[{{ flight.Id }}][{{ seat }}]">
+                                {% for pilot in loops.pilots %}
+                                <option value="{{ pilot.Id }}"
+                                        {% if pilot.Id == USER_ID %}
+                                        selected="selected"
+                                        {% endif %}
+                                >{{ pilot.Name }}</option>
+                                {% endfor %}
+                            </select>
+                            {% else %}
+                            <div class="seat-open">&nbsp;</div>
+                            {% endif %}
+                        </td>
+
                     </tr>
                     {% endfor %} <!-- Seat -->
                     {% endif %}
                     <tr>
-                        <td colspan="4" class="flight-spacer">&nbsp;</td>
+                        <td colspan="5" class="flight-spacer">&nbsp;</td>
                     </tr>
                     {% endfor %} <!-- Flight -->
                     {% endfor %} <!-- Package -->
