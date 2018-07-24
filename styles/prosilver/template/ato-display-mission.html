@@ -16,7 +16,7 @@
 
 <div class="ato ato-display-mission">
     <div class="ato-index-link"><a href="{{ ATO_INDEX_PAGE }}">View ATO</a></div>
-    <h1>Mission: {{ Name }}
+    <h1>Mission: {{ Name | escape }}
         {% if SHOW_EDIT_MISSION %}
         <a class="ato-button ato-edit-mission-button" href="{{ ATO_EDIT_MISSION_PAGE }}">Edit</a>
         {% endif %}
@@ -106,7 +106,7 @@
                 <td class="field-label">
                     <label>Server:</label>
                 </td>
-                <td class="value">{{ ServerAddress }}</td>
+                <td class="value">{{ ServerAddress | escape }}</td>
             </tr>
         </table>
     </fieldset>
@@ -139,7 +139,7 @@
                         <td class="flight-name">{{ flight.CallsignName }}-{{ flight.CallsignNum }}</td>
                         <td colspan="2">{{ flight.RoleName }}</td>
                         <td>T/O: {% if flight.TakeoffTime %}
-                            {{ flight.TakeoffTime }}
+                            {{ flight.TakeoffTime | escape }}
                             {% else %}
                             N/A
                             {% endif %}</td>

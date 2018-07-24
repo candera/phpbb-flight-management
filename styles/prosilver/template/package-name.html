@@ -5,7 +5,7 @@ Package {{ package.Number }}
 --
 {% endif %}
 {% if package.Name %}
-{{ package.Name }}
+{{ package.Name | escape }}
 {% elseif ! package.Number %}
 Unnamed Package
 {% endif %}

@@ -66,7 +66,7 @@
                     <input type="text"
                            class="ato-text-input"
                            name="missionname"
-                           value="{{ MISSIONNAME }}"
+                           value="{{ MISSIONNAME | escape('html_attr') }}"
                            placeholder="Mission name" />
                 </div>
                 <div class="error">{{ NAME_ERROR }}</div>
@@ -173,7 +173,7 @@
                     <input type="text"
                            name="server"
                            class="ato-text-input"
-                           value="{{ SERVER }}" />
+                           value="{{ SERVER | escape('html_attr') }}" />
                 </div>
                 <div class="error">{{ SERVER_ERROR }}</div>
             </div>
@@ -195,7 +195,7 @@
                     <td class="value">
                         <input type="text"
                                name="packages[{{ package.Id }}][Name]"
-                               value="{{ package.Name }}"
+                               value="{{ package.Name | escape('html_attr') }}"
                                class="ato-text-input"
                                placeholder="Name" />
                     </td>
@@ -297,7 +297,7 @@
                             </div>
                             <input name="flights[{{ flight.Id }}][TakeoffTime]"
                                    type="text"
-                                   value="{{ flight.TakeoffTime }}"
+                                   value="{{ flight.TakeoffTime | escape('html_attr') }}"
                                    placeholder="HH:MM" />
                         </td>
                         <td class="delete">
@@ -326,7 +326,7 @@
 
         <h2>Additional Information</h2>
         <div class="error">{{ DESCRIPTION_ERROR }}</div>
-        <textarea name="description" rows="7">{{ DESCRIPTION }}</textarea>
+        <textarea name="description" rows="7">{{ DESCRIPTION | escape }}</textarea>
 
         <input name="save" type="submit" value="Save" class="save-button bottom ato-submit-input" />
 

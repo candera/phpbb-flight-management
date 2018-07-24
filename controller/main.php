@@ -1182,12 +1182,12 @@ ORDER BY LOWER(u.username)";
                 $redirect = false;
                 $params = array(
                     "Published"         => $request->variable("published", "off") == "on" ? true : false,
-                    "Name"              => $request->variable("missionname", ""),
+                    "Name"              => htmlspecialchars_decode($request->variable("missionname", "")),
                     "Theater"           => (int) $request->variable("theater", ""),
                     "Type"              => (int) $request->variable("missiontype", ""),
                     "Date"              => $this->format_sql_date($parseddate),
-                    "Description"       => $request->variable("description", ""),
-                    "ServerAddress"     => $request->variable("server", ""),
+                    "Description"       => htmlspecialchars_decode($request->variable("description", "")),
+                    "ServerAddress"     => htmlspecialchars_decode($request->variable("server", "")),
                     "ScheduledDuration" => (int) $request->variable("duration", ""),
                     "OpenTo"            => (int) $request->variable("opento", 0),
                 );
@@ -1219,7 +1219,7 @@ ORDER BY LOWER(u.username)";
                 foreach ($packagedata as $packageid => $packageinfo)
                 {
                     $packagenumber = $packageinfo["Number"] == "" ? null : (int) $packageinfo["Number"];
-                    $packagename = $db->sql_escape($packageinfo["Name"]);
+                    $packagename = htmlspecialchars_decode($packageinfo["Name"]);
                     $params = array("MissionId" => $missionid,
                                     "Name" => $packagename,
                                     "Number" => $packagenumber);
@@ -1266,7 +1266,7 @@ ORDER BY LOWER(u.username)";
                     $aircraftid = (int) $flightinfo["AircraftId"];
                     $seats = (int) $flightinfo["Seats"];
                     $role = (int) $flightinfo["RoleId"];
-                    $takeoff = $db->sql_escape($flightinfo["TakeoffTime"]);
+                    $takeoff = htmlspecialchars_decode($flightinfo["TakeoffTime"]);
                     $flight_package = (int) $flightinfo["PackageId"];
 
                     $params = array("CallsignId" => $callsign,
@@ -1334,13 +1334,13 @@ ORDER BY LOWER(u.username)";
                 // Turn the existing data back around - it's invalid
                 $missiondata = array(
                     "PUBLISHED" => $request->variable("published", "off") == "on" ? true : false,
-                    "MISSIONNAME" => $request->variable("missionname", ""),
+                    "MISSIONNAME" => htmlspecialchars_decode($request->variable("missionname", "")),
                     "THEATER" => (int) $request->variable("theater", 0),
                     "MISSIONTYPE" => (int) $request->variable("missiontype", 0),
                     "MISSIONDATE" => $request->variable("mission-date", date("Y-m-d 12:00", strtotime("+1 week"))),
                     "MISSIONTIMEZONE" => $request->variable("mission-timezone", ""),
-                    "DESCRIPTION" => $request->variable("description", ''),
-                    "SERVER" => $request->variable("server", ''),
+                    "DESCRIPTION" => htmlspecialchars_decode($request->variable("description", '')),
+                    "SERVER" => htmlspecialchars_decode($request->variable("server", '')),
                     "DURATION" => (int) $request->variable("duration", 120),
                     "OPENTO" => (int) $request->variable("opento", 0),
                 );
