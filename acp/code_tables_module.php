@@ -135,7 +135,13 @@ class code_tables_module
             {
                 if (strpos($variable, "field-") === 0)
                 {
-                    [$nop, $id, $column] = explode("-", $variable);
+                    // As nice as it would be to use array
+                    // destructuring here, it turns out the production
+                    // box runs an ancient version of PHP and can't
+                    // handle it.
+                    $vals = explode("-", $variable);
+                    $id = $vals[1];
+                    $column = $vals[2];
                     $input_map[$id][$column] = $request->variable($variable, "");
                 }
             }
