@@ -2,11 +2,11 @@ function updateMissionTimezone(e) {
     newTz = $("#timezones")[0].value;
     console.log("Changing timezone to " + newTz);
 
-    $("#missiontime").html(moment(missiondatetime).tz(newTz).format("YYYY-MM-DD HH:mm")
+    $("#missiontime").html(moment(missiondatetime).tz(newTz).format("ddd YYYY-MM-DD HH:mm")
                            + " ("
                            + newTz
                            + ")");
-    $("#missiontime-utc").html(moment(missiondatetime).tz("UTC").format("YYYY-MM-DD HH:mm"));
+    $("#missiontime-utc").html(moment(missiondatetime).tz("UTC").format("ddd YYYY-MM-DD HH:mm"));
 }
 
 $(document).ready(function() {
