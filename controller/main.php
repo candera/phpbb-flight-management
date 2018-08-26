@@ -402,6 +402,9 @@ AND sp.MemberPilot = u.user_id");
         $can_sign_others_in = $auth->acl_get("u_ato_assign_seats");
 
         $missions_table = self::fm_table_name("missions");
+        $packages_table = self::fm_table_name("packages");
+        $flights_table = self::fm_table_name("flights");
+        $participants_table = self::fm_table_name("scheduled_participants");
         $admittance_table = self::fm_table_name("admittance");
         $admittance_groups_table = self::fm_table_name("admittance_groups");
         $missiontypes_table = self::fm_table_name("missiontypes");
@@ -422,8 +425,36 @@ AND sp.MemberPilot = u.user_id");
   m.Description       AS Description,
   m.ServerAddress     AS ServerAddress,
   m.Creator           AS Creator,
-  u.username          AS CreatorName
+  u.username          AS CreatorName,
+  st.TotalSeats       AS TotalSeats,
+  sf.FilledSeats      AS FilledSeats
 FROM {$missions_table} as m
+LEFT JOIN (
+  SELECT
+    m.Id as MissionId,
+    SUM(Seats) as TotalSeats
+  FROM {$flights_table} as f
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
+) as st
+ON st.MissionId = m.Id
+LEFT JOIN (
+  SELECT
+    m.Id as MissionId,
+    COUNT(*) as FilledSeats
+  FROM {$participants_table} as sp
+  INNER JOIN {$flights_table} as f
+  ON sp.FlightId = f.Id
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
+) as sf
+ON sf.MissionId = m.Id
 INNER JOIN {$admittance_table} as adm
 ON adm.Id = m.OpenTo
 INNER JOIN {$theaters_table} as theater
@@ -444,6 +475,8 @@ WHERE m.Id = {$missionid}");
         }
 
         $missiondata = $row;
+        $total_seats = $missiondata["TotalSeats"];
+        $filled_seats = $missiondata["FilledSeats"];
 
         $user_is_editor = $user_is_admin || ($userid == $missiondata["Creator"]);
 
@@ -523,8 +556,9 @@ VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
                 $mission_name = $missiondata["Name"];
                 $initiator_username = $this->get_username($userid);
                 $flight_callsign = $this->get_flight_callsign($signin_flight);
+                $seats_remaining = $total_seats - $filled_seats - 1;
                 $pilot_username = $signin_userid == $userid ? "" : ($this->get_username($signin_userid) . " ");
-                $this->post_discord_message("{$initiator_username} signed {$pilot_username}in to {$flight_callsign}-{$signin_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url})");
+                $this->post_discord_message("{$initiator_username} signed {$pilot_username}in to {$flight_callsign}-{$signin_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
             }
         }
 
@@ -566,8 +600,9 @@ AND SeatNum = {$signout_seat}
                 $mission_name = $missiondata["Name"];
                 $initiator_username = $this->get_username($userid);
                 $flight_callsign = $this->get_flight_callsign($signout_flight);
+                $seats_remaining = $total_seats - $filled_seats + 1;
                 $pilot_username = $initiator_username == $signout_username ? "" : ($signout_username . " ");
-                $this->post_discord_message("{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url})");
+                $this->post_discord_message("{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
             }
 
         }
@@ -623,20 +658,55 @@ AND SeatNum = {$signout_seat}
     {
         global $db;
 
+        $missions_table = self::fm_table_name("missions");
+        $packages_table = self::fm_table_name("packages");
+        $flights_table = self::fm_table_name("flights");
+        $participants_table = self::fm_table_name("scheduled_participants");
+
+        $safe_mission_id = $db->sql_escape($missionid);
+
         $result = $this->execute_sql("SELECT
-  Published,
-  Name,
-  Theater,
-  Type,
-  Date,
-  Description,
-  ServerAddress,
-  ScheduledDuration,
-  OpenTo
-FROM "
-                                     . self::fm_table_name("missions")
-                                     . " WHERE Id = "
-                                     . $db->sql_escape($missionid));
+  m.Published         AS Published,
+  m.Name              as Name,
+  m.Theater           as Theater,
+  m.Type              as Type,
+  m.Date              as Date,
+  m.Description       as Description,
+  m.ServerAddress     as ServerAddress,
+  m.ScheduledDuration as ScheduledDuration,
+  m.OpenTo            as OpenTo,
+  st.TotalSeats       as TotalSeats,
+  sf.FilledSeats      as FilledSeats
+FROM {$missions_table} as m
+LEFT JOIN
+(
+  SELECT
+    m.Id as MissionId,
+    SUM(Seats) as TotalSeats
+  FROM {$flights_table} as f
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
+) as st
+ON st.MissionId = m.Id
+LEFT JOIN
+(
+  SELECT
+    m.Id as MissionId,
+    COUNT(*) as FilledSeats
+  FROM {$participants_table} as sp
+  INNER JOIN {$flights_table} as f
+  ON sp.FlightId = f.Id
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
+) as sf
+ON sf.MissionId = m.Id
+WHERE m.Id = {$safe_mission_id}");
 
         $row = $db->sql_fetchrow($result);
 
@@ -656,13 +726,15 @@ FROM "
             "DURATION"    => $row["ScheduledDuration"],
             "OPENTO"      => $row["OpenTo"],
             "MISSIONLINK" => $this->helper->route('ato_display_mission_route',
-                                                  array('missionid' => $missionid))
+                                                  array('missionid' => $missionid)),
+            "TotalSeats"  => $row["TotalSeats"],
+            "FilledSeats" => $row["FilledSeats"]
         );
 
         $db->sql_freeresult($result);
 
         $db_date = new \DateTime($missiondata["MISSIONUTCDATE"], new \DateTimeZone("UTC"));
-        $missiondata["MISSIONUTCDATE"] = $db_date->format("Y-m-d H:i");
+        $missiondata["MISSIONUTCDATE"] = $db_date->format("D Y-m-d H:i");
 
         $db_date->setTimezone(new \DateTimeZone($tzName));
 
@@ -1319,7 +1391,9 @@ ORDER BY LOWER(u.username)";
                         $mission_name = $missiondata["MISSIONNAME"];
                         $mission_utc_date = $missiondata["MISSIONUTCDATE"];
                         $initiator_username = $this->get_username($user->data["user_id"]);
-                        $this->post_discord_message("{$initiator_username} created mission _{$mission_name}_, to be flown at {$mission_utc_date} (GMT). See details at {$board_url}{$clean_url}");
+                        $total_seats = $missiondata["TotalSeats"];
+                        $available_seats = $total_seats - $missiondata["FilledSeats"];
+                        $this->post_discord_message("{$initiator_username} created mission _{$mission_name}_, to be flown {$mission_utc_date} (GMT). See details at {$board_url}{$clean_url}. There are {$available_seats} seats available of {$total_seats} total.");
                     }
                 }
 
