@@ -35,7 +35,11 @@
 
         <div id="bottom-bar">
             <div id="ical-image"></div>
-            <a href="/app.php/ato?format=ics">iCal/ICS feed</a>
+            iCal/ICS Feeds:
+            <a href="/app.php/ato?format=ics">All flights</a>
+            {% if not userid is empty %}
+            <a href="/app.php/ato?format=ics&pilot={{ userid }}">My flights</a>
+            {% endif %}
         </div>
 
         <script>

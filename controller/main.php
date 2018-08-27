@@ -155,7 +155,7 @@ WHERE user_id = {$safe_userid}";
         return $groups;
     }
 
-    public function iCalResponse($missiondata)
+    public function iCalResponse($missiondata, $is_busy)
     {
         /* I wound up having to do it this way because I couldn't get
          * the templating system to do the CRLF line endings that are
@@ -170,6 +170,7 @@ X-WR-CALDESC:440th VFW ATO\r
 REFRESH-INTERVAL;VALUE=DURATION:PT15M\r
 METHOD:PUBLISH\r
 ";
+        $time_transparency = $is_busy ? "OPAQUE" : "TRANSPARENT";
         $board_url = generate_board_url(true);
         foreach ($missiondata as $mission)
         {
@@ -185,7 +186,7 @@ UID:{$board_url}/missions/{$missionid}\r
 DTSTAMP:{$start}\r
 DTSTART:{$start}\r
 DTEND:{$end}\r
-TRANSP:TRANSPARENT\r
+TRANSP:{$time_transparency}\r
 DESCRIPTION:{$board_url}{$clean_url}\r
 URL:{$board_url}{$clean_url}\r
 SUMMARY:{$title}\r
@@ -214,13 +215,29 @@ END:VEVENT\r
         $userid = $user->data["user_id"];
         $user_is_admin = $auth->acl_get("a_");
 
-        $admin_sees_all_clause = $user_is_admin ? "OR 1=1" : "";
+        if ($user->data["username"] != "Anonymous") {
+            $template->assign_var("userid", $userid);
+        }
 
         $missions_table = self::fm_table_name("missions");
         $packages_table = self::fm_table_name("packages");
         $flights_table = self::fm_table_name("flights");
         $participants_table = self::fm_table_name("scheduled_participants");
         $users_table = USERS_TABLE;
+
+        $pilot_limit_clause = "";
+        $restrict_to_pilot = $request->variable("pilot", 0);
+
+        if ($restrict_to_pilot) {
+            $pilot_limit_clause = "  INNER JOIN {$packages_table} as p2
+  on p2.MissionId = m.Id
+  INNER JOIN {$flights_table} as f2
+  on f2.PackageId = p2.Id
+  INNER JOIN {$participants_table} as sp2
+  ON sp2.FlightId = f2.Id and sp2.MemberPilot = {$restrict_to_pilot}";
+        }
+
+        $admin_sees_all_clause = $user_is_admin ? "OR 1=1" : "";
 
         $results = $this->execute_sql("SELECT
   st.TotalSeats as TotalSeats,
@@ -233,37 +250,39 @@ END:VEVENT\r
   u.username as CreatorName,
   DATE_ADD(m.Date, INTERVAL m.ScheduledDuration MINUTE) AS End
 FROM
-(SELECT
-  m.Id as MissionId,
-  SUM(Seats) as TotalSeats
-FROM {$flights_table} as f
-INNER JOIN {$packages_table} as p
-on f.PackageId = p.Id
-INNER JOIN {$missions_table} as m
-on p.MissionId = m.Id
-GROUP BY m.Id
+(
+  SELECT
+    m.Id as MissionId,
+    SUM(Seats) as TotalSeats
+  FROM {$flights_table} as f
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
 ) as st
 LEFT JOIN
-(SELECT
-  m.Id as MissionId,
-  COUNT(*) as FilledSeats
-FROM {$participants_table} as sp
-INNER JOIN {$flights_table} as f
-ON sp.FlightId = f.Id
-INNER JOIN {$packages_table} as p
-on f.PackageId = p.Id
-INNER JOIN {$missions_table} as m
-on p.MissionId = m.Id
-GROUP BY m.Id
+(
+  SELECT
+    m.Id as MissionId,
+    COUNT(*) as FilledSeats
+  FROM {$participants_table} as sp
+  INNER JOIN {$flights_table} as f
+  ON sp.FlightId = f.Id
+  INNER JOIN {$packages_table} as p
+  on f.PackageId = p.Id
+  INNER JOIN {$missions_table} as m
+  on p.MissionId = m.Id
+  GROUP BY m.Id
 ) as sf
 ON sf.MissionId = st.MissionId
 INNER JOIN {$missions_table} AS m
 ON m.Id = st.MissionId
 INNER JOIN {$users_table} AS u
 ON m.Creator = u.user_id
+{$pilot_limit_clause}
 WHERE
-m.Published = b'1'
-OR m.Creator = {$userid}
+(m.Published = b'1' OR m.Creator = {$userid})
 {$admin_sees_all_clause}");
 
         $missiondata = [];
@@ -295,7 +314,7 @@ OR m.Creator = {$userid}
 
         if ($request->variable("format", "html") == "ics")
         {
-            return $this->iCalResponse($missiondata);
+            return $this->iCalResponse($missiondata, $restrict_to_pilot);
         }
         else
         {
