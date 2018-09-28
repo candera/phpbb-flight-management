@@ -144,6 +144,13 @@
                             N/A
                             {% endif %}</td>
                     </tr>
+                    {% if flight.Seats == 0 %}
+                    <tr class="oddrow zeroseats">
+                        <td colspan="5">
+                            No seats available for signup.
+                        </td>
+                    </tr>
+                    {% else %}
                     {% for seat in 1..flight.Seats %}
                     {% set participant = flight.Participants[seat] %}
                     <tr
@@ -198,6 +205,7 @@
 
                     </tr>
                     {% endfor %} <!-- Seat -->
+                    {% endif %} <!-- flight.Seats == 0 -->
                     {% endif %}
                     <tr>
                         <td colspan="5" class="flight-spacer">&nbsp;</td>
