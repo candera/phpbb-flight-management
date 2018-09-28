@@ -236,6 +236,10 @@ table.flights td.takeoff input {
     background: #777;
 }
 
+.ato-display-mission .signin tr.zeroseats {
+    padding: 5px 3px;
+}
+
 .ato-display-mission .seat-open {
     text-align: center;
 }
