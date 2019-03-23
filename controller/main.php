@@ -641,7 +641,6 @@ AND SeatNum = {$signout_seat}
                 $this->post_discord_message(
                     $missiondata["Date"],
                     "{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
-                }
             }
         }
 
