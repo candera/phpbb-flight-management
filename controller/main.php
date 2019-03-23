@@ -67,22 +67,36 @@ class main
         include('./ext/VFW440/flight_management/vendor/rmccue/requests/library/Requests.php');
     }
 
-    private function post_discord_message($content)
+    /* Posts a message to the bot channel in Discord, but only if the
+     * relevant mission wasn't from too long ago. */
+    private function post_discord_message($missiondate, $content)
     {
         global $config;
 
         if ($config['ato_discord_url'])
         {
-            try
+            // We don't post to Discord about missions that were
+            // schedule to start more than two hours ago - no point,
+            // really, as it's likely over, and it just makes clutter
+            // in the Discord bot channel.
+            $now = new \DateTime("now", new \DateTimeZone("UTC"));
+            $mission = new \DateTime($missiondate, new \DateTimeZone("UTC"));
+            // TODO: Make this time configurable via the UI. "PT2H"
+            // means two hours, BTW.
+            $cutoff = $mission->add(new \DateTimeInterval("PT2H"));
+            if ($now < $cutoff)
             {
-                error_log('Attempting to post to discord via webhook');
-                \Requests::post($config['ato_discord_url'],
-                                array(),
-                                json_encode(array("content" => $content)));
-            }
-            catch (\Exception $x)
-            {
-                error_log("Exception thrown while posting to discord webhook (sign-in)");
+                try
+                {
+                    error_log('Attempting to post to discord via webhook');
+                    \Requests::post($config['ato_discord_url'],
+                                    array(),
+                                    json_encode(array("content" => $content)));
+                }
+                catch (\Exception $x)
+                {
+                    error_log("Exception thrown while posting to discord webhook (sign-in)");
+                }
             }
         }
     }
@@ -577,7 +591,9 @@ VALUES ({$signin_flight}, {$signin_seat}, {$signin_userid})";
                 $flight_callsign = $this->get_flight_callsign($signin_flight);
                 $seats_remaining = $total_seats - $filled_seats - 1;
                 $pilot_username = $signin_userid == $userid ? "" : ($this->get_username($signin_userid) . " ");
-                $this->post_discord_message("{$initiator_username} signed {$pilot_username}in to {$flight_callsign}-{$signin_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
+                $this->post_discord_message(
+                    $missiondata["Date"],
+                    "{$initiator_username} signed {$pilot_username}in to {$flight_callsign}-{$signin_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
             }
         }
 
@@ -621,9 +637,12 @@ AND SeatNum = {$signout_seat}
                 $flight_callsign = $this->get_flight_callsign($signout_flight);
                 $seats_remaining = $total_seats - $filled_seats + 1;
                 $pilot_username = $initiator_username == $signout_username ? "" : ($signout_username . " ");
-                $this->post_discord_message("{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
+                $now = new \DateTime("now", new \DateTimeZone("UTC"));
+                $this->post_discord_message(
+                    $missiondata["Date"],
+                    "{$initiator_username} signed {$pilot_username}out of {$flight_callsign}-{$signout_seat} for mission _{$mission_name}_ ({$board_url}{$clean_url}). There are now {$seats_remaining} of {$total_seats} seats open.");
+                }
             }
-
         }
 
         $duration_mins = (int) $row["ScheduledDuration"];
@@ -1412,7 +1431,9 @@ ORDER BY LOWER(u.username)";
                         $initiator_username = $this->get_username($user->data["user_id"]);
                         $total_seats = $missiondata["TotalSeats"];
                         $available_seats = $total_seats - $missiondata["FilledSeats"];
-                        $this->post_discord_message("{$initiator_username} created mission _{$mission_name}_, to be flown {$mission_utc_date} (GMT). See details at {$board_url}{$clean_url}. There are {$available_seats} seats available of {$total_seats} total.");
+                        $this->post_discord_message(
+                            $missiondata["MISSIONUTCDATE"],
+                            "{$initiator_username} created mission _{$mission_name}_, to be flown {$mission_utc_date} (GMT). See details at {$board_url}{$clean_url}. There are {$available_seats} seats available of {$total_seats} total.");
                     }
                 }
 
