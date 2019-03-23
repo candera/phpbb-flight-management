@@ -83,7 +83,7 @@ class main
             $mission = new \DateTime($missiondate, new \DateTimeZone("UTC"));
             // TODO: Make this time configurable via the UI. "PT2H"
             // means two hours, BTW.
-            $cutoff = $mission->add(new \DateTimeInterval("PT2H"));
+            $cutoff = $mission->add(new \DateInterval("PT2H"));
             if ($now < $cutoff)
             {
                 try
