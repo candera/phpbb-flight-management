@@ -89,9 +89,13 @@ class main
                 try
                 {
                     error_log('Attempting to post to discord via webhook');
-                    \Requests::post($config['ato_discord_url'],
-                                    array(),
-                                    json_encode(array("content" => $content)));
+                    $response = \Requests::post($config['ato_discord_url'],
+                                                array('Content-Type' => 'application/json'),
+                                                json_encode(array("content" => $content)));
+                    if (! $response->success)
+                    {
+                        error_log('Discord post failed. ' . $response->status_code . ' ' . $response->body);
+                    }
                 }
                 catch (\Exception $x)
                 {
